@@ -10,6 +10,7 @@ import os
 import sys
 import types
 import tempfile
+import shutil
 
 # ── 在导入 app 之前配置环境 ─────────────────────────────
 TEST_DATABASE_URL = os.environ.get(
@@ -39,14 +40,15 @@ class _FakeTask:
         return {"task": self.name, "args": a, "kwargs": k}
 
     def si(self, *a, **k):
-        return self.s(*a, **k)
+        # si 仅构建签名，不应有副作用，故不调用 s 也不记录。
+        return {"task": self.name, "args": a, "kwargs": k}
 
     def delay(self, *a, **k):
         CELERY_CALLS.append(("delay", self.name, a, k))
         return None
 
-    def apply_async(self, *a, **k):
-        CELERY_CALLS.append(("apply_async", self.name, a, k))
+    def apply_async(self, args=None, kwargs=None, **options):
+        CELERY_CALLS.append(("apply_async", self.name, args, kwargs, options))
         return None
 
 
@@ -79,8 +81,8 @@ engine = create_engine(TEST_DATABASE_URL, echo=False, pool_pre_ping=True)
 
 
 class _FakeWorkflow:
-    def apply_async(self, *a, **k):
-        CELERY_CALLS.append(("chain.apply_async", a, k))
+    def apply_async(self, args=None, kwargs=None, **options):
+        CELERY_CALLS.append(("chain.apply_async", args, kwargs, options))
         return None
 
 
@@ -92,6 +94,7 @@ def _fake_chain(*sigs):
 # 替换 intakes 模块里的 chain（其 _create_case 用 chain(...).apply_async()）
 import app.api.v1.intakes as _intakes_mod  # noqa: E402
 _intakes_mod.chain = _fake_chain
+_intakes_mod.MEDIA_DIR = _media_tmp  # 默认指向临时目录，安全网；Task 3 仍可按用例 monkeypatch 覆盖
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -107,6 +110,7 @@ def _create_tables():
             conn.execute(text(f"DROP TABLE IF EXISTS `{_t_name}`"))
         conn.exec_driver_sql("SET FOREIGN_KEY_CHECKS=1")
         conn.commit()
+    shutil.rmtree(_media_tmp, ignore_errors=True)
 
 
 @pytest.fixture(autouse=True)
@@ -138,10 +142,7 @@ def db_session():
 @pytest.fixture
 def client(db_session):
     def _override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
+        yield db_session
 
     app.dependency_overrides[get_db] = _override_get_db
     yield TestClient(app)
