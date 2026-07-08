@@ -9,7 +9,7 @@
 **Tech Stack:** pytest、FastAPI `TestClient`、SQLAlchemy 2.0、MySQL(pymysql)、`unittest.mock` 风格的 fake task。
 
 **前置事实（已读源码确认，写代码时直接用）：**
-- 鉴权返回码：无 Authorization 头 → **403**（`HTTPBearer()` 默认 `auto_error=True`）；token 无效/过期 → **401**（`get_current_user`）；角色不足 → **403**（`RoleChecker`）。
+- 鉴权返回码：无 Authorization 头 → **401**（`HTTPBearer(auto_error=True)` 在当前 FastAPI 版本返回 401 "Not authenticated"）；token 无效/过期 → **401**（`get_current_user`）；角色不足 → **403**（`RoleChecker`）。
 - `intakes.py:23` `MEDIA_DIR` 为硬编码相对路径，不读 settings，必须 monkeypatch。
 - `intakes._create_case` 用 `chain(...).apply_async()`（对 chain 对象调用），非 `task.delay`。
 - `cases.request_recheck` 调 `detect_objects_task.delay(...)`，未 try/except 包裹。
@@ -421,11 +421,11 @@ def _jpg():
             "image/jpeg")
 
 
-def test_citizen_report_no_token_returns_403(client):
+def test_citizen_report_no_token_returns_401(client):
     resp = client.post("/api/v1/intakes/citizen-reports",
                        files={"image": _jpg()},
                        data={"location_text": "A", "captured_at": "2026-07-08T10:00:00"})
-    assert resp.status_code == 403
+    assert resp.status_code == 401
 
 
 def test_citizen_report_success(client, make_user, auth_header, monkeypatch, tmp_path,
@@ -551,8 +551,8 @@ def _seed_case(db_session, status="pending_human_review", case_no="CASE001"):
     return case
 
 
-def test_list_cases_no_token_returns_403(client):
-    assert client.get("/api/v1/cases").status_code == 403
+def test_list_cases_no_token_returns_401(client):
+    assert client.get("/api/v1/cases").status_code == 401
 
 
 def test_list_cases_citizen_forbidden(client, make_user, auth_header):
@@ -793,8 +793,8 @@ def _seed(db_session, case_status="approved", vtype="违停", location="路口A"
     return v
 
 
-def test_overview_no_token_returns_403(client):
-    assert client.get("/api/v1/statistics/overview", params=WIN).status_code == 403
+def test_overview_no_token_returns_401(client):
+    assert client.get("/api/v1/statistics/overview", params=WIN).status_code == 401
 
 
 def test_overview_counts(client, make_user, auth_header, db_session):

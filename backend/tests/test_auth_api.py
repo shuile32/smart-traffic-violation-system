@@ -33,10 +33,10 @@ def test_login_disabled_account(client, make_user):
     assert resp.status_code == 403
 
 
-def test_me_without_token_returns_403(client):
-    # HTTPBearer 默认 auto_error=True → 403
+def test_me_without_token_returns_401(client):
+    # HTTPBearer(auto_error=True) 在当前 FastAPI 版本返回 401 "Not authenticated"
     resp = client.get("/api/v1/auth/me")
-    assert resp.status_code == 403
+    assert resp.status_code == 401
 
 
 def test_me_with_invalid_token_returns_401(client):
