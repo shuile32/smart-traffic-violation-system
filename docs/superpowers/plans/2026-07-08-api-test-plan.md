@@ -33,7 +33,7 @@ mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS traffic_violation_test DEFAULT
 
 - [ ] **Step 2: 确认连接串可用**
 
-如需自定义账号，跑测试前 `export TEST_DATABASE_URL="mysql+pymysql://USER:PASS@localhost:3306/traffic_violation_test"`。未设则 conftest 回退 `mysql+pymysql://root:@localhost:3306/traffic_violation_test`。
+如需自定义账号，跑测试前 `export TEST_DATABASE_URL="mysql+pymysql://USER:PASS@localhost:3306/traffic_violation_test"`。未设则 conftest 回退 `mysql+pymysql://root:123456@localhost:3306/traffic_violation_test`（已验证可连）。
 
 ---
 
@@ -62,7 +62,7 @@ import tempfile
 # ── 在导入 app 之前配置环境 ─────────────────────────────
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    "mysql+pymysql://root:@localhost:3306/traffic_violation_test",
+    "mysql+pymysql://root:123456@localhost:3306/traffic_violation_test",  # 本地开发凭据，CI 用 env 覆盖
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ.setdefault("DEBUG", "false")          # 关闭 SQL echo 噪声
