@@ -1,5 +1,5 @@
 """cases 路由测试：list / get / approve / reject / request-recheck。"""
-from datetime import datetime, timezone
+from datetime import datetime
 
 from app.models.case import Case
 from app.models.intake_event import IntakeEvent
@@ -82,6 +82,7 @@ def test_approve_success_creates_violation_and_audit(client, make_user, auth_hea
     from app.models.audit_log import AuditLog
     assert db_session.query(Violation).count() == 1
     assert db_session.query(AuditLog).filter_by(action="case:approve").count() == 1
+    assert any(c[0] == "delay" and c[1] == "send_notification_task" for c in celery_calls)
     db_session.refresh(c)
     assert c.status == "archived"
 
