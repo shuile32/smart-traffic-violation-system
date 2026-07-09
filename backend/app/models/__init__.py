@@ -5,9 +5,11 @@ from app.models.user import Role, User
 from app.models.violation import (
     AuditLog, Notification, NotificationTemplate, Reward, Vehicle, Violation,
 )
+from app.models.violation_rule import ViolationRule
 
 __all__ = [
     "Base", "Role", "User",
     "IntakeEvent", "MediaAsset", "Case", "CameraDevice", "CameraApiKey",
     "Vehicle", "Violation", "Notification", "NotificationTemplate", "Reward", "AuditLog",
+    "ViolationRule",
 ]

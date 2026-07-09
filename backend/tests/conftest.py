@@ -91,6 +91,7 @@ def auth_headers(citizen_token: str) -> dict[str, str]:
 
 
 from app.models.intake import CameraApiKey, CameraDevice, Case, IntakeEvent
+from app.models.violation_rule import ViolationRule
 
 
 @pytest.fixture()
