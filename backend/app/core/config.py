@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     MEDIA_STORAGE_DIR: str = "./media"
     MAX_IMAGE_SIZE: int = 10 * 1024 * 1024
     ALLOWED_IMAGE_TYPES: tuple[str, ...] = ("image/jpeg", "image/png", "image/webp")
+    # 邮件通知（杨翼-8）
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_FROM: str | None = None
+    # 随手拍奖励（杨翼-9）
+    REWARD_DEFAULT_AMOUNT: int = 10
 
 
 settings = Settings()
