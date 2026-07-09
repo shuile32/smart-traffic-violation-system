@@ -1,7 +1,7 @@
 # app/api/v1/router.py
 from fastapi import APIRouter
 
-from app.api.v1 import auth, cameras, cases, intakes, statistics, violations
+from app.api.v1 import auth, cameras, cases, intakes, statistics, users, violations
 from app.api.v1.auth import permissions_router
 
 api_router = APIRouter(prefix="/api/v1")
@@ -12,3 +12,4 @@ api_router.include_router(cases.router)
 api_router.include_router(violations.router)
 api_router.include_router(statistics.router)
 api_router.include_router(cameras.router)
+api_router.include_router(users.router)
