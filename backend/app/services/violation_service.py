@@ -40,8 +40,7 @@ class ViolationService:
         self.db.add(v)
         self.db.flush()
         v.violation_no = f"VIO{datetime.now(timezone.utc):%Y%m%d}{v.id:06d}"
-        self.db.commit()
-        self.db.refresh(v)
+        self.db.flush()
         return v
 
     def list_violations(self, *, plate_no: str | None = None, violation_type: str | None = None,
