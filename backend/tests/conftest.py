@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -102,7 +104,10 @@ def camera_device(db: Session) -> CameraDevice:
 @pytest.fixture()
 def camera_key(db: Session, camera_device: CameraDevice) -> tuple[str, CameraApiKey]:
     raw = "cam-key-123"
-    key = CameraApiKey(camera_device_id=camera_device.id, key_hash=hash_password(raw))
+    key = CameraApiKey(
+        camera_device_id=camera_device.id,
+        key_hash=hashlib.sha256(raw.encode()).hexdigest(),
+    )
     db.add(key)
     db.commit()
     return raw, key

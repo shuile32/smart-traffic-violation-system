@@ -64,3 +64,17 @@ def test_camera_capture_bad_key(client):
         data={"location_text": "路口B"},
     )
     assert response.status_code == 401
+
+
+def test_camera_capture_disabled_device(client, camera_device, camera_key, db, tmp_path, monkeypatch):
+    raw_key, _ = camera_key
+    monkeypatch.setattr("app.services.storage.settings.MEDIA_STORAGE_DIR", str(tmp_path))
+    camera_device.status = "disabled"
+    db.commit()
+    response = client.post(
+        "/api/v1/intakes/camera-captures",
+        headers={"X-Camera-Key": raw_key},
+        files={"image": ("a.jpg", JPEG, "image/jpeg")},
+        data={"location_text": "路口B"},
+    )
+    assert response.status_code == 401
