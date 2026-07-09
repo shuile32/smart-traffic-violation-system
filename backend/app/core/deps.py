@@ -43,3 +43,10 @@ def get_camera_device(
             if dev and dev.status == "enabled":
                 return dev
     raise HTTPException(status_code=401, detail="无效的摄像头密钥")
+
+
+from app.services.notification_provider import EmailSmtpProvider, NotificationProvider
+
+
+def get_notification_provider() -> NotificationProvider:
+    return EmailSmtpProvider()
