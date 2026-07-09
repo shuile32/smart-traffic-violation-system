@@ -22,14 +22,17 @@ request.interceptors.request.use(
 // 响应拦截器 —— 统一处理错误
 request.interceptors.response.use(
   response => {
-    const res = response.data
-    // 后端统一返回格式 { code, message, data }
-    if (res.code === 401) {
+    const raw = response.data
+    // 后端返裸 Pydantic（无 {code,message,data} 信封），包一层对齐 mock
+    if (typeof raw === 'object' && raw !== null && !('code' in raw)) {
+      return { code: 200, message: 'ok', data: raw }
+    }
+    if (raw.code === 401) {
       localStorage.clear()
       router.push('/login')
       return Promise.reject(new Error('登录已过期'))
     }
-    return res
+    return raw
   },
   error => {
     if (error.response) {
