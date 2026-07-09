@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     SMTP_FROM: str | None = None
     # 随手拍奖励（杨翼-9）
     REWARD_DEFAULT_AMOUNT: int = 10
+    AI_PROVIDER: str = "stub"  # stub | real（real 等唐高鹏交付）
 
 
 settings = Settings()

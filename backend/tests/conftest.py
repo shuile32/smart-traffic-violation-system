@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -89,6 +91,7 @@ def auth_headers(citizen_token: str) -> dict[str, str]:
 
 
 from app.models.intake import CameraApiKey, CameraDevice, Case, IntakeEvent
+from app.models.violation_rule import ViolationRule
 
 
 @pytest.fixture()
@@ -102,7 +105,10 @@ def camera_device(db: Session) -> CameraDevice:
 @pytest.fixture()
 def camera_key(db: Session, camera_device: CameraDevice) -> tuple[str, CameraApiKey]:
     raw = "cam-key-123"
-    key = CameraApiKey(camera_device_id=camera_device.id, key_hash=hash_password(raw))
+    key = CameraApiKey(
+        camera_device_id=camera_device.id,
+        key_hash=hashlib.sha256(raw.encode()).hexdigest(),
+    )
     db.add(key)
     db.commit()
     return raw, key
@@ -120,6 +126,29 @@ def reviewer_user(db: Session, seeded_roles) -> User:
 def reviewer_auth_headers(reviewer_user: User) -> dict[str, str]:
     token = create_access_token(subject=str(reviewer_user.id), role="reviewer")
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture()
+def admin_user(db: Session, seeded_roles) -> User:
+    user = User(
+        username="admin1",
+        password_hash=hash_password("pass1234"),
+        email="admin@example.com",
+        role_id=seeded_roles["admin"].id,
+    )
+    db.add(user)
+    db.commit()
+    return user
+
+
+@pytest.fixture()
+def admin_token(admin_user: User) -> str:
+    return create_access_token(subject=str(admin_user.id), role="admin")
+
+
+@pytest.fixture()
+def admin_auth_headers(admin_token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {admin_token}"}
 
 
 @pytest.fixture()

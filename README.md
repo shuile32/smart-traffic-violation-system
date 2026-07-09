@@ -274,6 +274,36 @@ smart-traffic-violation-system/
 
 ---
 
+## 🏃 本地运行（数据库初始化）
+
+> 后端在 `backend/` 下执行。运行中的 App 用 MySQL；测试用内存 SQLite，不需要 MySQL。
+
+1. **建空库**（Alembic 只建表不建库）：
+   ```sql
+   CREATE DATABASE traffic_violation CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+2. **装依赖**（项目用 uv，有 `uv.lock`）：
+   ```bash
+   cd backend
+   uv sync --extra dev   # --extra dev 含 pytest/httpx，要跑测试就加
+   ```
+3. **配 `.env`**（gitignore，从示例拷贝后改账号密码）：
+   ```bash
+   cp .env.example .env
+   # 把 DATABASE_URL 的账号密码改成自己本地 MySQL（默认 root:root@localhost:3306）
+   ```
+4. **跑迁移建表**：
+   ```bash
+   uv run alembic upgrade head
+   ```
+5. **灌演示数据**（幂等：建 4 个角色 + 默认管理员 `admin/admin1234` + 通知模板 + 演示车辆）：
+   ```bash
+   uv run python -m seed_data
+   ```
+6. **登录**：用 `admin / admin1234`。
+
+---
+
 ## 🚀 开发路线
 
 - [x] 项目规划与需求分析

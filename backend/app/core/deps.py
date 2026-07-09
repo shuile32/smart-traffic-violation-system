@@ -1,10 +1,12 @@
 # app/core/deps.py
+import hashlib
+
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
-from app.core.security import decode_access_token, verify_password
+from app.core.security import decode_access_token
 from app.models.intake import CameraApiKey, CameraDevice
 from app.models.user import User
 
@@ -36,13 +38,20 @@ def get_camera_device(
     x_camera_key: str = Header(..., alias="X-Camera-Key"),
     db: Session = Depends(get_db),
 ) -> CameraDevice:
-    keys = db.query(CameraApiKey).filter(CameraApiKey.status == "active").all()
-    for k in keys:
-        if verify_password(x_camera_key, k.key_hash):
-            dev = db.get(CameraDevice, k.camera_device_id)
-            if dev and dev.status == "enabled":
-                return dev
-    raise HTTPException(status_code=401, detail="无效的摄像头密钥")
+    # API key 是高熵随机串，用 sha256 做 key_hash 即可（无需 bcrypt 慢哈希），
+    # 按 hash 索引查找 O(1)，避免全表 bcrypt 逐个比对。
+    key_hash = hashlib.sha256(x_camera_key.encode()).hexdigest()
+    key = (
+        db.query(CameraApiKey)
+        .filter(CameraApiKey.key_hash == key_hash, CameraApiKey.status == "active")
+        .first()
+    )
+    if key is None:
+        raise HTTPException(status_code=401, detail="无效的摄像头密钥")
+    dev = db.get(CameraDevice, key.camera_device_id)
+    if dev is None or dev.status != "enabled":
+        raise HTTPException(status_code=401, detail="摄像头设备不可用")
+    return dev
 
 
 from app.services.notification_provider import EmailSmtpProvider, NotificationProvider
