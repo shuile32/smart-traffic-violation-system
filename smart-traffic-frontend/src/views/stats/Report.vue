@@ -81,7 +81,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { generateReport } from '@/api/statistics'
+import { generateReport as generateReportApi } from '@/api/statistics'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -96,7 +96,7 @@ const genForm = reactive({
 async function generateReport() {
   generating.value = true
   try {
-    const res = await generateReport({
+    const res = await generateReportApi({
       start_time: genForm.dimension === 'week' ? new Date(Date.now()-7*86400000).toISOString() : undefined,
       end_time: new Date().toISOString(), report_type: '综合' })
     currentReport.value = res.data

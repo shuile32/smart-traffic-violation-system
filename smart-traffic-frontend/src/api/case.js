@@ -34,33 +34,6 @@ export const getCaseDetail = async (id) => {
   return ok(c)
 }
 
-export const approveCase = async (id, data) => {
-  await delay(400)
-  return ok({
-    case_id: Number(id),
-    violation_id: 9000 + Number(id),
-    status: 'approved',
-    message: '审核通过，违章记录已生成。'
-  })
-}
-
-export const rejectCase = async (id, data) => {
-  await delay(300)
-  return ok({
-    case_id: Number(id),
-    status: 'rejected',
-    message: '案件已驳回。'
-  })
-}
-
-export const requestRecheck = async (id) => {
-  await delay(500)
-  return ok({
-    case_id: Number(id),
-    status: 'ai_reviewing',
-    message: '已重新投递 AI 初审任务。'
-  })
-}
 
 export const batchApprove = async (data) => {
   await delay(300)
