@@ -12,14 +12,14 @@
         <el-table-column prop="phone" label="手机号" width="140" />
         <el-table-column label="角色" width="120">
           <template #default="{ row }">
-            <el-tag :type="row.role === 'admin' ? 'danger' : row.role === 'reviewer' ? 'warning' : 'info'" size="small">
-              {{ roleMap[row.role] || row.role }}
+            <el-tag :type="row.role_code === 'admin' ? 'danger' : row.role_code === 'reviewer' ? 'warning' : 'info'" size="small">
+              {{ roleMap[row.role_code] || row.role_code }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-switch v-model="row.status" active-value="enabled" inactive-value="disabled" @change="toggleStatus(row)" />
+            <el-switch v-model="row.status" active-value="active" inactive-value="disabled" @change="toggleStatus(row)" />
           </template>
         </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="170">
@@ -44,7 +44,7 @@
           <el-input v-model="dialog.form.phone" />
         </el-form-item>
         <el-form-item label="角色">
-          <el-select v-model="dialog.form.role" style="width:100%">
+          <el-select v-model="dialog.form.role_code" style="width:100%">
             <el-option label="市民" value="citizen" />
             <el-option label="审核员" value="reviewer" />
             <el-option label="超级管理员" value="admin" />

@@ -7,13 +7,12 @@
 
     <el-card>
       <el-table :data="cameras" border stripe>
-        <el-table-column prop="camera_id" label="设备编号" width="120" />
-        <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="device_code" label="设备编号" width="120" />
         <el-table-column prop="location_text" label="安装位置" width="200" show-overflow-tooltip />
         <el-table-column label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
-              {{ row.status === 'active' ? '运行中' : '已停用' }}
+            <el-tag :type="row.status === 'enabled' ? 'success' : 'info'" size="small">
+              {{ row.status === 'enabled' ? '运行中' : '已停用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -35,16 +34,13 @@
     <el-dialog v-model="dialog.visible" :title="dialog.isEdit ? '编辑设备' : '新增设备'" width="500px">
       <el-form :model="dialog.form" label-width="80px">
         <el-form-item label="设备编号">
-          <el-input v-model="dialog.form.camera_id" :disabled="dialog.isEdit" placeholder="如：CAM-005" />
-        </el-form-item>
-        <el-form-item label="设备名称">
-          <el-input v-model="dialog.form.name" placeholder="如：人民路十字路口东" />
+          <el-input v-model="dialog.form.device_code" :disabled="dialog.isEdit" placeholder="如：CAM-005" />
         </el-form-item>
         <el-form-item label="安装位置">
           <el-input v-model="dialog.form.location_text" placeholder="详细地址" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="dialog.form.status" active-value="active" inactive-value="inactive" active-text="运行" inactive-text="停用" />
+          <el-switch v-model="dialog.form.status" active-value="enabled" inactive-value="disabled" active-text="运行" inactive-text="停用" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -71,7 +67,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { fetchCameras, createCamera, updateCamera, generateKey, revokeKey } from '@/api/system'
+import { fetchCameras, createCamera, updateCamera, generateKey as generateKeyApi, revokeKey } from '@/api/system'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const cameras = ref([])
@@ -116,8 +112,8 @@ function deleteCamera(row) {
 
 function showKey(row) { keyDialog.value = { visible: true, key: '', cameraId: row.id } }
 
-async function doGenerateKey() {
-  const res = await generateKey(keyDialog.value.cameraId)
+async function generateKey() {
+  const res = await generateKeyApi(keyDialog.value.cameraId)
   keyDialog.value.key = res.data.raw_key
   ElMessage.success('新密钥已生成（仅显示一次）')
 }
