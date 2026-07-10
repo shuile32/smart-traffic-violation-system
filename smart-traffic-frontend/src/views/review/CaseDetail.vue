@@ -164,7 +164,7 @@
         </el-card>
 
         <!-- 审核操作面板 -->
-        <el-card class="review-panel" v-if="detail.status === 'pending_human_review'">
+        <el-card class="review-panel" v-if="['uploaded','detecting','ai_reviewing','pending_human_review'].includes(detail.status)">
           <template #header><span style="font-weight:600">✍️ 人工审核</span></template>
           <el-form :model="reviewForm" label-width="100px">
             <el-form-item label="车牌号">
@@ -239,8 +239,8 @@ const reviewForm = reactive({
 
 const sourceTypeMap = { citizen: '市民举报', camera: '摄像头抓拍', admin: '后台上传' }
 const statusMap = {
-  uploaded: '待识别', detecting: '识别中', ai_reviewing: 'AI 初审中',
-  pending_human_review: '待人工审核', approved: '已通过', rejected: '已驳回',
+  uploaded: '待审核', detecting: '识别中', ai_reviewing: 'AI 初审中',
+  pending_human_review: '待审核', approved: '已通过', rejected: '已驳回',
   archived: '已归档', notified: '已通知'
 }
 const evidenceMap = { complete: '证据完整', partial: '部分完整', insufficient: '证据不足' }
@@ -250,7 +250,7 @@ const objLabelMap = { vehicle: '车辆', stop_line: '停止线', red_light: '红
 
 function statusText(s) { return statusMap[s] || s }
 function statusType(s) {
-  const m = { pending_human_review: 'danger', approved: 'success', rejected: 'info', uploaded: 'info', detecting: 'warning', ai_reviewing: 'warning' }
+  const m = { uploaded: 'danger', pending_human_review: 'danger', approved: 'success', rejected: 'info', detecting: 'warning', ai_reviewing: 'warning' }
   return m[s] || ''
 }
 function sourceIcon(s) { return s === 'citizen' ? '📱' : s === 'camera' ? '📷' : '👤' }
