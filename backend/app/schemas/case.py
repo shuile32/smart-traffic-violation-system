@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 
 class CaseListItem(BaseModel):
+    id: int
     case_no: str
     status: str
     source_type: str | None = None

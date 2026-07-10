@@ -28,6 +28,7 @@ def list_cases(status: str | None = None, source_type: str | None = None,
     for c in res["items"]:
         ev = c.intake_event
         items.append(CaseListItem(
+            id=c.id,
             case_no=c.case_no, status=c.status,
             source_type=ev.source_type if ev else None,
             plate_no=c.plate_no, violation_type=c.violation_type,
