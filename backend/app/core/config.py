@@ -20,7 +20,14 @@ class Settings(BaseSettings):
     SMTP_FROM: str | None = None
     # 随手拍奖励（杨翼-9）
     REWARD_DEFAULT_AMOUNT: int = 10
-    AI_PROVIDER: str = "stub"  # stub | real（real 等唐高鹏交付）
+    AI_PROVIDER: str = "stub"  # stub | local
+    LLM_PROVIDER: str = ""  # zhipu | openai_compatible
+    LLM_API_KEY: str = ""
+    LLM_BASE_URL: str = "https://open.bigmodel.cn/api/paas/v4"
+    LLM_TEXT_MODEL: str = "glm-5.1"
+    LLM_VISION_MODEL: str = "glm-5v-turbo"
+    LLM_MODE: str = "text"  # text | vision
+    LLM_TIMEOUT_SECONDS: float = 30
 
 
 settings = Settings()
