@@ -37,5 +37,5 @@ def test_reject_endpoint(client, reviewer_user, pending_case, reviewer_auth_head
 
 def test_request_recheck_endpoint(client, reviewer_user, pending_case, reviewer_auth_headers):
     r = client.post(f"/api/v1/cases/{pending_case.id}/request-recheck", headers=reviewer_auth_headers)
-    assert r.status_code == 200
+    assert r.status_code == 202
     assert "Plan 2" in r.json()["message"]

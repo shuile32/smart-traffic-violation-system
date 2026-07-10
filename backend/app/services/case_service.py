@@ -1,5 +1,8 @@
 # app/services/case_service.py
+from datetime import datetime
+
 from fastapi import HTTPException
+from sqlalchemy import case
 from sqlalchemy.orm import Session
 
 from app.models.intake import Case, IntakeEvent
@@ -12,13 +15,15 @@ class CaseService:
 
     def list_cases(self, *, user: User, status: str | None = None, source_type: str | None = None,
                    location_text: str | None = None, plate_no: str | None = None,
+                   start_time: datetime | None = None, end_time: datetime | None = None,
                    page: int = 1, page_size: int = 20) -> dict:
         role = user.role.code
         if role == "camera":
             raise HTTPException(status_code=403, detail="摄像头无权查询业务数据")
         q = self.db.query(Case)
-        # source_type / source_id 实际在 IntakeEvent 上（Case 无此字段），按需关联一次。
-        if role == "citizen" or location_text or source_type:
+        # source_type / source_id / captured_at / location_text 在 IntakeEvent 上，按需关联
+        need_join = bool(role == "citizen" or location_text or source_type or start_time or end_time)
+        if need_join:
             q = q.join(IntakeEvent, Case.intake_event_id == IntakeEvent.id)
         if role == "citizen":
             q = q.filter(IntakeEvent.source_type == "citizen", IntakeEvent.source_id == user.id)
@@ -28,10 +33,19 @@ class CaseService:
             q = q.filter(IntakeEvent.source_type == source_type)
         if location_text:
             q = q.filter(IntakeEvent.location_text.ilike(f"%{location_text}%"))
+        if start_time:
+            q = q.filter(IntakeEvent.captured_at >= start_time)
+        if end_time:
+            q = q.filter(IntakeEvent.captured_at <= end_time)
         if plate_no:
             q = q.filter(Case.plate_no == plate_no)
+        # reviewer / admin: pending_human_review 优先，再 id desc
+        if role in ("reviewer", "admin"):
+            q = q.order_by(case((Case.status == "pending_human_review", 0), else_=1), Case.id.desc())
+        else:
+            q = q.order_by(Case.id.desc())
         total = q.count()
-        items = q.order_by(Case.id.desc()).offset((page - 1) * page_size).limit(page_size).all()
+        items = q.offset((page - 1) * page_size).limit(page_size).all()
         return {"items": items, "total": total, "page": page, "page_size": page_size}
 
     def get_case_detail(self, case_id: int, *, user: User) -> dict:
@@ -39,7 +53,6 @@ class CaseService:
         if case is None:
             raise HTTPException(status_code=404, detail="案件不存在")
         ev = case.intake_event
-        # 市民仅能查看自己举报的案件（source_type/source_id 在 IntakeEvent 上）
         if user.role.code == "citizen" and not (
             ev is not None and ev.source_type == "citizen" and ev.source_id == user.id
         ):
