@@ -154,7 +154,7 @@ async function fetchCases() {
       const pendingRes = await getCases({ status: 'pending_human_review', page: 1, page_size: 1 })
       pendingTotal.value = pendingRes.data.total
     }
-  } catch { ElMessage.error('加载案件失败') }
+  } catch (e) { console.error('[Workbench] fetchCases failed', e); ElMessage.error('加载案件失败') }
   finally { loading.value = false }
 }
 
