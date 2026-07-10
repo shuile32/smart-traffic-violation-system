@@ -40,3 +40,20 @@ class PasswordChangeRequest(BaseModel):
 
 class MenusOut(BaseModel):
     menus: list[str]
+
+
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+    phone: str | None = None
+    email: str | None = None
+
+
+class ProfileUpdateRequest(BaseModel):
+    phone: str | None = None
+    email: str | None = None
+
+
+class PasswordChangeRequest(BaseModel):
+    old_password: str
+    new_password: str

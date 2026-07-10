@@ -37,6 +37,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import { login } from '@/api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -55,11 +56,16 @@ async function handleLogin() {
 
   loading.value = true
   try {
-    await userStore.login({ username: form.username, password: form.password })
+    const res = await login({ username: form.username, password: form.password })
+    const { access_token, user } = res.data
+    userStore.token = access_token
+    userStore.role = user.role_code
+    userStore.userInfo = { id: user.id, username: user.username, role: user.role_code }
+    localStorage.setItem('token', access_token)
+    localStorage.setItem('role', user.role_code)
+    localStorage.setItem('userInfo', JSON.stringify({ id: user.id, username: user.username, role: user.role_code }))
     ElMessage.success('登录成功')
     router.push(userStore.homePath)
-  } catch (error) {
-    ElMessage.error(error?.response?.data?.detail || error?.message || '登录失败')
   } finally {
     loading.value = false
   }

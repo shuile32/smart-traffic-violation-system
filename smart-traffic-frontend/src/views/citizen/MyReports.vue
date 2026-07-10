@@ -8,7 +8,7 @@
     <el-table :data="list" border stripe v-loading="loading">
       <el-table-column label="图片" width="90">
         <template #default="{ row }">
-          <el-image v-if="row.image_url" :src="row.image_url" style="width:50px;height:50px;border-radius:4px" fit="cover" :preview-src-list="[row.image_url]" />
+          <el-image v-if="row.media?.original_url" :src="row.media.original_url" style="width:50px;height:50px;border-radius:4px" fit="cover" :preview-src-list="[row.media.original_url]" />
         </template>
       </el-table-column>
       <el-table-column prop="description" label="举报描述" min-width="180" show-overflow-tooltip />
@@ -20,6 +20,7 @@
         <template #default="{ row }">
           <el-tag v-if="row.status === 'pending_human_review'" type="warning">待审核</el-tag>
           <el-tag v-else-if="row.status === 'approved'" type="success">已通过</el-tag>
+          <el-tag v-else-if="row.status === 'notified'" type="success">已通知</el-tag>
           <el-tag v-else-if="row.status === 'rejected'" type="danger">已驳回</el-tag>
           <el-tag v-else type="info">{{ statusMap[row.status] || row.status }}</el-tag>
         </template>
@@ -45,9 +46,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockReports, pageOk, delay } from '@/api/mock'
+import { fetchCases } from '@/api/case'
+import { fetchProtectedMediaUrl } from '@/api/media'
+import {
+  createLatestRequestGuard,
+  loadProtectedMediaUrls,
+  releaseProtectedMediaUrls
+} from '@/utils/contracts'
 
 const router = useRouter()
 const list = ref([])
@@ -55,24 +62,42 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const mediaRequestGuard = createLatestRequestGuard()
 
 const statusMap = {
   uploaded: '待识别', detecting: '识别中', ai_reviewing: 'AI 审核中',
-  pending_human_review: '待审核', approved: '已通过', rejected: '已驳回'
+  pending_human_review: '待审核', approved: '已通过', notified: '已通知', rejected: '已驳回'
 }
 
 function formatTime(t) { return t ? new Date(t).toLocaleString('zh-CN') : '' }
 
 async function fetchList() {
+  const requestGeneration = mediaRequestGuard.begin()
   loading.value = true
-  await delay()
-  const start = (page.value - 1) * pageSize.value
-  list.value = mockReports.slice(start, start + pageSize.value)
-  total.value = mockReports.length
-  loading.value = false
+  try {
+    const res = await fetchCases({ source_type: 'citizen', page: page.value, page_size: pageSize.value })
+    const nextList = await Promise.all(
+      res.data.items.map(async item => ({
+        ...item,
+        media: await loadProtectedMediaUrls(item.media, fetchProtectedMediaUrl)
+      }))
+    )
+    if (!mediaRequestGuard.isCurrent(requestGeneration)) {
+      nextList.forEach(item => releaseProtectedMediaUrls(item.media))
+      return
+    }
+    list.value.forEach(item => releaseProtectedMediaUrls(item.media))
+    list.value = nextList
+    total.value = res.data.total
+  } catch {}
+  if (mediaRequestGuard.isCurrent(requestGeneration)) loading.value = false
 }
 
 onMounted(fetchList)
+onUnmounted(() => {
+  mediaRequestGuard.invalidate()
+  list.value.forEach(item => releaseProtectedMediaUrls(item.media))
+})
 </script>
 
 <style scoped>

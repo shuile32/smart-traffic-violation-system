@@ -1,18 +1,54 @@
 /**
- * 案件管理 API — 连接真实后端
+ * 案件管理 API — 对齐 API接口规范文档 v2.0 §4
  */
-import request from './request'
+import { ok, pageOk, delay, mockCases } from './mock'
 
+// ==================== Mock API (默认使用) ====================
 export const getCases = async (params = {}) => {
-  const res = await request.get('/cases', { params })
-  // 后端返回 {items, total, page, page_size}，映射为前端的 {list, total, page, page_size}
-  return { ...res, data: { list: res.data.items, total: res.data.total, page: res.data.page, page_size: res.data.page_size } }
+  await delay()
+  const { status, source_type, page = 1, page_size = 10, keyword } = params
+  let filtered = [...mockCases]
+
+  if (status) filtered = filtered.filter(c => c.status === status)
+  if (source_type) filtered = filtered.filter(c => c.source_type === source_type)
+  if (keyword) {
+    const kw = keyword.toLowerCase()
+    filtered = filtered.filter(c =>
+      c.case_no.toLowerCase().includes(kw) ||
+      c.plate_no.toLowerCase().includes(kw) ||
+      c.location_text.toLowerCase().includes(kw)
+    )
+  }
+
+  const total = filtered.length
+  const start = (page - 1) * page_size
+  const list = filtered.slice(start, start + page_size)
+
+  return pageOk(list, total, page, page_size)
 }
 
-export const getCaseDetail = (id) => request.get(`/cases/${id}`)
+export const getCaseDetail = async (id) => {
+  await delay()
+  const c = mockCases.find(c => c.id === Number(id))
+  if (!c) return { code: 404, message: '案件不存在', data: null }
+  return ok(c)
+}
 
-export const approveCase = (id, data) => request.post(`/cases/${id}/approve`, data)
 
-export const rejectCase = (id, data) => request.post(`/cases/${id}/reject`, data)
+export const batchApprove = async (data) => {
+  await delay(300)
+  return ok({ success_count: data.ids?.length || 0, message: '批量审核通过完成' })
+}
 
-export const requestRecheck = (id) => request.post(`/cases/${id}/request-recheck`)
+export const batchReject = async (data) => {
+  await delay(300)
+  return ok({ success_count: data.ids?.length || 0, message: '批量驳回完成' })
+}
+import request from './request'
+
+// 真实后端（杨翼 M3，reviewer/admin 鉴权）
+export const fetchCases = (p) => request.get('/cases', { params: p })
+export const fetchCaseDetail = (id) => request.get('/cases/' + id)
+export const approveCase = (id, d) => request.post('/cases/' + id + '/approve', d)
+export const rejectCase = (id, d) => request.post('/cases/' + id + '/reject', d)
+export const requestRecheck = (id) => request.post('/cases/' + id + '/request-recheck')

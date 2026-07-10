@@ -164,7 +164,7 @@
         </el-card>
 
         <!-- 审核操作面板 -->
-        <el-card class="review-panel" v-if="detail.status === 'pending_human_review'">
+        <el-card class="review-panel" v-if="['uploaded','detecting','ai_reviewing','pending_human_review'].includes(detail.status)">
           <template #header><span style="font-weight:600">✍️ 人工审核</span></template>
           <el-form :model="reviewForm" label-width="100px">
             <el-form-item label="车牌号">
@@ -192,12 +192,12 @@
         </el-card>
 
         <!-- 已审核结果展示 -->
-        <el-card v-else-if="detail.status === 'approved' || detail.status === 'rejected'" style="margin-top:12px">
+        <el-card v-else-if="isApprovedCaseStatus(detail.status) || detail.status === 'rejected'" style="margin-top:12px">
           <template #header><span>审核结果</span></template>
           <el-result
-            :icon="detail.status === 'approved' ? 'success' : 'error'"
-            :title="detail.status === 'approved' ? '已审核通过' : '已驳回'"
-            :sub-title="detail.review_opinion || ''"
+            :icon="isApprovedCaseStatus(detail.status) ? 'success' : 'error'"
+            :title="isApprovedCaseStatus(detail.status) ? '已审核通过' : '已驳回'"
+            :sub-title="getCaseReviewOpinion(detail)"
           >
             <template #extra v-if="detail.violation_type">
               <el-descriptions :column="2" border size="small">
@@ -213,9 +213,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getCaseDetail, approveCase, rejectCase } from '@/api/case'
+import { fetchCaseDetail as getCaseDetail, approveCase, rejectCase } from '@/api/case'
+import { fetchProtectedMediaUrl } from '@/api/media'
+import {
+  buildApprovePayload,
+  buildRejectPayload,
+  createLatestRequestGuard,
+  getCaseReviewOpinion,
+  isApprovedCaseStatus,
+  loadProtectedMediaUrls,
+  releaseProtectedMediaUrls
+} from '@/utils/contracts'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -225,6 +235,7 @@ const loading = ref(false)
 const submitting = ref(false)
 const imageTab = ref('original')
 const activeSteps = ref('detection')
+const mediaRequestGuard = createLatestRequestGuard()
 
 const violationTypes = ['闯红灯', '违停', '压线', '逆行', '超速', '占用应急车道', '不礼让行人', '不按导向行驶']
 
@@ -239,8 +250,8 @@ const reviewForm = reactive({
 
 const sourceTypeMap = { citizen: '市民举报', camera: '摄像头抓拍', admin: '后台上传' }
 const statusMap = {
-  uploaded: '待识别', detecting: '识别中', ai_reviewing: 'AI 初审中',
-  pending_human_review: '待人工审核', approved: '已通过', rejected: '已驳回',
+  uploaded: '待审核', detecting: '识别中', ai_reviewing: 'AI 初审中',
+  pending_human_review: '待审核', approved: '已通过', rejected: '已驳回',
   archived: '已归档', notified: '已通知'
 }
 const evidenceMap = { complete: '证据完整', partial: '部分完整', insufficient: '证据不足' }
@@ -250,7 +261,10 @@ const objLabelMap = { vehicle: '车辆', stop_line: '停止线', red_light: '红
 
 function statusText(s) { return statusMap[s] || s }
 function statusType(s) {
-  const m = { pending_human_review: 'danger', approved: 'success', rejected: 'info', uploaded: 'info', detecting: 'warning', ai_reviewing: 'warning', archived: 'info', notified: 'success' }
+  const m = {
+    uploaded: 'danger', pending_human_review: 'danger', approved: 'success',
+    rejected: 'info', detecting: 'warning', ai_reviewing: 'warning', notified: 'success'
+  }
   return m[s] || 'info'
 }
 function sourceIcon(s) { return s === 'citizen' ? '📱' : s === 'camera' ? '📷' : '👤' }
@@ -261,21 +275,34 @@ function aiTag(c) { return aiTypeMap[c] || 'info' }
 function objLabel(l) { return objLabelMap[l] || l }
 
 async function fetchDetail() {
+  const requestGeneration = mediaRequestGuard.begin()
   loading.value = true
   try {
     const res = await getCaseDetail(route.params.id)
-    detail.value = res.data
+    const nextDetail = {
+      ...res.data,
+      media: await loadProtectedMediaUrls(res.data.media, fetchProtectedMediaUrl)
+    }
+    if (!mediaRequestGuard.isCurrent(requestGeneration)) {
+      releaseProtectedMediaUrls(nextDetail.media)
+      return
+    }
+    releaseProtectedMediaUrls(detail.value.media)
+    detail.value = nextDetail
     // 填充审核表单默认值
     reviewForm.plate_no = detail.value.plate_no || ''
     reviewForm.violation_type = detail.value.rule_result?.candidate_violation_type || ''
-  } catch (e) { console.error('[CaseDetail] fetch failed', e); ElMessage.error('加载案件失败') }
-  finally { loading.value = false }
+  } catch {
+    if (mediaRequestGuard.isCurrent(requestGeneration)) ElMessage.error('加载案件失败')
+  } finally {
+    if (mediaRequestGuard.isCurrent(requestGeneration)) loading.value = false
+  }
 }
 
 async function handleApprove() {
   submitting.value = true
   try {
-    await approveCase(route.params.id, { ...reviewForm, action: 'approve' })
+    await approveCase(route.params.id, buildApprovePayload(reviewForm))
     ElMessage.success('审核通过，违章记录已生成')
     router.push('/review/workbench')
   } catch { ElMessage.error('操作失败') }
@@ -289,7 +316,7 @@ async function handleReject() {
   }
   submitting.value = true
   try {
-    await rejectCase(route.params.id, { ...reviewForm, action: 'reject' })
+    await rejectCase(route.params.id, buildRejectPayload(reviewForm))
     ElMessage.success('案件已驳回')
     router.push('/review/workbench')
   } catch { ElMessage.error('操作失败') }
@@ -297,6 +324,10 @@ async function handleReject() {
 }
 
 onMounted(fetchDetail)
+onUnmounted(() => {
+  mediaRequestGuard.invalidate()
+  releaseProtectedMediaUrls(detail.value.media)
+})
 </script>
 
 <style scoped>

@@ -85,7 +85,12 @@ async function handleSubmit() {
   try {
     const fd = new FormData()
     fd.append('location_text', form.location_text)
-    if (fileList.value.length > 0) fd.append('image', fileList.value[0].raw)
+    fd.append('captured_at', form.captured_at)
+    if (form.speed) fd.append('speed', form.speed)
+    // Backend accepts single file named 'image'
+    if (fileList.value.length > 0) {
+      fd.append('image', fileList.value[0].raw)
+    }
     await adminUpload(fd)
     ElMessage.success('上传成功，已投递 AI 识别任务')
     router.push('/review/workbench')

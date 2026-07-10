@@ -45,13 +45,19 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockVehicles, ok, delay } from '@/api/mock'
+import { bindMyVehicle, getMyVehicles, unbindMyVehicle } from '@/api/vehicle'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const bindRef = ref(null)
 const binding = ref(false)
-const vehicles = ref(mockVehicles.slice(0, 3))
+const vehicles = ref([])
+
+async function loadVehicles() {
+  const res = await getMyVehicles()
+  vehicles.value = res.data.items || []
+}
+loadVehicles().catch(() => {})
 const vehicleTypes = ['小型轿车', 'SUV', '货车', '摩托车', '新能源']
 
 const bindForm = reactive({ plate_no: '', vehicle_type: '小型轿车' })
@@ -65,23 +71,24 @@ async function handleBind() {
   const valid = await bindRef.value.validate().catch(() => false)
   if (!valid) return
   binding.value = true
-  await delay(500)
-  vehicles.value.push({
-    id: Date.now(),
-    plate_no: bindForm.plate_no,
-    vehicle_type: bindForm.vehicle_type,
-    color: '白',
-    created_at: new Date().toISOString()
-  })
-  bindForm.plate_no = ''
-  binding.value = false
-  ElMessage.success('车辆绑定成功')
+  try {
+    await bindMyVehicle({ plate_no: bindForm.plate_no, vehicle_type: bindForm.vehicle_type })
+    ElMessage.success('绑定成功')
+    bindForm.plate_no = ''
+    await loadVehicles()
+  } catch {}
+  finally { binding.value = false }
 }
 
 async function handleUnbind(row) {
-  await ElMessageBox.confirm(`确定要解绑车辆 ${row.plate_no} 吗？`, '确认', { type: 'warning' })
-  vehicles.value = vehicles.value.filter(v => v.id !== row.id)
-  ElMessage.success('已解绑')
+  try {
+    await ElMessageBox.confirm(`确定要解绑车辆 ${row.plate_no} 吗？`, '确认', { type: 'warning' })
+    await unbindMyVehicle(row.id)
+    await loadVehicles()
+    ElMessage.success('已解绑')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+  }
 }
 
 function viewViolations(plateNo) {

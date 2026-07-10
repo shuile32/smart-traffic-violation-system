@@ -41,3 +41,86 @@ def test_patch_vehicle(client, citizen_user, admin_user, admin_auth_headers):
     data = r.json()
     assert data["vehicle_type"] == "卡车"
     assert data["color"] == "红"
+
+
+def test_citizen_lists_only_own_vehicles(client, db, citizen_user, auth_headers, admin_user):
+    from app.models.violation import Vehicle
+
+    db.add_all([
+        Vehicle(plate_no="粤A10001", owner_id=citizen_user.id),
+        Vehicle(plate_no="粤B20002", owner_id=admin_user.id),
+    ])
+    db.commit()
+
+    response = client.get("/api/v1/vehicles/me", headers=auth_headers)
+
+    assert response.status_code == 200
+    assert [item["plate_no"] for item in response.json()["items"]] == ["粤A10001"]
+
+
+def test_citizen_binds_unbinds_and_rebinds_preprovisioned_vehicle(
+    client, db, auth_headers,
+):
+    from app.models.violation import Vehicle
+
+    vehicle = Vehicle(
+        plate_no="粤C30003",
+        owner_id=None,
+        vehicle_type="小型轿车",
+        color="白",
+    )
+    db.add(vehicle)
+    db.commit()
+
+    created = client.post(
+        "/api/v1/vehicles/me",
+        headers=auth_headers,
+        json={"plate_no": "粤C30003", "vehicle_type": "小型轿车", "color": "白"},
+    )
+    assert created.status_code == 200
+    vehicle_id = created.json()["id"]
+
+    deleted = client.delete(f"/api/v1/vehicles/me/{vehicle_id}", headers=auth_headers)
+
+    assert deleted.status_code == 204
+    assert client.get("/api/v1/vehicles/me", headers=auth_headers).json()["total"] == 0
+    db.expire_all()
+    vehicle = db.get(Vehicle, vehicle_id)
+    assert vehicle is not None
+    assert vehicle.owner_id is None
+
+    rebound = client.post(
+        "/api/v1/vehicles/me",
+        headers=auth_headers,
+        json={"plate_no": "粤C30003", "vehicle_type": "小型轿车", "color": "白"},
+    )
+    assert rebound.status_code == 200
+    assert rebound.json()["id"] == vehicle_id
+
+
+def test_citizen_cannot_create_unknown_vehicle(client, auth_headers):
+    response = client.post(
+        "/api/v1/vehicles/me",
+        headers=auth_headers,
+        json={"plate_no": "粤Z99999", "vehicle_type": "小型轿车"},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "车辆不存在或不可绑定"
+
+
+def test_citizen_cannot_unbind_another_users_vehicle(
+    client, db, auth_headers, admin_user,
+):
+    from app.models.violation import Vehicle
+
+    vehicle = Vehicle(plate_no="粤D40004", owner_id=admin_user.id)
+    db.add(vehicle)
+    db.commit()
+
+    response = client.delete(f"/api/v1/vehicles/me/{vehicle.id}", headers=auth_headers)
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "车辆不存在"
+    db.refresh(vehicle)
+    assert vehicle.owner_id == admin_user.id
