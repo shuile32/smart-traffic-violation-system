@@ -25,7 +25,7 @@ request.interceptors.response.use(
     const raw = response.data
     // 后端返裸 Pydantic（无 {code,message,data} 信封），包一层对齐 mock
     if (typeof raw === 'object' && raw !== null && !('code' in raw)) {
-      return { code: 200, message: 'ok', data: raw }
+      return { code: response.status, message: 'ok', data: raw }
     }
     if (raw.code === 401) {
       localStorage.clear()
