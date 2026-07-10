@@ -107,8 +107,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getViolations, deleteViolation, exportExcel } from '@/api/violation'
-import { downloadBlob } from '@/utils'
+import { fetchViolations } from '@/api/violation'
 
 const router = useRouter()
 const list = ref([])
@@ -138,7 +137,7 @@ async function fetchList() {
       params.start_date = search.dateRange[0]
       params.end_date = search.dateRange[1]
     }
-    const res = await getViolations(params)
+    const res = await fetchViolations(params)
     list.value = res.data.items
     total.value = res.data.total
   } catch { /* handled */ }
@@ -151,17 +150,11 @@ function resetSearch() {
 }
 
 async function handleDelete(id) {
-  await deleteViolation(id)
-  ElMessage.success('删除成功')
-  fetchList()
+  ElMessage.warning('暂不支持删除')
 }
 
 async function handleBatchExport() {
-  try {
-    const res = await exportExcel({ ids: selectedIds.value.join(',') })
-    downloadBlob(res, `违章案卷_${new Date().toLocaleDateString()}.xlsx`)
-    ElMessage.success('导出成功')
-  } catch { /* handled */ }
+  ElMessage.warning('导出功能开发中')
 }
 
 onMounted(fetchList)

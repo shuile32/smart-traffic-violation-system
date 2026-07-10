@@ -60,7 +60,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { submitReport } from '@/api/violation'
+import { citizenReport } from '@/api/intake'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -97,12 +97,14 @@ async function handleSubmit() {
   submitting.value = true
   try {
     const fd = new FormData()
-    fd.append('location', form.location)
-    fd.append('violation_time', form.violation_time)
-    fd.append('description', form.description)
-    fileList.value.forEach(f => fd.append('images', f.raw))
-
-    await submitReport(fd)
+    fd.append('location_text', form.location)
+    fd.append('captured_at', form.violation_time)
+    if (form.description) fd.append('description', form.description)
+    // Backend accepts single file named 'image'
+    if (fileList.value.length > 0) {
+      fd.append('image', fileList.value[0].raw)
+    }
+    await citizenReport(fd)
     ElMessage.success('举报提交成功，请等待审核')
     router.push('/citizen/my-reports')
   } catch { /* handled */ }
