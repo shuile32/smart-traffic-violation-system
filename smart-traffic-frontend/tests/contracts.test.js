@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
+import { loadConfigFromFile } from 'vite'
 import * as contracts from '../src/utils/contracts.js'
 import {
   buildApprovePayload,
@@ -15,6 +17,40 @@ import {
   reportPathForRoute,
   summarizeCitizenOverview
 } from '../src/utils/contracts.js'
+
+test('proxies API and media requests to the configured backend target', async () => {
+  const previousTarget = process.env.VITE_API_PROXY_TARGET
+  const configPath = fileURLToPath(new URL('../vite.config.js', import.meta.url))
+  const expectedTarget = 'http://127.0.0.1:9123'
+
+  try {
+    delete process.env.VITE_API_PROXY_TARGET
+    const defaultConfig = await loadConfigFromFile(
+      { command: 'serve', mode: 'test' },
+      configPath
+    )
+    assert.equal(defaultConfig.config.server.proxy['/api'].target, 'http://127.0.0.1:8000')
+    assert.equal(defaultConfig.config.server.proxy['/media'].target, 'http://127.0.0.1:8000')
+
+    process.env.VITE_API_PROXY_TARGET = expectedTarget
+    const configured = await loadConfigFromFile(
+      { command: 'serve', mode: 'test' },
+      configPath
+    )
+    const proxy = configured.config.server.proxy
+
+    assert.equal(proxy['/api'].target, expectedTarget)
+    assert.equal(proxy['/media'].target, expectedTarget)
+    assert.equal(proxy['/media'].changeOrigin, true)
+    assert.equal(proxy['/media'].rewrite, undefined)
+  } finally {
+    if (previousTarget === undefined) {
+      delete process.env.VITE_API_PROXY_TARGET
+    } else {
+      process.env.VITE_API_PROXY_TARGET = previousTarget
+    }
+  }
+})
 
 test('maps backend statistics fields without multiplying percentages', () => {
   const cards = getStatisticsCards({
