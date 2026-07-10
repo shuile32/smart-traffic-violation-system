@@ -46,3 +46,9 @@ export const getIntakeEvent = async (id) => {
   await delay()
   return ok({ id })
 }
+import request from './request'
+
+// 真实后端（杨翼 M2，各自角色鉴权）
+export const citizenReport = (fd) => request.post('/intakes/citizen-reports', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+export const cameraCapture = (fd) => request.post('/intakes/camera-captures', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+export const adminUpload = (fd) => request.post('/intakes/admin-uploads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
