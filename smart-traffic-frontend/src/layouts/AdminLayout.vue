@@ -14,14 +14,13 @@
         :background-color="menuBg"
         :text-color="menuText"
         active-text-color="#409EFF"
-        router
       >
-        <el-menu-item index="/admin/stats">
+        <el-menu-item index="/admin/stats" @click="navigate('/admin/stats')">
           <el-icon><TrendCharts /></el-icon>
           <span>统计分析</span>
         </el-menu-item>
 
-        <el-menu-item index="/review/workbench">
+        <el-menu-item index="/review/workbench" @click="navigate('/review/workbench')">
           <el-icon><Checked /></el-icon>
           <span>案件审核</span>
         </el-menu-item>
@@ -31,11 +30,11 @@
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </template>
-          <el-menu-item index="/admin/users">用户列表</el-menu-item>
-          <el-menu-item index="/admin/roles">角色权限</el-menu-item>
+          <el-menu-item index="/admin/users" @click="navigate('/admin/users')">用户列表</el-menu-item>
+          <el-menu-item index="/admin/roles" @click="navigate('/admin/roles')">角色权限</el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="/admin/cameras">
+        <el-menu-item index="/admin/cameras" @click="navigate('/admin/cameras')">
           <el-icon><VideoCamera /></el-icon>
           <span>摄像头管理</span>
         </el-menu-item>
@@ -45,11 +44,11 @@
             <el-icon><Setting /></el-icon>
             <span>系统配置</span>
           </template>
-          <el-menu-item index="/admin/rules">违章规则</el-menu-item>
-          <el-menu-item index="/admin/sms-templates">短信模板</el-menu-item>
+          <el-menu-item index="/admin/rules" @click="navigate('/admin/rules')">违章规则</el-menu-item>
+          <el-menu-item index="/admin/sms-templates" @click="navigate('/admin/sms-templates')">短信模板</el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="/admin/logs">
+        <el-menu-item index="/admin/logs" @click="navigate('/admin/logs')">
           <el-icon><Document /></el-icon>
           <span>操作日志</span>
         </el-menu-item>
@@ -106,6 +105,10 @@ const route = useRoute()
 const userStore = useUserStore()
 const themeStore = useThemeStore()
 const isCollapse = ref(false)
+
+function navigate(path) {
+  if (route.path !== path) router.push(path)
+}
 
 const activeMenu = computed(() => {
   if (route.path.startsWith('/admin/stats')) return '/admin/stats'

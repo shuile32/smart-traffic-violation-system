@@ -6,12 +6,12 @@
         <span class="logo-text">🚦 交通违章智能管理平台</span>
       </div>
       <div class="header-nav">
-        <el-menu mode="horizontal" :default-active="activeTopMenu" router :ellipsis="false" class="top-menu">
-          <el-menu-item index="/review/workbench">案件审核</el-menu-item>
-          <el-menu-item index="/review/violations">违章记录</el-menu-item>
-          <el-menu-item index="/review/upload">证据上传</el-menu-item>
-          <el-menu-item index="/stats">统计分析</el-menu-item>
-          <el-menu-item v-if="userStore.role === 'admin'" index="/admin/users">系统管理</el-menu-item>
+        <el-menu mode="horizontal" :default-active="activeTopMenu" :ellipsis="false" class="top-menu">
+          <el-menu-item index="/review/workbench" @click="nav('/review/workbench')">案件审核</el-menu-item>
+          <el-menu-item index="/review/violations" @click="nav('/review/violations')">违章记录</el-menu-item>
+          <el-menu-item index="/review/upload" @click="nav('/review/upload')">证据上传</el-menu-item>
+          <el-menu-item index="/stats" @click="nav('/stats')">统计分析</el-menu-item>
+          <el-menu-item v-if="userStore.role === 'admin'" index="/admin/users" @click="nav('/admin/users')">系统管理</el-menu-item>
         </el-menu>
       </div>
       <div class="header-right">
@@ -61,6 +61,10 @@ const route = useRoute()
 const userStore = useUserStore()
 const themeStore = useThemeStore()
 const pendingCount = ref(5)
+
+function nav(path) {
+  if (route.path !== path) router.push(path)
+}
 
 const activeTopMenu = computed(() => {
   if (route.path.startsWith('/stats')) return '/stats'
