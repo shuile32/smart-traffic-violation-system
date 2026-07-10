@@ -21,6 +21,11 @@
           <span>统计分析</span>
         </el-menu-item>
 
+        <el-menu-item index="/review/workbench">
+          <el-icon><Checked /></el-icon>
+          <span>案件审核</span>
+        </el-menu-item>
+
         <el-sub-menu index="user-group">
           <template #title>
             <el-icon><User /></el-icon>
