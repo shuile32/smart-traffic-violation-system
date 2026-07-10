@@ -98,8 +98,7 @@ const themeStore = useThemeStore()
 const isCollapse = ref(false)
 
 function navigate(path) {
-  console.log('navigate called:', path, 'current:', route.path)
-  router.push(path).catch(e => console.log('nav error:', e))
+  if (route.path !== path) router.push(path).catch(() => {})
 }
 function isActive(path) {
   return route.path === path || route.path.startsWith(path + '/')

@@ -145,7 +145,7 @@ async function fetchCases() {
       source_type: filter.source_type,
       keyword: filter.keyword,
       page: page.value,
-      page_size: pageSize
+      page_size: pageSize.value
     })
     cases.value = res.data.items
     total.value = res.data.total

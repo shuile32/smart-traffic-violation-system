@@ -87,16 +87,6 @@ export const getCameras = async (params = {}) => {
   return pageOk(mockCameras, mockCameras.length)
 }
 
-export const createCamera = async (data) => {
-  await delay(300)
-  return ok({ id: 999, ...data, message: '摄像头创建成功' })
-}
-
-export const updateCamera = async (id, data) => {
-  await delay(300)
-  return ok({ id, ...data, message: '摄像头更新成功' })
-}
-
 export const deleteCamera = async (id) => {
   await delay(300)
   return ok({ id, message: '摄像头删除成功' })

@@ -96,9 +96,9 @@ async function loadData() {
     fetchByLocation(params)
   ])
   overview.value = ov.data
-  trend.value = (tr.data || []).map(t => ({ date: t.date, count: t.count }))
-  typeRatio.value = (ty.data || []).map(t => ({ name: t.violation_type, value: t.count }))
-  regionRank.value = (rg.data || []).map(r => ({ name: r.location_text, value: r.count }))
+  trend.value = (tr.data?.items || []).map(t => ({ date: t.date, count: t.count }))
+  typeRatio.value = (ty.data?.items || []).map(t => ({ name: t.violation_type, value: t.count }))
+  regionRank.value = (rg.data?.items || []).map(r => ({ name: r.location_text, value: r.count }))
 }
 
 function renderTrend() {
