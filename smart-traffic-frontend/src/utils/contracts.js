@@ -66,3 +66,18 @@ export function summarizeCitizenOverview(violations = {}, cases = {}, vehicles =
     vehicles: vehicles.total ?? 0
   }
 }
+
+export async function fetchAllCitizenCases(fetchPage, pageSize = 100) {
+  const firstPage = await fetchPage({ source_type: 'citizen', page: 1, page_size: pageSize })
+  const totalPages = Math.ceil((firstPage.total ?? 0) / (firstPage.page_size ?? pageSize))
+  const remainingPages = await Promise.all(
+    Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) =>
+      fetchPage({ source_type: 'citizen', page: index + 2, page_size: pageSize })
+    )
+  )
+
+  return {
+    ...firstPage,
+    items: [firstPage, ...remainingPages].flatMap(page => page.items ?? [])
+  }
+}

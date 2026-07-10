@@ -70,13 +70,11 @@ import { fetchCases } from '@/api/case'
 import { fetchOwnerViolations } from '@/api/violation'
 import { getMyVehicles } from '@/api/vehicle'
 import { useUserStore } from '@/stores/user'
-import { summarizeCitizenOverview } from '@/utils/contracts'
+import { fetchAllCitizenCases, summarizeCitizenOverview } from '@/utils/contracts'
 
 const router = useRouter()
 const userStore = useUserStore()
-const announcements = ref([
-  { id: 1, title: '系统升级通知', content: '系统将于 7 月 15 日进行升级维护，届时部分功能暂停使用。', created_at: '2026-07-05' }
-])
+const announcements = ref([])
 const stats = reactive(summarizeCitizenOverview())
 
 async function loadOverview() {
@@ -86,10 +84,13 @@ async function loadOverview() {
   try {
     const [violations, cases, vehicles] = await Promise.all([
       fetchOwnerViolations(ownerId),
-      fetchCases({ source_type: 'citizen', page: 1, page_size: 100 }),
+      fetchAllCitizenCases(async params => {
+        const res = await fetchCases(params)
+        return res.data
+      }),
       getMyVehicles()
     ])
-    Object.assign(stats, summarizeCitizenOverview(violations.data, cases.data, vehicles.data))
+    Object.assign(stats, summarizeCitizenOverview(violations.data, cases, vehicles.data))
   } catch {}
 }
 
