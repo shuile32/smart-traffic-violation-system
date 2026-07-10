@@ -60,7 +60,7 @@ def reject(case_id: int, body: RejectRequest, db: Session = Depends(get_db),
     return ReviewService(db, provider).reject(case_id, user, reject_reason=body.reject_reason)
 
 
-@router.post("/{case_id}/request-recheck", response_model=RecheckResponse)
+@router.post("/{case_id}/request-recheck", response_model=RecheckResponse, status_code=202)
 def request_recheck(case_id: int, db: Session = Depends(get_db),
                     user: User = Depends(require_role("reviewer", "admin")),
                     provider: NotificationProvider = Depends(get_notification_provider)) -> RecheckResponse:

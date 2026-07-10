@@ -30,15 +30,33 @@ def test_approve_missing_plate_400(db, reviewer_user, pending_case):
     assert exc.value.status_code == 400
 
 
-def test_approve_wrong_state_409(db, reviewer_user, citizen_user):
+def test_approve_terminal_state_409(db, reviewer_user, citizen_user):
     from app.models.intake import Case, IntakeEvent
-    ev = IntakeEvent(source_type="citizen", source_id=citizen_user.id, image_hash="up1"); db.add(ev); db.flush()
-    case = Case(case_no="CASE-UP-1", intake_event_id=ev.id, status="uploaded"); db.add(case); db.commit()
+    ev = IntakeEvent(source_type="citizen", source_id=citizen_user.id, image_hash="terminal1")
+    db.add(ev)
+    db.flush()
+    case = Case(case_no="CASE-TERM-1", intake_event_id=ev.id, status="rejected")
+    db.add(case)
+    db.commit()
     svc = ReviewService(db, FakeNotificationProvider())
     with pytest.raises(HTTPException) as exc:
         svc.approve(case.id, reviewer_user, plate_no="粤A1", violation_type="超速",
                     fine_amount=200, points=6, review_opinion="x")
     assert exc.value.status_code == 409
+
+
+def test_approve_uploaded_state_is_allowed(db, reviewer_user, citizen_user):
+    from app.models.intake import Case, IntakeEvent
+    ev = IntakeEvent(source_type="citizen", source_id=citizen_user.id, image_hash="uploaded1")
+    db.add(ev)
+    db.flush()
+    case = Case(case_no="CASE-UP-1", intake_event_id=ev.id, status="uploaded")
+    db.add(case)
+    db.commit()
+    svc = ReviewService(db, FakeNotificationProvider())
+    result = svc.approve(case.id, reviewer_user, plate_no="粤A1", violation_type="超速",
+                         fine_amount=200, points=6, review_opinion="x")
+    assert result["violation_no"].startswith("VIO")
 
 
 def test_reject_sets_rejected(db, reviewer_user, pending_case):
