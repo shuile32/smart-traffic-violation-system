@@ -1,54 +1,13 @@
-/**
- * 图片接入 API — 对齐 API接口规范文档 v2.0 §3
- */
-import { ok, pageOk, delay } from './mock'
-
-// ==================== Mock API (默认使用) ====================
-export const citizenReport = async (formData) => {
-  await delay(600)
-  return ok({
-    intake_event_id: 5001,
-    case_id: 8001,
-    case_no: 'CASE008001',
-    status: 'uploaded',
-    message: '图片已接收，正在进行 AI 识别，预计 30 秒内完成。'
-  })
-}
-
-export const cameraCapture = async (formData) => {
-  await delay(300)
-  return ok({
-    intake_event_id: 5002,
-    case_id: 8002,
-    case_no: 'CASE008002',
-    status: 'uploaded',
-    message: '抓拍图片已接入，正在处理。'
-  })
-}
-
-export const adminUpload = async (formData) => {
-  await delay(400)
-  return ok({
-    intake_event_id: 5003,
-    case_id: 8003,
-    case_no: 'CASE008003',
-    status: 'uploaded',
-    message: '图片已上传，已投递 AI 识别任务。'
-  })
-}
-
-export const getIntakeEvents = async (params = {}) => {
-  await delay()
-  return pageOk([], 0)
-}
-
-export const getIntakeEvent = async (id) => {
-  await delay()
-  return ok({ id })
-}
 import request from './request'
 
-// 真实后端（杨翼 M2，各自角色鉴权）
-export const citizenReport = (fd) => request.post('/intakes/citizen-reports', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-export const cameraCapture = (fd) => request.post('/intakes/camera-captures', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-export const adminUpload = (fd) => request.post('/intakes/admin-uploads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+// 图片接入 API — 对齐 API接口规范文档 v2.0 §3
+// 三来源：市民举报 / 后台管理员上传 / 摄像头抓拍（通过 X-Camera-Key 鉴权）
+export const citizenReport = (fd) => request.post('/intakes/citizen-reports', fd, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+})
+export const cameraCapture = (fd) => request.post('/intakes/camera-captures', fd, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+})
+export const adminUpload = (fd) => request.post('/intakes/admin-uploads', fd, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+})
