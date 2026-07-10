@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { getViolations } from '@/api/violation'
+import { fetchViolations } from '@/api/violation'
 
 const query = reactive({ plate: '', driver: '', type: '', dateRange: null })
 const results = ref([])
@@ -100,7 +100,7 @@ async function handleSearch() {
       params.start_date = query.dateRange[0]
       params.end_date = query.dateRange[1]
     }
-    const res = await getViolations(params)
+    const res = await fetchViolations(params)
     results.value = res.data.items
     total.value = res.data.total
   } catch { /* handled */ }

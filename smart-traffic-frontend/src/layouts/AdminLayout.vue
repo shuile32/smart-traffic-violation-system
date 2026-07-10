@@ -7,48 +7,43 @@
         <span v-else>🚦</span>
       </div>
 
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :collapse-transition="false"
-        :background-color="menuBg"
-        :text-color="menuText"
-        active-text-color="#409EFF"
-        router
-      >
-        <el-menu-item index="/admin/stats">
+      <div class="sidebar-menu">
+        <div :class="['menu-item', { active: isActive('/admin/stats') }]" @click="navigate('/admin/stats')">
           <el-icon><TrendCharts /></el-icon>
-          <span>统计分析</span>
-        </el-menu-item>
+          <span v-if="!isCollapse">统计分析</span>
+        </div>
 
-        <el-sub-menu index="user-group">
-          <template #title>
-            <el-icon><User /></el-icon>
-            <span>用户管理</span>
-          </template>
-          <el-menu-item index="/admin/users">用户列表</el-menu-item>
-          <el-menu-item index="/admin/roles">角色权限</el-menu-item>
-        </el-sub-menu>
+        <div :class="['menu-item', { active: isActive('/review/workbench') }]" @click="navigate('/review/workbench')">
+          <el-icon><Checked /></el-icon>
+          <span v-if="!isCollapse">案件审核</span>
+        </div>
 
-        <el-menu-item index="/admin/cameras">
+        <div class="menu-group-title" v-if="!isCollapse">用户管理</div>
+        <div :class="['menu-item sub', { active: isActive('/admin/users') }]" @click="navigate('/admin/users')">
+          <span v-if="!isCollapse">用户列表</span>
+        </div>
+        <div :class="['menu-item sub', { active: isActive('/admin/roles') }]" @click="navigate('/admin/roles')">
+          <span v-if="!isCollapse">角色权限</span>
+        </div>
+
+        <div :class="['menu-item', { active: isActive('/admin/cameras') }]" @click="navigate('/admin/cameras')">
           <el-icon><VideoCamera /></el-icon>
-          <span>摄像头管理</span>
-        </el-menu-item>
+          <span v-if="!isCollapse">摄像头管理</span>
+        </div>
 
-        <el-sub-menu index="config-group">
-          <template #title>
-            <el-icon><Setting /></el-icon>
-            <span>系统配置</span>
-          </template>
-          <el-menu-item index="/admin/rules">违章规则</el-menu-item>
-          <el-menu-item index="/admin/sms-templates">短信模板</el-menu-item>
-        </el-sub-menu>
+        <div class="menu-group-title" v-if="!isCollapse">系统配置</div>
+        <div :class="['menu-item sub', { active: isActive('/admin/rules') }]" @click="navigate('/admin/rules')">
+          <span v-if="!isCollapse">违章规则</span>
+        </div>
+        <div :class="['menu-item sub', { active: isActive('/admin/sms-templates') }]" @click="navigate('/admin/sms-templates')">
+          <span v-if="!isCollapse">短信模板</span>
+        </div>
 
-        <el-menu-item index="/admin/logs">
+        <div :class="['menu-item', { active: isActive('/admin/logs') }]" @click="navigate('/admin/logs')">
           <el-icon><Document /></el-icon>
-          <span>操作日志</span>
-        </el-menu-item>
-      </el-menu>
+          <span v-if="!isCollapse">操作日志</span>
+        </div>
+      </div>
     </el-aside>
 
     <!-- 主内容区 -->
@@ -89,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
@@ -102,13 +97,12 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 const isCollapse = ref(false)
 
-const activeMenu = computed(() => {
-  if (route.path.startsWith('/admin/stats')) return '/admin/stats'
-  return route.path
-})
-
-const menuBg = computed(() => themeStore.isDark ? '#1a1a2e' : '#304156')
-const menuText = computed(() => themeStore.isDark ? '#a0a0a0' : '#bfcbd9')
+function navigate(path) {
+  if (route.path !== path) router.push(path).catch(() => {})
+}
+function isActive(path) {
+  return route.path === path || route.path.startsWith(path + '/')
+}
 
 function handleLogout() {
   ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(() => {
@@ -153,4 +147,18 @@ function handleLogout() {
 .theme-toggle { cursor: pointer; color: var(--text-secondary); }
 .theme-toggle:hover { color: var(--text-color); }
 .el-main { background: var(--bg-color); padding: 20px; }
+
+.sidebar-menu { padding: 8px 0; }
+.menu-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px; color: #bfcbd9; cursor: pointer;
+  font-size: 14px; transition: all 0.2s;
+}
+.menu-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.menu-item.active { color: #409EFF; background: rgba(64,158,255,0.1); }
+.menu-item.sub { padding-left: 48px; font-size: 13px; }
+.menu-group-title {
+  padding: 12px 20px 4px; font-size: 12px;
+  color: rgba(255,255,255,0.4); text-transform: uppercase;
+}
 </style>

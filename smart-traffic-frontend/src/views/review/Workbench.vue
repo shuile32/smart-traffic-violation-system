@@ -5,7 +5,7 @@
       <div class="toolbar-left">
         <el-radio-group v-model="filter.status" size="small" @change="fetchCases">
           <el-radio-button value="">全部</el-radio-button>
-          <el-radio-button value="pending_human_review">待审核</el-radio-button>
+          <el-radio-button value="uploaded">待审核</el-radio-button>
           <el-radio-button value="approved">已通过</el-radio-button>
           <el-radio-button value="rejected">已驳回</el-radio-button>
         </el-radio-group>
@@ -97,7 +97,7 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getCases } from '@/api/case'
+import { fetchCases as getCases } from '@/api/case'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -109,19 +109,19 @@ const total = ref(0)
 const pendingTotal = ref(0)
 
 const filter = reactive({
-  status: 'pending_human_review',
+  status: '',
   source_type: '',
   keyword: ''
 })
 
 // 状态映射
 const statusMap = {
-  uploaded: '待识别', detecting: '识别中', ai_reviewing: 'AI 初审中',
+  uploaded: '待审核', detecting: '识别中', ai_reviewing: 'AI 初审中',
   pending_human_review: '待审核', approved: '已通过', rejected: '已驳回',
   archived: '已归档', notified: '已通知'
 }
 const statusTypeMap = {
-  uploaded: 'info', detecting: 'warning', ai_reviewing: 'warning',
+  uploaded: 'danger', detecting: 'warning', ai_reviewing: 'warning',
   pending_human_review: 'danger', approved: 'success', rejected: 'info',
   archived: '', notified: 'success'
 }
@@ -147,7 +147,7 @@ async function fetchCases() {
       page: page.value,
       page_size: pageSize.value
     })
-    cases.value = res.data.list
+    cases.value = res.data.items
     total.value = res.data.total
     // 统计待审核数
     if (!filter.status || filter.status === 'pending_human_review') {
