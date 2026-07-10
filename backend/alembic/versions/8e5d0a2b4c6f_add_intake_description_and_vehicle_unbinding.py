@@ -29,6 +29,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute(sa.text(
+        "UPDATE violations SET vehicle_id = NULL "
+        "WHERE vehicle_id IN (SELECT id FROM vehicles WHERE owner_id IS NULL)"
+    ))
     op.execute(sa.text("DELETE FROM vehicles WHERE owner_id IS NULL"))
     with op.batch_alter_table("vehicles") as batch_op:
         batch_op.alter_column(

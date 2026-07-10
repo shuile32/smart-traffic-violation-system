@@ -50,14 +50,32 @@ def test_intake_description_and_vehicle_unbinding_migration(monkeypatch):
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("owner_id", sa.Integer, sa.ForeignKey("users.id"), nullable=False),
     )
+    violations = sa.Table(
+        "violations",
+        metadata,
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("vehicle_id", sa.Integer, sa.ForeignKey("vehicles.id"), nullable=True),
+    )
     sa.Table("intake_events", metadata, sa.Column("id", sa.Integer, primary_key=True))
 
-    with engine.begin() as connection:
+    with engine.connect() as connection:
+        connection.exec_driver_sql("PRAGMA foreign_keys=ON")
         metadata.create_all(connection)
         operations = Operations(MigrationContext.configure(connection))
         monkeypatch.setattr(revision.module, "op", operations)
 
+        connection.execute(users.insert().values(id=1))
+        connection.execute(vehicles.insert().values(id=1, owner_id=1))
+        connection.execute(violations.insert().values(id=1, vehicle_id=1))
+        connection.commit()
+
+        # SQLite batch ALTER rebuilds the parent table, which requires FK checks
+        # off during the upgrade. Enforcement is restored before the scenario.
+        connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
         revision.module.upgrade()
+        connection.commit()
+        connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+        assert connection.exec_driver_sql("PRAGMA foreign_keys").scalar_one() == 1
 
         columns = {
             column["name"]: column
@@ -70,11 +88,19 @@ def test_intake_description_and_vehicle_unbinding_migration(monkeypatch):
             if column["name"] == "owner_id"
         )
         assert owner_column["nullable"] is True
-        connection.execute(vehicles.insert().values(id=1, owner_id=None))
+        connection.execute(
+            vehicles.update().where(vehicles.c.id == 1).values(owner_id=None)
+        )
+        connection.commit()
 
         revision.module.downgrade()
 
         assert connection.scalar(sa.select(sa.func.count()).select_from(vehicles)) == 0
+        violation = connection.execute(
+            sa.select(violations.c.id, violations.c.vehicle_id)
+        ).one()
+        assert violation.id == 1
+        assert violation.vehicle_id is None
         assert "description" not in {
             column["name"]
             for column in sa.inspect(connection).get_columns("intake_events")
