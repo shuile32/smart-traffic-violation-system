@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#409EFF"/><stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a1628"/>
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accentBar)"/>
+  <text x="60" y="52" font-family="Microsoft YaHei, sans-serif" font-size="32" font-weight="bold" fill="#409EFF">违章归档 + 通知奖励</text>
+  <line x1="60" y1="80" x2="1220" y2="80" stroke="#1a3050" stroke-width="1"/>
+
+  <!-- Left -->
+  <rect x="60" y="110" width="560" height="160" fill="#0f1d32" rx="8"/>
+  <text x="80" y="140" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">违章查询 API</text>
+  <g font-family="Consolas, monospace" font-size="13">
+    <text x="95" y="170" fill="#00d4ff">GET </text><text x="140" y="170" fill="#c0c4cc">/api/v1/violations</text><text x="370" y="170" fill="#8899aa">分页 + 车牌/类型/状态过滤</text>
+    <text x="95" y="198" fill="#00d4ff">GET </text><text x="140" y="198" fill="#c0c4cc">/api/v1/violations/{id}</text><text x="370" y="198" fill="#8899aa">单条详情</text>
+    <text x="95" y="226" fill="#00d4ff">GET </text><text x="140" y="226" fill="#c0c4cc">/api/v1/owners/{id}/violations</text><text x="380" y="226" fill="#8899aa">按车主查询</text>
+    <text x="95" y="254" fill="#8899aa">citizen 仅查看自己 · reviewer/admin 查看全部</text>
+  </g>
+
+  <rect x="60" y="290" width="560" height="140" fill="#0f1d32" rx="8"/>
+  <text x="80" y="320" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">通知机制</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#c0c4cc">
+    <text x="95" y="348">EmailSmtpProvider — 真实 SMTP 发送</text>
+    <text x="95" y="373">FakeNotificationProvider — 测试用假发送</text>
+    <text x="95" y="398">notification_templates 模板渲染 → 可配置启用/禁用</text>
+    <text x="95" y="423">Notification 记录写入 DB → 支持重试</text>
+  </g>
+
+  <rect x="60" y="450" width="560" height="100" fill="#0f1d32" rx="8"/>
+  <text x="80" y="480" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">奖励机制</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#c0c4cc">
+    <text x="95" y="505">citizen 举报审核通过 → REWARD_DEFAULT_AMOUNT (10元)</text>
+    <text x="95" y="530">reward 记录写入 DB → GET /admin/rewards 查询</text>
+  </g>
+
+  <!-- Right: JSON -->
+  <rect x="660" y="110" width="560" height="230" fill="#0f1d32" rx="8"/>
+  <text x="685" y="140" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">GET /api/v1/violations</text>
+  <g font-family="Consolas, monospace" font-size="12">
+    <text x="685" y="170" fill="#8899aa">// 响应 200 OK</text>
+    <text x="695" y="198" fill="#c0c4cc">{</text>
+    <text x="710" y="221" fill="#00d4ff">"items"</text><text x="780" y="221" fill="#c0c4cc">: [{</text>
+    <text x="730" y="244" fill="#00d4ff">"violation_no"</text><text x="860" y="244" fill="#c0c4cc">: </text><text x="870" y="244" fill="#67c23a">"VIO20260710000001"</text><text x="1080" y="244" fill="#c0c4cc">,</text>
+    <text x="730" y="267" fill="#00d4ff">"plate_no"</text><text x="860" y="267" fill="#c0c4cc">: </text><text x="870" y="267" fill="#67c23a">"粤B-TEST01"</text><text x="1080" y="267" fill="#c0c4cc">,</text>
+    <text x="730" y="290" fill="#00d4ff">"violation_type"</text><text x="860" y="290" fill="#c0c4cc">: </text><text x="870" y="290" fill="#f56c6c">"speeding"</text><text x="1080" y="290" fill="#c0c4cc">,</text>
+    <text x="730" y="313" fill="#00d4ff">"fine_amount"</text><text x="860" y="313" fill="#c0c4cc">: </text><text x="870" y="313" fill="#409EFF">200</text><text x="1080" y="313" fill="#c0c4cc">,</text>
+    <text x="730" y="336" fill="#00d4ff">"points"</text><text x="860" y="336" fill="#c0c4cc">: </text><text x="870" y="336" fill="#409EFF">3</text>
+    <text x="710" y="359" fill="#c0c4cc">}], </text><text x="710" y="359" fill="#00d4ff">"total"</text><text x="780" y="359" fill="#c0c4cc">: 2, </text><text x="830" y="359" fill="#00d4ff">"page"</text><text x="880" y="359" fill="#c0c4cc">: 1}</text>
+  </g>
+
+  <rect x="660" y="360" width="560" height="180" fill="#0f1d32" rx="8"/>
+  <text x="685" y="390" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">GET /api/v1/owners/{id}/violations</text>
+  <g font-family="Consolas, monospace" font-size="12">
+    <text x="685" y="420" fill="#8899aa">// citizen 只能看自己的，admin 可看任意车主</text>
+    <text x="685" y="450" fill="#c0c4cc">{</text>
+    <text x="695" y="475" fill="#00d4ff">"items"</text><text x="780" y="475" fill="#c0c4cc">: [...],</text>
+    <text x="695" y="498" fill="#00d4ff">"total"</text><text x="780" y="498" fill="#c0c4cc">: 2,</text>
+    <text x="695" y="521" fill="#00d4ff">"page"</text><text x="780" y="521" fill="#c0c4cc">: 1,</text>
+    <text x="695" y="544" fill="#00d4ff">"page_size"</text><text x="780" y="544" fill="#c0c4cc">: 20</text>
+  </g>
+
+  <text x="1220" y="700" font-family="Consolas, monospace" font-size="12" fill="#556677" text-anchor="end">06 / 10</text>
+</svg>

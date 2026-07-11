@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#409EFF"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a1628"/>
+  <!-- Header -->
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accentBar)"/>
+  <text x="60" y="52" font-family="Microsoft YaHei, sans-serif" font-size="32" font-weight="bold" fill="#409EFF">后端 API 全览</text>
+  <text x="60" y="80" font-family="Microsoft YaHei, sans-serif" font-size="16" fill="#8899aa">18 个核心端点 · 5 大业务模块 · 完整闭环</text>
+  <line x1="60" y1="95" x2="1220" y2="95" stroke="#1a3050" stroke-width="1"/>
+
+  <!-- Left: Endpoint table -->
+  <text x="60" y="140" font-family="Microsoft YaHei, sans-serif" font-size="18" font-weight="bold" fill="#e0e0e0">API 端点清单</text>
+  <g font-family="Consolas, monospace" font-size="13">
+    <rect x="60" y="155" width="540" height="28" fill="#0f1d32" rx="4"/>
+    <text x="75" y="174" fill="#00d4ff">POST</text><text x="120" y="174" fill="#c0c4cc">/api/v1/auth/login, /register, /auth/me</text><text x="480" y="174" fill="#67c23a">登录鉴权</text>
+
+    <rect x="60" y="187" width="540" height="28" fill="transparent" rx="4"/>
+    <text x="75" y="206" fill="#00d4ff">POST</text><text x="120" y="206" fill="#c0c4cc">/api/v1/intakes/citizen-reports</text><text x="480" y="206" fill="#67c23a">图片摄入</text>
+
+    <rect x="60" y="219" width="540" height="28" fill="#0f1d32" rx="4"/>
+    <text x="75" y="238" fill="#00d4ff">POST</text><text x="120" y="238" fill="#c0c4cc">/api/v1/intakes/admin-uploads</text><text x="480" y="238" fill="#67c23a">管理员上传</text>
+
+    <rect x="60" y="251" width="540" height="28" fill="transparent" rx="4"/>
+    <text x="75" y="270" fill="#00d4ff">POST</text><text x="120" y="270" fill="#c0c4cc">/api/v1/intakes/camera-captures</text><text x="480" y="270" fill="#67c23a">摄像头推送</text>
+
+    <rect x="60" y="295" width="540" height="28" fill="#0f1d32" rx="4"/>
+    <text x="75" y="314" fill="#00d4ff">GET</text><text x="120" y="314" fill="#c0c4cc">/api/v1/cases, /cases/{id}</text><text x="480" y="314" fill="#67c23a">案件管理</text>
+
+    <rect x="60" y="327" width="540" height="28" fill="transparent" rx="4"/>
+    <text x="75" y="346" fill="#00d4ff">POST</text><text x="120" y="346" fill="#c0c4cc">/api/v1/cases/{id}/approve, /reject</text><text x="480" y="346" fill="#67c23a">审核工作流</text>
+
+    <rect x="60" y="359" width="540" height="28" fill="#0f1d32" rx="4"/>
+    <text x="75" y="378" fill="#00d4ff">GET</text><text x="120" y="378" fill="#c0c4cc">/api/v1/violations, /owners/{id}/violations</text><text x="480" y="378" fill="#67c23a">违章归档</text>
+
+    <rect x="60" y="391" width="540" height="28" fill="transparent" rx="4"/>
+    <text x="75" y="410" fill="#00d4ff">GET</text><text x="120" y="410" fill="#c0c4cc">/api/v1/statistics/overview, by-time, by-type</text><text x="480" y="410" fill="#67c23a">统计分析</text>
+
+    <rect x="60" y="423" width="540" height="28" fill="#0f1d32" rx="4"/>
+    <text x="75" y="442" fill="#00d4ff">POST</text><text x="120" y="442" fill="#c0c4cc">/internal/ai/yolo/detect, ocr, rules, review</text><text x="480" y="442" fill="#f56c6c">AI 接口(stub)</text>
+
+    <rect x="60" y="455" width="540" height="28" fill="transparent" rx="4"/>
+    <text x="75" y="474" fill="#00d4ff">CRUD</text><text x="120" y="474" fill="#c0c4cc">/admin/users, cameras, vehicles, rules</text><text x="480" y="474" fill="#67c23a">系统管理</text>
+  </g>
+
+  <!-- Right: Stats + Flow -->
+  <rect x="650" y="120" width="570" height="130" fill="#0f1d32" rx="8"/>
+  <text x="680" y="155" font-family="Microsoft YaHei, sans-serif" font-size="18" fill="#00d4ff" font-weight="bold">核心业务闭环</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#8899aa">
+    <text x="680" y="185">图片摄入 → 案件生成 → AI 初审 → 人工审核 → 违章归档 → 通知统计</text>
+    <text x="680" y="210">SHA-256 去重 · JWT/RBAC 四角色 · 摄像头 API Key 鉴权</text>
+    <text x="680" y="235">审核通过自动生成违章 + 发放奖励 + 邮件通知 + 审计日志</text>
+  </g>
+
+  <rect x="650" y="270" width="570" height="100" fill="#0f1d32" rx="8"/>
+  <text x="680" y="305" font-family="Microsoft YaHei, sans-serif" font-size="18" fill="#00d4ff" font-weight="bold">关键数据</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="14">
+    <text x="700" y="335" fill="#e0e0e0"><tspan fill="#409EFF" font-weight="bold">18</tspan> 个 API 端点   ·   <tspan fill="#409EFF" font-weight="bold">205</tspan> 自动化测试   ·   <tspan fill="#409EFF" font-weight="bold">17</tspan> 张数据库表</text>
+    <text x="700" y="358" fill="#e0e0e0"><tspan fill="#409EFF" font-weight="bold">4</tspan> 角色 RBAC   ·   <tspan fill="#409EFF" font-weight="bold">3</tspan> 摄入来源   ·   <tspan fill="#409EFF" font-weight="bold">9</tspan> 次 Alembic 迁移</text>
+  </g>
+
+  <!-- Tech stack -->
+  <rect x="650" y="390" width="570" height="110" fill="#0f1d32" rx="8"/>
+  <text x="680" y="425" font-family="Microsoft YaHei, sans-serif" font-size="18" fill="#00d4ff" font-weight="bold">技术栈</text>
+  <g font-family="Consolas, monospace" font-size="13">
+    <text x="700" y="455" fill="#c0c4cc">FastAPI + Uvicorn · SQLAlchemy 2.0 · Pydantic v2</text>
+    <text x="700" y="475" fill="#c0c4cc">JWT (python-jose) · bcrypt · Alembic · PyMySQL</text>
+    <text x="700" y="495" fill="#c0c4cc">Celery + Redis · Pytest + httpx · MySQL 8.0</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="1220" y="700" font-family="Consolas, monospace" font-size="12" fill="#556677" text-anchor="end">02 / 10</text>
+</svg>

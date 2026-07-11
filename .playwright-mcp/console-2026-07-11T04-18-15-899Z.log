@@ -1,0 +1,3 @@
+[     351ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8002/api/v1/cases:0
+[     373ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8002/favicon.ico:0
+[   12065ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:8002/api/v1/cases?page_size=3:0

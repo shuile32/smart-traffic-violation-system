@@ -2,6 +2,7 @@
  * 系统管理 API — 对齐 API接口规范文档 v2.0 §7
  */
 import { ok, pageOk, delay, mockUsers, mockCameras } from './mock'
+import request from './request'
 
 const mockRoles = [
   { id: 1, name: '超级管理员', key: 'admin', description: '系统最高权限', permissions: ['all'] },
@@ -55,11 +56,8 @@ export const toggleUserStatus = async (id, data) => {
   return ok({ id, status: data.status, message: '状态已更新' })
 }
 
-// 角色管理
-export const getRoles = async () => {
-  await delay()
-  return ok(mockRoles)
-}
+// 角色管理 — 真实 API
+export const getRoles = () => request.get('/admin/roles')
 
 export const createRole = async (data) => {
   await delay(300)

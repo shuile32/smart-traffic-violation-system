@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#409EFF"/><stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a1628"/>
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accentBar)"/>
+  <text x="60" y="52" font-family="Microsoft YaHei, sans-serif" font-size="32" font-weight="bold" fill="#409EFF">数据库设计 + 权限模型</text>
+  <line x1="60" y1="80" x2="1220" y2="80" stroke="#1a3050" stroke-width="1"/>
+
+  <!-- Left: DB Schema -->
+  <rect x="60" y="110" width="580" height="100" fill="#0f1d32" rx="8"/>
+  <text x="80" y="138" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#00d4ff">用户权限层</text>
+  <text x="95" y="162" font-family="Consolas, monospace" font-size="12" fill="#c0c4cc">roles (id, code, name)  ·  users (id, username, password_hash, role_id, status)</text>
+  <text x="95" y="185" fill="#8899aa" font-size="12">→ seed_data: citizen / reviewer / admin / camera 四种角色</text>
+
+  <rect x="60" y="225" width="580" height="100" fill="#0f1d32" rx="8"/>
+  <text x="80" y="253" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#00d4ff">摄入管线层</text>
+  <text x="95" y="277" font-family="Consolas, monospace" font-size="12" fill="#c0c4cc">intake_events · media_assets · cases · camera_devices · camera_api_keys</text>
+  <text x="95" y="300" fill="#8899aa" font-size="12">→ SHA-256 去重 · case_no / violation_no 自动生成 · 8 状态流转</text>
+
+  <rect x="60" y="340" width="580" height="100" fill="#0f1d32" rx="8"/>
+  <text x="80" y="368" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#00d4ff">违章归档层</text>
+  <text x="95" y="392" font-family="Consolas, monospace" font-size="12" fill="#c0c4cc">vehicles · violations · notifications · notification_templates · rewards</text>
+  <text x="95" y="415" fill="#8899aa" font-size="12">→ notify 不阻断归档 · vehicle 不存在时 violation 仍然创建</text>
+
+  <rect x="60" y="455" width="580" height="100" fill="#0f1d32" rx="8"/>
+  <text x="80" y="483" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#00d4ff">AI + 系统配置层</text>
+  <text x="95" y="507" font-family="Consolas, monospace" font-size="12" fill="#c0c4cc">ai_detection_results · violation_rule_results · ai_review_results · violation_rules · audit_logs</text>
+  <text x="95" y="530" fill="#8899aa" font-size="12">→ AI 结果 append-only · API Key 只存 SHA-256 · 9 次 Alembic 迁移</text>
+
+  <!-- Right: Permission Matrix -->
+  <rect x="670" y="110" width="550" height="250" fill="#0f1d32" rx="8"/>
+  <text x="695" y="140" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">四角色权限矩阵</text>
+
+  <!-- Table header -->
+  <rect x="695" y="155" width="500" height="25" fill="#1a3050" rx="3"/>
+  <text x="710" y="173" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="bold" fill="#e0e0e0">操作</text>
+  <text x="350" y="173" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#e0e0e0" text-anchor="middle">citizen</text>
+  <text x="440" y="173" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#e0e0e0" text-anchor="middle">reviewer</text>
+  <text x="530" y="173" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#e0e0e0" text-anchor="middle">admin</text>
+  <text x="620" y="173" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#e0e0e0" text-anchor="middle">camera</text>
+
+  <g font-family="Microsoft YaHei, sans-serif" font-size="12">
+    <rect x="695" y="182" width="500" height="23" fill="transparent" rx="3"/>
+    <text x="710" y="198" fill="#c0c4cc">随手拍举报</text>
+    <text x="350" y="198" fill="#67c23a" text-anchor="middle">OK</text><text x="440" y="198" fill="#556677" text-anchor="middle">—</text><text x="530" y="198" fill="#556677" text-anchor="middle">—</text><text x="620" y="198" fill="#556677" text-anchor="middle">—</text>
+
+    <rect x="695" y="207" width="500" height="23" fill="#0a1628" rx="3"/>
+    <text x="710" y="223" fill="#c0c4cc">提交图片</text>
+    <text x="350" y="223" fill="#67c23a" text-anchor="middle">OK</text><text x="440" y="223" fill="#67c23a" text-anchor="middle">OK</text><text x="530" y="223" fill="#67c23a" text-anchor="middle">OK</text><text x="620" y="223" fill="#409EFF" text-anchor="middle">Key</text>
+
+    <rect x="695" y="232" width="500" height="23" fill="transparent" rx="3"/>
+    <text x="710" y="248" fill="#c0c4cc">审核案件</text>
+    <text x="350" y="248" fill="#556677" text-anchor="middle">—</text><text x="440" y="248" fill="#67c23a" text-anchor="middle">OK</text><text x="530" y="248" fill="#67c23a" text-anchor="middle">OK</text><text x="620" y="248" fill="#556677" text-anchor="middle">—</text>
+
+    <rect x="695" y="257" width="500" height="23" fill="#0a1628" rx="3"/>
+    <text x="710" y="273" fill="#c0c4cc">查看统计</text>
+    <text x="350" y="273" fill="#556677" text-anchor="middle">—</text><text x="440" y="273" fill="#67c23a" text-anchor="middle">OK</text><text x="530" y="273" fill="#67c23a" text-anchor="middle">OK</text><text x="620" y="273" fill="#556677" text-anchor="middle">—</text>
+
+    <rect x="695" y="282" width="500" height="23" fill="transparent" rx="3"/>
+    <text x="710" y="298" fill="#c0c4cc">CRUD 用户/摄像头/规则</text>
+    <text x="350" y="298" fill="#556677" text-anchor="middle">—</text><text x="440" y="298" fill="#556677" text-anchor="middle">—</text><text x="530" y="298" fill="#67c23a" text-anchor="middle">OK</text><text x="620" y="298" fill="#556677" text-anchor="middle">—</text>
+  </g>
+
+  <rect x="670" y="380" width="550" height="170" fill="#0f1d32" rx="8"/>
+  <text x="695" y="410" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">鉴权实现</text>
+  <g font-family="Consolas, monospace" font-size="11" fill="#c0c4cc">
+    <text x="695" y="445"><tspan fill="#8899aa"># deps.py — FastAPI Depends 依赖注入</tspan></text>
+    <text x="695" y="468"><tspan fill="#5b8def">def</tspan><tspan fill="#00d4ff"> require_role</tspan><tspan fill="#e0e0e0">(*roles: str):</tspan></text>
+    <text x="710" y="491"><tspan fill="#5b8def">def</tspan><tspan fill="#00d4ff"> checker</tspan><tspan fill="#e0e0e0">(user = Depends(get_current_user)):</tspan></text>
+    <text x="725" y="514"><tspan fill="#5b8def">if</tspan><tspan fill="#e0e0e0"> user.role.code </tspan><tspan fill="#5b8def">not in</tspan><tspan fill="#e0e0e0"> roles:</tspan></text>
+    <text x="740" y="537"><tspan fill="#5b8def">raise</tspan><tspan fill="#e0e0e0"> HTTPException(</tspan><tspan fill="#409EFF">403</tspan><tspan fill="#e0e0e0">)</tspan></text>
+  </g>
+
+  <text x="1220" y="700" font-family="Consolas, monospace" font-size="12" fill="#556677" text-anchor="end">09 / 10</text>
+</svg>

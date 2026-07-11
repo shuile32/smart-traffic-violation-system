@@ -1,0 +1,932 @@
+- generic [ref=f3e4]:
+  - generic [ref=f3e8]:
+    - heading "Traffic Violation Management API 0.1.0 OAS 3.1" [level=1] [ref=f3e9]:
+      - text: Traffic Violation Management API
+      - generic [ref=f3e10]:
+        - generic [ref=f3e11]: 0.1.0
+        - generic [ref=f3e13]: OAS 3.1
+    - link "/openapi.json" [ref=f3e15] [cursor=pointer]:
+      - /url: /openapi.json
+  - button "Authorize" [ref=f3e20] [cursor=pointer]
+  - generic [ref=f3e26]:
+    - generic [ref=f3e28]:
+      - heading [level=3] [ref=f3e29] [cursor=pointer]:
+        - link "auth" [ref=f3e30]:
+          - /url: "#/auth"
+        - button "Collapse operation" [expanded] [ref=f3e31]
+      - generic [ref=f3e35]:
+        - generic [ref=f3e38] [cursor=pointer]:
+          - button "POST /api/v1/auth/login Login" [ref=f3e39]:
+            - generic [ref=f3e40]: POST
+            - generic [ref=f3e41]:
+              - link [ref=f3e43]:
+                - /url: "#/auth/login_api_v1_auth_login_post"
+              - generic [ref=f3e45]: Login
+          - generic "Copy to clipboard"
+          - button "post /api/v1/auth/login" [ref=f3e48]
+        - generic [ref=f3e53] [cursor=pointer]:
+          - button "GET /api/v1/auth/me Me" [ref=f3e54]:
+            - generic [ref=f3e55]: GET
+            - generic [ref=f3e56]:
+              - link [ref=f3e58]:
+                - /url: "#/auth/me_api_v1_auth_me_get"
+              - generic [ref=f3e60]: Me
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e63]
+          - button "get /api/v1/auth/me" [ref=f3e66]
+        - generic [ref=f3e71] [cursor=pointer]:
+          - button "POST /api/v1/auth/register Register" [ref=f3e72]:
+            - generic [ref=f3e73]: POST
+            - generic [ref=f3e74]:
+              - link [ref=f3e76]:
+                - /url: "#/auth/register_api_v1_auth_register_post"
+              - generic [ref=f3e78]: Register
+          - generic "Copy to clipboard"
+          - button "post /api/v1/auth/register" [ref=f3e81]
+        - generic [ref=f3e86] [cursor=pointer]:
+          - button "PUT /api/v1/auth/profile Update Profile" [ref=f3e87]:
+            - generic [ref=f3e88]: PUT
+            - generic [ref=f3e89]:
+              - link [ref=f3e91]:
+                - /url: "#/auth/update_profile_api_v1_auth_profile_put"
+              - generic [ref=f3e93]: Update Profile
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e96]
+          - button "put /api/v1/auth/profile" [ref=f3e99]
+        - generic [ref=f3e104] [cursor=pointer]:
+          - button "PUT /api/v1/auth/password Change Password" [ref=f3e105]:
+            - generic [ref=f3e106]: PUT
+            - generic [ref=f3e107]:
+              - link [ref=f3e109]:
+                - /url: "#/auth/change_password_api_v1_auth_password_put"
+              - generic [ref=f3e111]: Change Password
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e114]
+          - button "put /api/v1/auth/password" [ref=f3e117]
+    - generic [ref=f3e121]:
+      - heading [level=3] [ref=f3e122] [cursor=pointer]:
+        - link "permissions" [ref=f3e123]:
+          - /url: "#/permissions"
+        - button "Collapse operation" [expanded] [ref=f3e124]
+      - generic [ref=f3e131] [cursor=pointer]:
+        - button "GET /api/v1/permissions/menus Menus" [ref=f3e132]:
+          - generic [ref=f3e133]: GET
+          - generic [ref=f3e134]:
+            - link [ref=f3e136]:
+              - /url: "#/permissions/menus_api_v1_permissions_menus_get"
+            - generic [ref=f3e138]: Menus
+        - generic "Copy to clipboard"
+        - button "authorization button unlocked" [ref=f3e141]
+        - button "get /api/v1/permissions/menus" [ref=f3e144]
+    - generic [ref=f3e148]:
+      - heading [level=3] [ref=f3e149] [cursor=pointer]:
+        - link "intakes" [ref=f3e150]:
+          - /url: "#/intakes"
+        - button "Collapse operation" [expanded] [ref=f3e151]
+      - generic [ref=f3e155]:
+        - generic [ref=f3e158] [cursor=pointer]:
+          - button "POST /api/v1/intakes/citizen-reports Citizen Report" [ref=f3e159]:
+            - generic [ref=f3e160]: POST
+            - generic [ref=f3e161]:
+              - link [ref=f3e163]:
+                - /url: "#/intakes/citizen_report_api_v1_intakes_citizen_reports_post"
+              - generic [ref=f3e165]: Citizen Report
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e168]
+          - button "post /api/v1/intakes/citizen-reports" [ref=f3e171]
+        - generic [ref=f3e176] [cursor=pointer]:
+          - button "POST /api/v1/intakes/admin-uploads Admin Upload" [ref=f3e177]:
+            - generic [ref=f3e178]: POST
+            - generic [ref=f3e179]:
+              - link [ref=f3e181]:
+                - /url: "#/intakes/admin_upload_api_v1_intakes_admin_uploads_post"
+              - generic [ref=f3e183]: Admin Upload
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e186]
+          - button "post /api/v1/intakes/admin-uploads" [ref=f3e189]
+        - generic [ref=f3e194] [cursor=pointer]:
+          - button "POST /api/v1/intakes/camera-captures Camera Capture" [ref=f3e195]:
+            - generic [ref=f3e196]: POST
+            - generic [ref=f3e197]:
+              - link [ref=f3e199]:
+                - /url: "#/intakes/camera_capture_api_v1_intakes_camera_captures_post"
+              - generic [ref=f3e201]: Camera Capture
+          - generic "Copy to clipboard"
+          - button "post /api/v1/intakes/camera-captures" [ref=f3e204]
+    - generic [ref=f3e208]:
+      - heading [level=3] [ref=f3e209] [cursor=pointer]:
+        - link "cases" [ref=f3e210]:
+          - /url: "#/cases"
+        - button "Collapse operation" [expanded] [ref=f3e211]
+      - generic [ref=f3e215]:
+        - generic [ref=f3e218] [cursor=pointer]:
+          - button "GET /api/v1/cases List Cases" [ref=f3e219]:
+            - generic [ref=f3e220]: GET
+            - generic [ref=f3e221]:
+              - link [ref=f3e223]:
+                - /url: "#/cases/list_cases_api_v1_cases_get"
+              - generic [ref=f3e225]: List Cases
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e228]
+          - button "get /api/v1/cases" [ref=f3e231]
+        - generic [ref=f3e236] [cursor=pointer]:
+          - 'button "GET /api/v1/cases/{case_id} Get Case" [ref=f3e237]':
+            - generic [ref=f3e238]: GET
+            - generic [ref=f3e239]:
+              - link [ref=f3e241]:
+                - /url: "#/cases/get_case_api_v1_cases__case_id__get"
+              - generic [ref=f3e243]: Get Case
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e246]
+          - 'button "get /api/v1/cases/{case_id}" [ref=f3e249]'
+        - generic [ref=f3e254] [cursor=pointer]:
+          - 'button "POST /api/v1/cases/{case_id}/approve Approve" [ref=f3e255]':
+            - generic [ref=f3e256]: POST
+            - generic [ref=f3e257]:
+              - link [ref=f3e259]:
+                - /url: "#/cases/approve_api_v1_cases__case_id__approve_post"
+              - generic [ref=f3e261]: Approve
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e264]
+          - 'button "post /api/v1/cases/{case_id}/approve" [ref=f3e267]'
+        - generic [ref=f3e272] [cursor=pointer]:
+          - 'button "POST /api/v1/cases/{case_id}/reject Reject" [ref=f3e273]':
+            - generic [ref=f3e274]: POST
+            - generic [ref=f3e275]:
+              - link [ref=f3e277]:
+                - /url: "#/cases/reject_api_v1_cases__case_id__reject_post"
+              - generic [ref=f3e279]: Reject
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e282]
+          - 'button "post /api/v1/cases/{case_id}/reject" [ref=f3e285]'
+        - generic [ref=f3e290] [cursor=pointer]:
+          - 'button "POST /api/v1/cases/{case_id}/request-recheck Request Recheck" [ref=f3e291]':
+            - generic [ref=f3e292]: POST
+            - generic [ref=f3e293]:
+              - link [ref=f3e295]:
+                - /url: "#/cases/request_recheck_api_v1_cases__case_id__request_recheck_post"
+              - generic [ref=f3e297]: Request Recheck
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e300]
+          - 'button "post /api/v1/cases/{case_id}/request-recheck" [ref=f3e303]'
+    - generic [ref=f3e307]:
+      - heading [level=3] [ref=f3e308] [cursor=pointer]:
+        - link "media" [ref=f3e309]:
+          - /url: "#/media"
+        - button "Collapse operation" [expanded] [ref=f3e310]
+      - generic [ref=f3e317] [cursor=pointer]:
+        - 'button "GET /api/v1/media/{filename} Get Media" [ref=f3e318]':
+          - generic [ref=f3e319]: GET
+          - generic [ref=f3e320]:
+            - link [ref=f3e322]:
+              - /url: "#/media/get_media_api_v1_media__filename__get"
+            - generic [ref=f3e324]: Get Media
+        - generic "Copy to clipboard"
+        - button "authorization button unlocked" [ref=f3e327]
+        - 'button "get /api/v1/media/{filename}" [ref=f3e330]'
+    - generic [ref=f3e334]:
+      - heading [level=3] [ref=f3e335] [cursor=pointer]:
+        - link "violations" [ref=f3e336]:
+          - /url: "#/violations"
+        - button "Collapse operation" [expanded] [ref=f3e337]
+      - generic [ref=f3e341]:
+        - generic [ref=f3e344] [cursor=pointer]:
+          - button "GET /api/v1/violations List Violations" [ref=f3e345]:
+            - generic [ref=f3e346]: GET
+            - generic [ref=f3e347]:
+              - link [ref=f3e349]:
+                - /url: "#/violations/list_violations_api_v1_violations_get"
+              - generic [ref=f3e351]: List Violations
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e354]
+          - button "get /api/v1/violations" [ref=f3e357]
+        - generic [ref=f3e362] [cursor=pointer]:
+          - 'button "GET /api/v1/violations/{violation_id} Get Violation" [ref=f3e363]':
+            - generic [ref=f3e364]: GET
+            - generic [ref=f3e365]:
+              - link [ref=f3e367]:
+                - /url: "#/violations/get_violation_api_v1_violations__violation_id__get"
+              - generic [ref=f3e369]: Get Violation
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e372]
+          - 'button "get /api/v1/violations/{violation_id}" [ref=f3e375]'
+        - generic [ref=f3e380] [cursor=pointer]:
+          - 'button "GET /api/v1/owners/{owner_id}/violations Owner Violations" [ref=f3e381]':
+            - generic [ref=f3e382]: GET
+            - generic [ref=f3e383]:
+              - link [ref=f3e385]:
+                - /url: "#/violations/owner_violations_api_v1_owners__owner_id__violations_get"
+              - generic [ref=f3e387]: Owner Violations
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e390]
+          - 'button "get /api/v1/owners/{owner_id}/violations" [ref=f3e393]'
+    - generic [ref=f3e397]:
+      - heading [level=3] [ref=f3e398] [cursor=pointer]:
+        - link "statistics" [ref=f3e399]:
+          - /url: "#/statistics"
+        - button "Collapse operation" [expanded] [ref=f3e400]
+      - generic [ref=f3e404]:
+        - generic [ref=f3e407] [cursor=pointer]:
+          - button "GET /api/v1/statistics/overview Overview" [ref=f3e408]:
+            - generic [ref=f3e409]: GET
+            - generic [ref=f3e410]:
+              - link [ref=f3e412]:
+                - /url: "#/statistics/overview_api_v1_statistics_overview_get"
+              - generic [ref=f3e414]: Overview
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e417]
+          - button "get /api/v1/statistics/overview" [ref=f3e420]
+        - generic [ref=f3e425] [cursor=pointer]:
+          - button "GET /api/v1/statistics/by-location By Location" [ref=f3e426]:
+            - generic [ref=f3e427]: GET
+            - generic [ref=f3e428]:
+              - link [ref=f3e430]:
+                - /url: "#/statistics/by_location_api_v1_statistics_by_location_get"
+              - generic [ref=f3e432]: By Location
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e435]
+          - button "get /api/v1/statistics/by-location" [ref=f3e438]
+        - generic [ref=f3e443] [cursor=pointer]:
+          - button "GET /api/v1/statistics/by-type By Type" [ref=f3e444]:
+            - generic [ref=f3e445]: GET
+            - generic [ref=f3e446]:
+              - link [ref=f3e448]:
+                - /url: "#/statistics/by_type_api_v1_statistics_by_type_get"
+              - generic [ref=f3e450]: By Type
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e453]
+          - button "get /api/v1/statistics/by-type" [ref=f3e456]
+        - generic [ref=f3e461] [cursor=pointer]:
+          - button "GET /api/v1/statistics/by-time By Time" [ref=f3e462]:
+            - generic [ref=f3e463]: GET
+            - generic [ref=f3e464]:
+              - link [ref=f3e466]:
+                - /url: "#/statistics/by_time_api_v1_statistics_by_time_get"
+              - generic [ref=f3e468]: By Time
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e471]
+          - button "get /api/v1/statistics/by-time" [ref=f3e474]
+    - generic [ref=f3e478]:
+      - heading [level=3] [ref=f3e479] [cursor=pointer]:
+        - link "cameras" [ref=f3e480]:
+          - /url: "#/cameras"
+        - button "Collapse operation" [expanded] [ref=f3e481]
+      - generic [ref=f3e485]:
+        - generic [ref=f3e488] [cursor=pointer]:
+          - button "POST /api/v1/admin/cameras Create Device" [ref=f3e489]:
+            - generic [ref=f3e490]: POST
+            - generic [ref=f3e491]:
+              - link [ref=f3e493]:
+                - /url: "#/cameras/create_device_api_v1_admin_cameras_post"
+              - generic [ref=f3e495]: Create Device
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e498]
+          - button "post /api/v1/admin/cameras" [ref=f3e501]
+        - generic [ref=f3e506] [cursor=pointer]:
+          - button "GET /api/v1/admin/cameras List Devices" [ref=f3e507]:
+            - generic [ref=f3e508]: GET
+            - generic [ref=f3e509]:
+              - link [ref=f3e511]:
+                - /url: "#/cameras/list_devices_api_v1_admin_cameras_get"
+              - generic [ref=f3e513]: List Devices
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e516]
+          - button "get /api/v1/admin/cameras" [ref=f3e519]
+        - generic [ref=f3e524] [cursor=pointer]:
+          - 'button "GET /api/v1/admin/cameras/{device_id} Get Device" [ref=f3e525]':
+            - generic [ref=f3e526]: GET
+            - generic [ref=f3e527]:
+              - link [ref=f3e529]:
+                - /url: "#/cameras/get_device_api_v1_admin_cameras__device_id__get"
+              - generic [ref=f3e531]: Get Device
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e534]
+          - 'button "get /api/v1/admin/cameras/{device_id}" [ref=f3e537]'
+        - generic [ref=f3e542] [cursor=pointer]:
+          - 'button "PATCH /api/v1/admin/cameras/{device_id} Update Device" [ref=f3e543]':
+            - generic [ref=f3e544]: PATCH
+            - generic [ref=f3e545]:
+              - link [ref=f3e547]:
+                - /url: "#/cameras/update_device_api_v1_admin_cameras__device_id__patch"
+              - generic [ref=f3e549]: Update Device
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e552]
+          - 'button "patch /api/v1/admin/cameras/{device_id}" [ref=f3e555]'
+        - generic [ref=f3e560] [cursor=pointer]:
+          - 'button "POST /api/v1/admin/cameras/{device_id}/keys Create Key" [ref=f3e561]':
+            - generic [ref=f3e562]: POST
+            - generic [ref=f3e563]:
+              - link [ref=f3e565]:
+                - /url: "#/cameras/create_key_api_v1_admin_cameras__device_id__keys_post"
+              - generic [ref=f3e567]: Create Key
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e570]
+          - 'button "post /api/v1/admin/cameras/{device_id}/keys" [ref=f3e573]'
+        - generic [ref=f3e578] [cursor=pointer]:
+          - 'button "GET /api/v1/admin/cameras/{device_id}/keys List Keys" [ref=f3e579]':
+            - generic [ref=f3e580]: GET
+            - generic [ref=f3e581]:
+              - link [ref=f3e583]:
+                - /url: "#/cameras/list_keys_api_v1_admin_cameras__device_id__keys_get"
+              - generic [ref=f3e585]: List Keys
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e588]
+          - 'button "get /api/v1/admin/cameras/{device_id}/keys" [ref=f3e591]'
+        - generic [ref=f3e596] [cursor=pointer]:
+          - 'button "POST /api/v1/admin/cameras/{device_id}/keys/{key_id}/revoke Revoke Key" [ref=f3e597]':
+            - generic [ref=f3e598]: POST
+            - generic [ref=f3e599]:
+              - link [ref=f3e601]:
+                - /url: "#/cameras/revoke_key_api_v1_admin_cameras__device_id__keys__key_id__revoke_post"
+              - generic [ref=f3e603]: Revoke Key
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e606]
+          - 'button "post /api/v1/admin/cameras/{device_id}/keys/{key_id}/revoke" [ref=f3e609]'
+    - generic [ref=f3e613]:
+      - heading [level=3] [ref=f3e614] [cursor=pointer]:
+        - link "users" [ref=f3e615]:
+          - /url: "#/users"
+        - button "Collapse operation" [expanded] [ref=f3e616]
+      - generic [ref=f3e620]:
+        - generic [ref=f3e623] [cursor=pointer]:
+          - button "POST /api/v1/admin/users Create User" [ref=f3e624]:
+            - generic [ref=f3e625]: POST
+            - generic [ref=f3e626]:
+              - link [ref=f3e628]:
+                - /url: "#/users/create_user_api_v1_admin_users_post"
+              - generic [ref=f3e630]: Create User
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e633]
+          - button "post /api/v1/admin/users" [ref=f3e636]
+        - generic [ref=f3e641] [cursor=pointer]:
+          - button "GET /api/v1/admin/users List Users" [ref=f3e642]:
+            - generic [ref=f3e643]: GET
+            - generic [ref=f3e644]:
+              - link [ref=f3e646]:
+                - /url: "#/users/list_users_api_v1_admin_users_get"
+              - generic [ref=f3e648]: List Users
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e651]
+          - button "get /api/v1/admin/users" [ref=f3e654]
+        - generic [ref=f3e659] [cursor=pointer]:
+          - 'button "GET /api/v1/admin/users/{user_id} Get User" [ref=f3e660]':
+            - generic [ref=f3e661]: GET
+            - generic [ref=f3e662]:
+              - link [ref=f3e664]:
+                - /url: "#/users/get_user_api_v1_admin_users__user_id__get"
+              - generic [ref=f3e666]: Get User
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e669]
+          - 'button "get /api/v1/admin/users/{user_id}" [ref=f3e672]'
+        - generic [ref=f3e677] [cursor=pointer]:
+          - 'button "PATCH /api/v1/admin/users/{user_id} Update User" [ref=f3e678]':
+            - generic [ref=f3e679]: PATCH
+            - generic [ref=f3e680]:
+              - link [ref=f3e682]:
+                - /url: "#/users/update_user_api_v1_admin_users__user_id__patch"
+              - generic [ref=f3e684]: Update User
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e687]
+          - 'button "patch /api/v1/admin/users/{user_id}" [ref=f3e690]'
+    - generic [ref=f3e694]:
+      - heading [level=3] [ref=f3e695] [cursor=pointer]:
+        - link "vehicles" [ref=f3e696]:
+          - /url: "#/vehicles"
+        - button "Collapse operation" [expanded] [ref=f3e697]
+      - generic [ref=f3e701]:
+        - generic [ref=f3e704] [cursor=pointer]:
+          - button "POST /api/v1/admin/vehicles Create Vehicle" [ref=f3e705]:
+            - generic [ref=f3e706]: POST
+            - generic [ref=f3e707]:
+              - link [ref=f3e709]:
+                - /url: "#/vehicles/create_vehicle_api_v1_admin_vehicles_post"
+              - generic [ref=f3e711]: Create Vehicle
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e714]
+          - button "post /api/v1/admin/vehicles" [ref=f3e717]
+        - generic [ref=f3e722] [cursor=pointer]:
+          - button "GET /api/v1/admin/vehicles List Vehicles" [ref=f3e723]:
+            - generic [ref=f3e724]: GET
+            - generic [ref=f3e725]:
+              - link [ref=f3e727]:
+                - /url: "#/vehicles/list_vehicles_api_v1_admin_vehicles_get"
+              - generic [ref=f3e729]: List Vehicles
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e732]
+          - button "get /api/v1/admin/vehicles" [ref=f3e735]
+        - generic [ref=f3e740] [cursor=pointer]:
+          - 'button "GET /api/v1/admin/vehicles/{vehicle_id} Get Vehicle" [ref=f3e741]':
+            - generic [ref=f3e742]: GET
+            - generic [ref=f3e743]:
+              - link [ref=f3e745]:
+                - /url: "#/vehicles/get_vehicle_api_v1_admin_vehicles__vehicle_id__get"
+              - generic [ref=f3e747]: Get Vehicle
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e750]
+          - 'button "get /api/v1/admin/vehicles/{vehicle_id}" [ref=f3e753]'
+        - generic [ref=f3e758] [cursor=pointer]:
+          - 'button "PATCH /api/v1/admin/vehicles/{vehicle_id} Update Vehicle" [ref=f3e759]':
+            - generic [ref=f3e760]: PATCH
+            - generic [ref=f3e761]:
+              - link [ref=f3e763]:
+                - /url: "#/vehicles/update_vehicle_api_v1_admin_vehicles__vehicle_id__patch"
+              - generic [ref=f3e765]: Update Vehicle
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e768]
+          - 'button "patch /api/v1/admin/vehicles/{vehicle_id}" [ref=f3e771]'
+        - generic [ref=f3e776] [cursor=pointer]:
+          - button "GET /api/v1/vehicles/me List My Vehicles" [ref=f3e777]:
+            - generic [ref=f3e778]: GET
+            - generic [ref=f3e779]:
+              - link [ref=f3e781]:
+                - /url: "#/vehicles/list_my_vehicles_api_v1_vehicles_me_get"
+              - generic [ref=f3e783]: List My Vehicles
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e786]
+          - button "get /api/v1/vehicles/me" [ref=f3e789]
+        - generic [ref=f3e794] [cursor=pointer]:
+          - button "POST /api/v1/vehicles/me Bind My Vehicle" [ref=f3e795]:
+            - generic [ref=f3e796]: POST
+            - generic [ref=f3e797]:
+              - link [ref=f3e799]:
+                - /url: "#/vehicles/bind_my_vehicle_api_v1_vehicles_me_post"
+              - generic [ref=f3e801]: Bind My Vehicle
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e804]
+          - button "post /api/v1/vehicles/me" [ref=f3e807]
+        - generic [ref=f3e812] [cursor=pointer]:
+          - 'button "DELETE /api/v1/vehicles/me/{vehicle_id} Unbind My Vehicle" [ref=f3e813]':
+            - generic [ref=f3e814]: DELETE
+            - generic [ref=f3e815]:
+              - link [ref=f3e817]:
+                - /url: "#/vehicles/unbind_my_vehicle_api_v1_vehicles_me__vehicle_id__delete"
+              - generic [ref=f3e819]: Unbind My Vehicle
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e822]
+          - 'button "delete /api/v1/vehicles/me/{vehicle_id}" [ref=f3e825]'
+    - generic [ref=f3e829]:
+      - heading [level=3] [ref=f3e830] [cursor=pointer]:
+        - link "rewards" [ref=f3e831]:
+          - /url: "#/rewards"
+        - button "Collapse operation" [expanded] [ref=f3e832]
+      - generic [ref=f3e836]:
+        - generic [ref=f3e839] [cursor=pointer]:
+          - button "GET /api/v1/admin/rewards List Rewards" [ref=f3e840]:
+            - generic [ref=f3e841]: GET
+            - generic [ref=f3e842]:
+              - link [ref=f3e844]:
+                - /url: "#/rewards/list_rewards_api_v1_admin_rewards_get"
+              - generic [ref=f3e846]: List Rewards
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e849]
+          - button "get /api/v1/admin/rewards" [ref=f3e852]
+        - generic [ref=f3e857] [cursor=pointer]:
+          - 'button "GET /api/v1/admin/rewards/{reward_id} Get Reward" [ref=f3e858]':
+            - generic [ref=f3e859]: GET
+            - generic [ref=f3e860]:
+              - link [ref=f3e862]:
+                - /url: "#/rewards/get_reward_api_v1_admin_rewards__reward_id__get"
+              - generic [ref=f3e864]: Get Reward
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e867]
+          - 'button "get /api/v1/admin/rewards/{reward_id}" [ref=f3e870]'
+        - generic [ref=f3e875] [cursor=pointer]:
+          - 'button "POST /api/v1/admin/rewards/{reward_id}/pay Pay Reward" [ref=f3e876]':
+            - generic [ref=f3e877]: POST
+            - generic [ref=f3e878]:
+              - link [ref=f3e880]:
+                - /url: "#/rewards/pay_reward_api_v1_admin_rewards__reward_id__pay_post"
+              - generic [ref=f3e882]: Pay Reward
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e885]
+          - 'button "post /api/v1/admin/rewards/{reward_id}/pay" [ref=f3e888]'
+    - generic [ref=f3e892]:
+      - heading [level=3] [ref=f3e893] [cursor=pointer]:
+        - link "rules" [ref=f3e894]:
+          - /url: "#/rules"
+        - button "Collapse operation" [expanded] [ref=f3e895]
+      - generic [ref=f3e899]:
+        - generic [ref=f3e902] [cursor=pointer]:
+          - button "POST /api/v1/admin/rules Create Rule" [ref=f3e903]:
+            - generic [ref=f3e904]: POST
+            - generic [ref=f3e905]:
+              - link [ref=f3e907]:
+                - /url: "#/rules/create_rule_api_v1_admin_rules_post"
+              - generic [ref=f3e909]: Create Rule
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e912]
+          - button "post /api/v1/admin/rules" [ref=f3e915]
+        - generic [ref=f3e920] [cursor=pointer]:
+          - button "GET /api/v1/admin/rules List Rules" [ref=f3e921]:
+            - generic [ref=f3e922]: GET
+            - generic [ref=f3e923]:
+              - link [ref=f3e925]:
+                - /url: "#/rules/list_rules_api_v1_admin_rules_get"
+              - generic [ref=f3e927]: List Rules
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e930]
+          - button "get /api/v1/admin/rules" [ref=f3e933]
+        - generic [ref=f3e938] [cursor=pointer]:
+          - 'button "PATCH /api/v1/admin/rules/{rule_id} Update Rule" [ref=f3e939]':
+            - generic [ref=f3e940]: PATCH
+            - generic [ref=f3e941]:
+              - link [ref=f3e943]:
+                - /url: "#/rules/update_rule_api_v1_admin_rules__rule_id__patch"
+              - generic [ref=f3e945]: Update Rule
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e948]
+          - 'button "patch /api/v1/admin/rules/{rule_id}" [ref=f3e951]'
+    - generic [ref=f3e955]:
+      - heading [level=3] [ref=f3e956] [cursor=pointer]:
+        - link "analysis" [ref=f3e957]:
+          - /url: "#/analysis"
+        - button "Collapse operation" [expanded] [ref=f3e958]
+      - generic [ref=f3e965] [cursor=pointer]:
+        - button "POST /api/v1/analysis/reports Generate Report" [ref=f3e966]:
+          - generic [ref=f3e967]: POST
+          - generic [ref=f3e968]:
+            - link [ref=f3e970]:
+              - /url: "#/analysis/generate_report_api_v1_analysis_reports_post"
+            - generic [ref=f3e972]: Generate Report
+        - generic "Copy to clipboard"
+        - button "authorization button unlocked" [ref=f3e975]
+        - button "post /api/v1/analysis/reports" [ref=f3e978]
+    - generic [ref=f3e982]:
+      - heading [level=3] [ref=f3e983] [cursor=pointer]:
+        - link "audit-logs" [ref=f3e984]:
+          - /url: "#/audit-logs"
+        - button "Collapse operation" [expanded] [ref=f3e985]
+      - generic [ref=f3e992] [cursor=pointer]:
+        - button "GET /api/v1/admin/audit-logs List Audit Logs" [ref=f3e993]:
+          - generic [ref=f3e994]: GET
+          - generic [ref=f3e995]:
+            - link [ref=f3e997]:
+              - /url: "#/audit-logs/list_audit_logs_api_v1_admin_audit_logs_get"
+            - generic [ref=f3e999]: List Audit Logs
+        - generic "Copy to clipboard"
+        - button "authorization button unlocked" [ref=f3e1002]
+        - button "get /api/v1/admin/audit-logs" [ref=f3e1005]
+    - generic [ref=f3e1009]:
+      - heading [level=3] [ref=f3e1010] [cursor=pointer]:
+        - link "internal-ai" [ref=f3e1011]:
+          - /url: "#/internal-ai"
+        - button "Collapse operation" [expanded] [ref=f3e1012]
+      - generic [ref=f3e1016]:
+        - generic [ref=f3e1019] [cursor=pointer]:
+          - button "POST /internal/ai/yolo/detect Yolo Detect" [ref=f3e1020]:
+            - generic [ref=f3e1021]: POST
+            - generic [ref=f3e1022]:
+              - link [ref=f3e1024]:
+                - /url: "#/internal-ai/yolo_detect_internal_ai_yolo_detect_post"
+              - generic [ref=f3e1026]: Yolo Detect
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e1029]
+          - button "post /internal/ai/yolo/detect" [ref=f3e1032]
+        - generic [ref=f3e1037] [cursor=pointer]:
+          - button "POST /internal/ai/ocr/plate Ocr Plate" [ref=f3e1038]:
+            - generic [ref=f3e1039]: POST
+            - generic [ref=f3e1040]:
+              - link [ref=f3e1042]:
+                - /url: "#/internal-ai/ocr_plate_internal_ai_ocr_plate_post"
+              - generic [ref=f3e1044]: Ocr Plate
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e1047]
+          - button "post /internal/ai/ocr/plate" [ref=f3e1050]
+        - generic [ref=f3e1055] [cursor=pointer]:
+          - button "POST /internal/ai/rules/evaluate Rules Evaluate" [ref=f3e1056]:
+            - generic [ref=f3e1057]: POST
+            - generic [ref=f3e1058]:
+              - link [ref=f3e1060]:
+                - /url: "#/internal-ai/rules_evaluate_internal_ai_rules_evaluate_post"
+              - generic [ref=f3e1062]: Rules Evaluate
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e1065]
+          - button "post /internal/ai/rules/evaluate" [ref=f3e1068]
+        - generic [ref=f3e1073] [cursor=pointer]:
+          - button "POST /internal/ai/review/text Review Text" [ref=f3e1074]:
+            - generic [ref=f3e1075]: POST
+            - generic [ref=f3e1076]:
+              - link [ref=f3e1078]:
+                - /url: "#/internal-ai/review_text_internal_ai_review_text_post"
+              - generic [ref=f3e1080]: Review Text
+          - generic "Copy to clipboard"
+          - button "authorization button unlocked" [ref=f3e1083]
+          - button "post /internal/ai/review/text" [ref=f3e1086]
+    - generic [ref=f3e1090]:
+      - heading [level=3] [ref=f3e1091] [cursor=pointer]:
+        - link "default" [ref=f3e1092]:
+          - /url: "#/default"
+        - button "Collapse operation" [expanded] [ref=f3e1093]
+      - generic [ref=f3e1100] [cursor=pointer]:
+        - button "GET /health Health" [ref=f3e1101]:
+          - generic [ref=f3e1102]: GET
+          - generic [ref=f3e1103]:
+            - link "/health" [ref=f3e1105]:
+              - /url: "#/default/health_health_get"
+            - generic [ref=f3e1106]: Health
+        - generic "Copy to clipboard"
+        - button "get /health" [ref=f3e1109]
+  - generic [ref=f3e1114]:
+    - heading [level=4] [ref=f3e1115] [cursor=pointer]:
+      - button "Schemas" [expanded] [ref=f3e1116]
+    - generic [ref=f3e1120]:
+      - article [ref=f3e1121]:
+        - generic [ref=f3e1122]:
+          - button "AdminUserListResponse" [ref=f3e1123] [cursor=pointer]
+          - button "Expand all" [ref=f3e1129] [cursor=pointer]
+          - strong [ref=f3e1130]: object
+      - article [ref=f3e1131]:
+        - generic [ref=f3e1132]:
+          - button "AdminUserOut" [ref=f3e1133] [cursor=pointer]
+          - button "Expand all" [ref=f3e1139] [cursor=pointer]
+          - strong [ref=f3e1140]: object
+      - article [ref=f3e1141]:
+        - generic [ref=f3e1142]:
+          - button "ApproveRequest" [ref=f3e1143] [cursor=pointer]
+          - button "Expand all" [ref=f3e1149] [cursor=pointer]
+          - strong [ref=f3e1150]: object
+      - article [ref=f3e1151]:
+        - generic [ref=f3e1152]:
+          - button "AuditLogListResponse" [ref=f3e1153] [cursor=pointer]
+          - button "Expand all" [ref=f3e1159] [cursor=pointer]
+          - strong [ref=f3e1160]: object
+      - article [ref=f3e1161]:
+        - generic [ref=f3e1162]:
+          - button "AuditLogOut" [ref=f3e1163] [cursor=pointer]
+          - button "Expand all" [ref=f3e1169] [cursor=pointer]
+          - strong [ref=f3e1170]: object
+      - article [ref=f3e1171]:
+        - generic [ref=f3e1172]:
+          - button "Body_admin_upload_api_v1_intakes_admin_uploads_post" [ref=f3e1173] [cursor=pointer]
+          - button "Expand all" [ref=f3e1179] [cursor=pointer]
+          - strong [ref=f3e1180]: object
+      - article [ref=f3e1181]:
+        - generic [ref=f3e1182]:
+          - button "Body_camera_capture_api_v1_intakes_camera_captures_post" [ref=f3e1183] [cursor=pointer]
+          - button "Expand all" [ref=f3e1189] [cursor=pointer]
+          - strong [ref=f3e1190]: object
+      - article [ref=f3e1191]:
+        - generic [ref=f3e1192]:
+          - button "Body_citizen_report_api_v1_intakes_citizen_reports_post" [ref=f3e1193] [cursor=pointer]
+          - button "Expand all" [ref=f3e1199] [cursor=pointer]
+          - strong [ref=f3e1200]: object
+      - article [ref=f3e1201]:
+        - generic [ref=f3e1202]:
+          - button "Body_ocr_plate_internal_ai_ocr_plate_post" [ref=f3e1203] [cursor=pointer]
+          - button "Expand all" [ref=f3e1209] [cursor=pointer]
+          - strong [ref=f3e1210]: object
+      - article [ref=f3e1211]:
+        - generic [ref=f3e1212]:
+          - button "Body_yolo_detect_internal_ai_yolo_detect_post" [ref=f3e1213] [cursor=pointer]
+          - button "Expand all" [ref=f3e1219] [cursor=pointer]
+          - strong [ref=f3e1220]: object
+      - article [ref=f3e1221]:
+        - generic [ref=f3e1222]:
+          - button "ByLocationItem" [ref=f3e1223] [cursor=pointer]
+          - button "Expand all" [ref=f3e1229] [cursor=pointer]
+          - strong [ref=f3e1230]: object
+      - article [ref=f3e1231]:
+        - generic [ref=f3e1232]:
+          - button "ByLocationOut" [ref=f3e1233] [cursor=pointer]
+          - button "Expand all" [ref=f3e1239] [cursor=pointer]
+          - strong [ref=f3e1240]: object
+      - article [ref=f3e1241]:
+        - generic [ref=f3e1242]:
+          - button "ByTimeItem" [ref=f3e1243] [cursor=pointer]
+          - button "Expand all" [ref=f3e1249] [cursor=pointer]
+          - strong [ref=f3e1250]: object
+      - article [ref=f3e1251]:
+        - generic [ref=f3e1252]:
+          - button "ByTimeOut" [ref=f3e1253] [cursor=pointer]
+          - button "Expand all" [ref=f3e1259] [cursor=pointer]
+          - strong [ref=f3e1260]: object
+      - article [ref=f3e1261]:
+        - generic [ref=f3e1262]:
+          - button "ByTypeItem" [ref=f3e1263] [cursor=pointer]
+          - button "Expand all" [ref=f3e1269] [cursor=pointer]
+          - strong [ref=f3e1270]: object
+      - article [ref=f3e1271]:
+        - generic [ref=f3e1272]:
+          - button "ByTypeOut" [ref=f3e1273] [cursor=pointer]
+          - button "Expand all" [ref=f3e1279] [cursor=pointer]
+          - strong [ref=f3e1280]: object
+      - article [ref=f3e1281]:
+        - generic [ref=f3e1282]:
+          - button "CameraDeviceCreateIn" [ref=f3e1283] [cursor=pointer]
+          - button "Expand all" [ref=f3e1289] [cursor=pointer]
+          - strong [ref=f3e1290]: object
+      - article [ref=f3e1291]:
+        - generic [ref=f3e1292]:
+          - button "CameraDeviceListResponse" [ref=f3e1293] [cursor=pointer]
+          - button "Expand all" [ref=f3e1299] [cursor=pointer]
+          - strong [ref=f3e1300]: object
+      - article [ref=f3e1301]:
+        - generic [ref=f3e1302]:
+          - button "CameraDeviceOut" [ref=f3e1303] [cursor=pointer]
+          - button "Expand all" [ref=f3e1309] [cursor=pointer]
+          - strong [ref=f3e1310]: object
+      - article [ref=f3e1311]:
+        - generic [ref=f3e1312]:
+          - button "CameraDeviceUpdateIn" [ref=f3e1313] [cursor=pointer]
+          - button "Expand all" [ref=f3e1319] [cursor=pointer]
+          - strong [ref=f3e1320]: object
+      - article [ref=f3e1321]:
+        - generic [ref=f3e1322]:
+          - button "CameraKeyCreateOut" [ref=f3e1323] [cursor=pointer]
+          - button "Expand all" [ref=f3e1329] [cursor=pointer]
+          - strong [ref=f3e1330]: object
+      - article [ref=f3e1331]:
+        - generic [ref=f3e1332]:
+          - button "CameraKeyListResponse" [ref=f3e1333] [cursor=pointer]
+          - button "Expand all" [ref=f3e1339] [cursor=pointer]
+          - strong [ref=f3e1340]: object
+      - article [ref=f3e1341]:
+        - generic [ref=f3e1342]:
+          - button "CameraKeyOut" [ref=f3e1343] [cursor=pointer]
+          - button "Expand all" [ref=f3e1349] [cursor=pointer]
+          - strong [ref=f3e1350]: object
+      - article [ref=f3e1351]:
+        - generic [ref=f3e1352]:
+          - button "CaseDetail" [ref=f3e1353] [cursor=pointer]
+          - button "Expand all" [ref=f3e1359] [cursor=pointer]
+          - strong [ref=f3e1360]: object
+      - article [ref=f3e1361]:
+        - generic [ref=f3e1362]:
+          - button "CaseListItem" [ref=f3e1363] [cursor=pointer]
+          - button "Expand all" [ref=f3e1369] [cursor=pointer]
+          - strong [ref=f3e1370]: object
+      - article [ref=f3e1371]:
+        - generic [ref=f3e1372]:
+          - button "CaseListResponse" [ref=f3e1373] [cursor=pointer]
+          - button "Expand all" [ref=f3e1379] [cursor=pointer]
+          - strong [ref=f3e1380]: object
+      - article [ref=f3e1381]:
+        - generic [ref=f3e1382]:
+          - button "DetectionOut" [ref=f3e1383] [cursor=pointer]
+          - button "Expand all" [ref=f3e1389] [cursor=pointer]
+          - strong [ref=f3e1390]: object
+      - article [ref=f3e1391]:
+        - generic [ref=f3e1392]:
+          - button "HTTPValidationError" [ref=f3e1393] [cursor=pointer]
+          - button "Expand all" [ref=f3e1399] [cursor=pointer]
+          - strong [ref=f3e1400]: object
+      - article [ref=f3e1401]:
+        - generic [ref=f3e1402]:
+          - button "IntakeResponse" [ref=f3e1403] [cursor=pointer]
+          - button "Expand all" [ref=f3e1409] [cursor=pointer]
+          - strong [ref=f3e1410]: object
+      - article [ref=f3e1411]:
+        - generic [ref=f3e1412]:
+          - button "LoginRequest" [ref=f3e1413] [cursor=pointer]
+          - button "Expand all" [ref=f3e1419] [cursor=pointer]
+          - strong [ref=f3e1420]: object
+      - article [ref=f3e1421]:
+        - generic [ref=f3e1422]:
+          - button "MenusOut" [ref=f3e1423] [cursor=pointer]
+          - button "Expand all" [ref=f3e1429] [cursor=pointer]
+          - strong [ref=f3e1430]: object
+      - article [ref=f3e1431]:
+        - generic [ref=f3e1432]:
+          - button "OcrOut" [ref=f3e1433] [cursor=pointer]
+          - button "Expand all" [ref=f3e1439] [cursor=pointer]
+          - strong [ref=f3e1440]: object
+      - article [ref=f3e1441]:
+        - generic [ref=f3e1442]:
+          - button "OverviewOut" [ref=f3e1443] [cursor=pointer]
+          - button "Expand all" [ref=f3e1449] [cursor=pointer]
+          - strong [ref=f3e1450]: object
+      - article [ref=f3e1451]:
+        - generic [ref=f3e1452]:
+          - button "PasswordChangeRequest" [ref=f3e1453] [cursor=pointer]
+          - button "Expand all" [ref=f3e1459] [cursor=pointer]
+          - strong [ref=f3e1460]: object
+      - article [ref=f3e1461]:
+        - generic [ref=f3e1462]:
+          - button "ProfileUpdateRequest" [ref=f3e1463] [cursor=pointer]
+          - button "Expand all" [ref=f3e1469] [cursor=pointer]
+          - strong [ref=f3e1470]: object
+      - article [ref=f3e1471]:
+        - generic [ref=f3e1472]:
+          - button "RecheckResponse" [ref=f3e1473] [cursor=pointer]
+          - button "Expand all" [ref=f3e1479] [cursor=pointer]
+          - strong [ref=f3e1480]: object
+      - article [ref=f3e1481]:
+        - generic [ref=f3e1482]:
+          - button "RegisterRequest" [ref=f3e1483] [cursor=pointer]
+          - button "Expand all" [ref=f3e1489] [cursor=pointer]
+          - strong [ref=f3e1490]: object
+      - article [ref=f3e1491]:
+        - generic [ref=f3e1492]:
+          - button "RejectRequest" [ref=f3e1493] [cursor=pointer]
+          - button "Expand all" [ref=f3e1499] [cursor=pointer]
+          - strong [ref=f3e1500]: object
+      - article [ref=f3e1501]:
+        - generic [ref=f3e1502]:
+          - button "ReportOut" [ref=f3e1503] [cursor=pointer]
+          - button "Expand all" [ref=f3e1509] [cursor=pointer]
+          - strong [ref=f3e1510]: object
+      - article [ref=f3e1511]:
+        - generic [ref=f3e1512]:
+          - button "ReportRequest" [ref=f3e1513] [cursor=pointer]
+          - button "Expand all" [ref=f3e1519] [cursor=pointer]
+          - strong [ref=f3e1520]: object
+      - article [ref=f3e1521]:
+        - generic [ref=f3e1522]:
+          - button "ReviewOut" [ref=f3e1523] [cursor=pointer]
+          - button "Expand all" [ref=f3e1529] [cursor=pointer]
+          - strong [ref=f3e1530]: object
+      - article [ref=f3e1531]:
+        - generic [ref=f3e1532]:
+          - button "RewardListResponse" [ref=f3e1533] [cursor=pointer]
+          - button "Expand all" [ref=f3e1539] [cursor=pointer]
+          - strong [ref=f3e1540]: object
+      - article [ref=f3e1541]:
+        - generic [ref=f3e1542]:
+          - button "RewardOut" [ref=f3e1543] [cursor=pointer]
+          - button "Expand all" [ref=f3e1549] [cursor=pointer]
+          - strong [ref=f3e1550]: object
+      - article [ref=f3e1551]:
+        - generic [ref=f3e1552]:
+          - button "RuleEvalOut" [ref=f3e1553] [cursor=pointer]
+          - button "Expand all" [ref=f3e1559] [cursor=pointer]
+          - strong [ref=f3e1560]: object
+      - article [ref=f3e1561]:
+        - generic [ref=f3e1562]:
+          - button "TokenResponse" [ref=f3e1563] [cursor=pointer]
+          - button "Expand all" [ref=f3e1569] [cursor=pointer]
+          - strong [ref=f3e1570]: object
+      - article [ref=f3e1571]:
+        - generic [ref=f3e1572]:
+          - button "UserCreateIn" [ref=f3e1573] [cursor=pointer]
+          - button "Expand all" [ref=f3e1579] [cursor=pointer]
+          - strong [ref=f3e1580]: object
+      - article [ref=f3e1581]:
+        - generic [ref=f3e1582]:
+          - button "UserOut" [ref=f3e1583] [cursor=pointer]
+          - button "Expand all" [ref=f3e1589] [cursor=pointer]
+          - strong [ref=f3e1590]: object
+      - article [ref=f3e1591]:
+        - generic [ref=f3e1592]:
+          - button "UserUpdateIn" [ref=f3e1593] [cursor=pointer]
+          - button "Expand all" [ref=f3e1599] [cursor=pointer]
+          - strong [ref=f3e1600]: object
+      - article [ref=f3e1601]:
+        - generic [ref=f3e1602]:
+          - button "ValidationError" [ref=f3e1603] [cursor=pointer]
+          - button "Expand all" [ref=f3e1609] [cursor=pointer]
+          - strong [ref=f3e1610]: object
+      - article [ref=f3e1611]:
+        - generic [ref=f3e1612]:
+          - button "VehicleBindIn" [ref=f3e1613] [cursor=pointer]
+          - button "Expand all" [ref=f3e1619] [cursor=pointer]
+          - strong [ref=f3e1620]: object
+      - article [ref=f3e1621]:
+        - generic [ref=f3e1622]:
+          - button "VehicleCreateIn" [ref=f3e1623] [cursor=pointer]
+          - button "Expand all" [ref=f3e1629] [cursor=pointer]
+          - strong [ref=f3e1630]: object
+      - article [ref=f3e1631]:
+        - generic [ref=f3e1632]:
+          - button "VehicleListResponse" [ref=f3e1633] [cursor=pointer]
+          - button "Expand all" [ref=f3e1639] [cursor=pointer]
+          - strong [ref=f3e1640]: object
+      - article [ref=f3e1641]:
+        - generic [ref=f3e1642]:
+          - button "VehicleOut" [ref=f3e1643] [cursor=pointer]
+          - button "Expand all" [ref=f3e1649] [cursor=pointer]
+          - strong [ref=f3e1650]: object
+      - article [ref=f3e1651]:
+        - generic [ref=f3e1652]:
+          - button "VehicleUpdateIn" [ref=f3e1653] [cursor=pointer]
+          - button "Expand all" [ref=f3e1659] [cursor=pointer]
+          - strong [ref=f3e1660]: object
+      - article [ref=f3e1661]:
+        - generic [ref=f3e1662]:
+          - button "ViolationListResponse" [ref=f3e1663] [cursor=pointer]
+          - button "Expand all" [ref=f3e1669] [cursor=pointer]
+          - strong [ref=f3e1670]: object
+      - article [ref=f3e1671]:
+        - generic [ref=f3e1672]:
+          - button "ViolationOut" [ref=f3e1673] [cursor=pointer]
+          - button "Expand all" [ref=f3e1679] [cursor=pointer]
+          - strong [ref=f3e1680]: object
+      - article [ref=f3e1681]:
+        - generic [ref=f3e1682]:
+          - button "ViolationRuleCreateIn" [ref=f3e1683] [cursor=pointer]
+          - button "Expand all" [ref=f3e1689] [cursor=pointer]
+          - strong [ref=f3e1690]: object
+      - article [ref=f3e1691]:
+        - generic [ref=f3e1692]:
+          - button "ViolationRuleListResponse" [ref=f3e1693] [cursor=pointer]
+          - button "Expand all" [ref=f3e1699] [cursor=pointer]
+          - strong [ref=f3e1700]: object
+      - article [ref=f3e1701]:
+        - generic [ref=f3e1702]:
+          - button "ViolationRuleOut" [ref=f3e1703] [cursor=pointer]
+          - button "Expand all" [ref=f3e1709] [cursor=pointer]
+          - strong [ref=f3e1710]: object
+      - article [ref=f3e1711]:
+        - generic [ref=f3e1712]:
+          - button "ViolationRuleUpdateIn" [ref=f3e1713] [cursor=pointer]
+          - button "Expand all" [ref=f3e1719] [cursor=pointer]
+          - strong [ref=f3e1720]: object

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="accentBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#409EFF" /><stop offset="100%" stop-color="#00d4ff" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a1628" />
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accentBar)" />
+  <text x="60" y="52" font-family="Microsoft YaHei, sans-serif" font-size="32" font-weight="bold" fill="#409EFF">登录鉴权 — JWT + RBAC 四角色</text>
+  <line x1="60" y1="80" x2="1220" y2="80" stroke="#1a3050" stroke-width="1" />
+
+  
+  <path fill="#0f1d32" d="M68,110 H612 A8,8 0 0 1 620,118 V192 A8,8 0 0 1 612,200 H68 A8,8 0 0 1 60,192 V118 A8,8 0 0 1 68,110 Z" />
+  <text x="80" y="140" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">认证机制</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#c0c4cc">
+    <text x="95" y="165">JWT 无状态认证，60 分钟自动过期</text>
+    <text x="95" y="188">bcrypt 密码哈希，不明文存储</text>
+  </g>
+
+  <path fill="#0f1d32" d="M68,220 H612 A8,8 0 0 1 620,228 V342 A8,8 0 0 1 612,350 H68 A8,8 0 0 1 60,342 V228 A8,8 0 0 1 68,220 Z" />
+  <text x="80" y="250" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">RBAC 四角色</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#c0c4cc">
+    <text x="95" y="275"><tspan fill="#67c23a">citizen</tspan> — 随手拍举报 · 查看自己违章 · 车辆绑定</text>
+    <text x="95" y="298"><tspan fill="#409EFF">reviewer</tspan> — 审核案件 · 查看统计 · 上传证据</text>
+    <text x="95" y="321"><tspan fill="#f56c6c">admin</tspan> — 全部权限 + 管理用户/摄像头/规则</text>
+    <text x="95" y="344"><tspan fill="#8899aa">camera</tspan> — 仅可推送图片（API Key 鉴权）</text>
+  </g>
+
+  <path fill="#0f1d32" d="M68,370 H612 A8,8 0 0 1 620,378 V492 A8,8 0 0 1 612,500 H68 A8,8 0 0 1 60,492 V378 A8,8 0 0 1 68,370 Z" />
+  <text x="80" y="400" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#e0e0e0">鉴权实现</text>
+  <g font-family="Consolas, monospace" font-size="12" fill="#c0c4cc">
+    <text x="95" y="420"><tspan fill="#5b8def">from</tspan><tspan fill="#e0e0e0"> app.core.deps </tspan><tspan fill="#5b8def">import</tspan><tspan fill="#e0e0e0"> require_role</tspan></text>
+    <text x="95" y="440"><tspan fill="#8899aa">@router</tspan><tspan fill="#e0e0e0">.post(</tspan><tspan fill="#00d4ff">"/cases/{id}/approve"</tspan><tspan fill="#e0e0e0">)</tspan></text>
+    <text x="95" y="460"><tspan fill="#8899aa">def</tspan><tspan fill="#00d4ff"> approve</tspan><tspan fill="#e0e0e0">(user:</tspan><tspan fill="#409EFF"> Depends</tspan><tspan fill="#e0e0e0">(require_role(</tspan><tspan fill="#67c23a">"reviewer","admin"</tspan><tspan fill="#e0e0e0">))):</tspan></text>
+    <text x="95" y="480"><tspan fill="#e0e0e0">  return ReviewService(db, provider).approve(...)</tspan></text>
+  </g>
+
+  
+  <path fill="#0f1d32" d="M668,110 H1212 A8,8 0 0 1 1220,118 V382 A8,8 0 0 1 1212,390 H668 A8,8 0 0 1 660,382 V118 A8,8 0 0 1 668,110 Z" />
+  <text x="685" y="140" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">POST /api/v1/auth/login</text>
+  <g font-family="Consolas, monospace" font-size="12">
+    <text x="685" y="170" fill="#8899aa">// 请求</text>
+    <text x="695" y="192" fill="#c0c4cc">{</text>
+    <text x="710" y="212" fill="#00d4ff">"username"</text><text x="810" y="212" fill="#c0c4cc">: </text><text x="820" y="212" fill="#67c23a">"admin"</text><text x="880" y="212" fill="#c0c4cc">,</text>
+    <text x="710" y="232" fill="#00d4ff">"password"</text><text x="810" y="232" fill="#c0c4cc">: </text><text x="820" y="232" fill="#67c23a">"admin1234"</text>
+    <text x="695" y="252" fill="#c0c4cc">}</text>
+    <text x="685" y="280" fill="#8899aa">// 响应 200 OK</text>
+    <text x="695" y="302" fill="#c0c4cc">{</text>
+    <text x="710" y="322" fill="#00d4ff">"access_token"</text><text x="830" y="322" fill="#c0c4cc">: </text><text x="840" y="322" fill="#67c23a">"eyJhbGciOiJIUzI1NiIs..."</text><text x="1040" y="322" fill="#c0c4cc">,</text>
+    <text x="710" y="342" fill="#00d4ff">"token_type"</text><text x="830" y="342" fill="#c0c4cc">: </text><text x="840" y="342" fill="#67c23a">"bearer"</text><text x="1040" y="342" fill="#c0c4cc">,</text>
+    <text x="710" y="362" fill="#00d4ff">"user"</text><text x="830" y="362" fill="#c0c4cc">: {</text><text x="840" y="362" fill="#00d4ff">"id"</text><text x="880" y="362" fill="#c0c4cc">: 1, </text><text x="930" y="362" fill="#00d4ff">"role_code"</text><text x="1030" y="362" fill="#c0c4cc">: </text><text x="1040" y="362" fill="#67c23a">"admin"</text><text x="1100" y="362" fill="#c0c4cc">}</text>
+    <text x="695" y="382" fill="#c0c4cc">}</text>
+  </g>
+
+  <path fill="#0f1d32" d="M668,410 H1212 A8,8 0 0 1 1220,418 V542 A8,8 0 0 1 1212,550 H668 A8,8 0 0 1 660,542 V418 A8,8 0 0 1 668,410 Z" />
+  <text x="685" y="440" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#00d4ff">GET /api/v1/auth/me</text>
+  <g font-family="Consolas, monospace" font-size="12">
+    <text x="685" y="470" fill="#8899aa">// Authorization: Bearer eyJ...</text>
+    <text x="685" y="500" fill="#c0c4cc">{ </text><text x="695" y="500" fill="#00d4ff">"id"</text><text x="740" y="500" fill="#c0c4cc">: 1, </text><text x="790" y="500" fill="#00d4ff">"username"</text><text x="900" y="500" fill="#c0c4cc">: </text><text x="910" y="500" fill="#67c23a">"admin"</text><text x="980" y="500" fill="#c0c4cc">, </text><text x="1000" y="500" fill="#00d4ff">"role_code"</text><text x="1100" y="500" fill="#c0c4cc">: </text><text x="1110" y="500" fill="#67c23a">"admin"</text><text x="1170" y="500" fill="#c0c4cc"> }</text>
+    <text x="685" y="530" fill="#556677">→ 无 token 返回 401 · 角色不匹配返回 403</text>
+  </g>
+
+  <text x="1220" y="700" font-family="Consolas, monospace" font-size="12" fill="#556677" text-anchor="end">03 / 10</text>
+</svg>

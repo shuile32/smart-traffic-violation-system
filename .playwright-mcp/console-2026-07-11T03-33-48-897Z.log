@@ -1,0 +1,72 @@
+[   24740ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   24825ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/admin/vehicles?page=1&page_size=10:0
+[   36745ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   36901ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/violations?page=1&page_size=10:0
+[   48466ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   48535ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/admin/rules?page=1&page_size=100:0
+[   56297ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   56367ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/admin/cameras?page_size=100:0
+[   56370ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <CameraManage onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <ElMain> 
+  at <ElContainer> 
+  at <ElContainer class="admin-layout" > 
+  at <AdminLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/node_modules/.vite/deps/chunk-J5D6QMP7.js?v=5c72367b:2225
+[   56371ms] AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1997:7)
+[   64653ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   64885ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/overview:0
+[   64887ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <Dashboard onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <ElMain> 
+  at <ElContainer> 
+  at <ElContainer class="admin-layout" > 
+  at <AdminLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/node_modules/.vite/deps/chunk-J5D6QMP7.js?v=5c72367b:2225
+[   64888ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-time:0
+[   64892ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-type:0
+[   64894ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-location:0
+[   64896ms] AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1997:7)
+    at Axios.request (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:2930:41)
+    at async Promise.all (index 0)
+    at async loadData (http://localhost:5173/src/views/stats/Dashboard.vue:33:28)
+    at async http://localhost:5173/src/views/stats/Dashboard.vue:94:3
+[   75898ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   86053ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[   86164ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/cases?status=&source_type=&keyword=&page=1&page_size=12:0
+[   86166ms] [ERROR] [Workbench] fetchCases failed AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1997:7) @ http://localhost:5173/src/views/review/Workbench.vue:91
+[  101167ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/cases?status=&source_type=&keyword=&page=1&page_size=12:0
+[  101169ms] [ERROR] [Workbench] fetchCases failed AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1997:7) @ http://localhost:5173/src/views/review/Workbench.vue:91
+[  107970ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
+[  108150ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/overview:0
+[  108152ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <Dashboard onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <ElMain class="main-content" > 
+  at <ElContainer class="review-layout" > 
+  at <ReviewLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/node_modules/.vite/deps/chunk-J5D6QMP7.js?v=5c72367b:2225
+[  108153ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-time:0
+[  108155ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-type:0
+[  108157ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/statistics/by-location:0
+[  108160ms] AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:1997:7)
+    at Axios.request (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1eb7a118:2930:41)
+    at async Promise.all (index 0)
+    at async loadData (http://localhost:5173/src/views/stats/Dashboard.vue:33:28)
+    at async http://localhost:5173/src/views/stats/Dashboard.vue:94:3
+[  130014ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/v1/auth/me:0
