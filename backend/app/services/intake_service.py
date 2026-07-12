@@ -66,4 +66,12 @@ def create_intake(
     case.case_no = _gen_case_no(case.id)
     db.commit()
     db.refresh(case)
+
+    # 自动跑 AI 管线（异步风险：上传接口会多等几秒，但能保证结果入库）
+    try:
+        from app.services.ai_pipeline import run_ai_pipeline
+        run_ai_pipeline(case, url)
+    except Exception:
+        pass  # AI 失败不影响摄入
+
     return case

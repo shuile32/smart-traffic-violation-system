@@ -7,17 +7,30 @@
     <el-card>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="违章图片" prop="images">
-          <el-upload
-            :auto-upload="false"
-            :on-change="handleImageChange"
-            :before-remove="handleImageRemove"
-            :file-list="fileList"
-            list-type="picture-card"
-            accept="image/*"
-            :limit="3"
-          >
-            <el-icon><Plus /></el-icon>
-          </el-upload>
+          <div class="upload-area">
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/*"
+              style="display:none"
+              @change="onFilePicked"
+            />
+            <div class="upload-card" @click="openFilePicker">
+              <el-icon :size="28"><Plus /></el-icon>
+              <span>点击上传</span>
+            </div>
+            <div
+              v-for="(preview, idx) in previews"
+              :key="idx"
+              class="upload-card preview-card"
+              @click="removePreview(idx)"
+            >
+              <img :src="preview" alt="preview" />
+              <div class="preview-overlay">
+                <el-icon><Delete /></el-icon>
+              </div>
+            </div>
+          </div>
           <div style="color:#909399;font-size:12px;margin-top:4px">
             请拍摄清晰的违章现场照片，支持 jpg/png
           </div>
@@ -65,8 +78,10 @@ import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const formRef = ref(null)
+const fileInputRef = ref(null)
 const submitting = ref(false)
-const fileList = ref([])
+const selectedFiles = ref([])       // 原始 File 对象
+const previews = ref([])            // data: URL 预览
 
 const form = reactive({
   location: '', violation_time: '', description: ''
@@ -78,19 +93,40 @@ const rules = {
   description: [{ required: true, message: '请描述违章情况', trigger: 'blur' }]
 }
 
-function handleImageChange(file) {
-  fileList.value.push(file)
+function openFilePicker() {
+  if (selectedFiles.value.length >= 3) {
+    ElMessage.warning('最多上传 3 张图片')
+    return
+  }
+  fileInputRef.value?.click()
 }
 
-function handleImageRemove(file) {
-  const idx = fileList.value.indexOf(file)
-  if (idx > -1) fileList.value.splice(idx, 1)
+function onFilePicked(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    ElMessage.warning('请选择图片文件')
+    return
+  }
+  selectedFiles.value.push(file)
+  const reader = new FileReader()
+  reader.onload = () => {
+    previews.value.push(reader.result)
+  }
+  reader.readAsDataURL(file)
+  // 重置 input 以便重复选择同一文件
+  e.target.value = ''
+}
+
+function removePreview(idx) {
+  selectedFiles.value.splice(idx, 1)
+  previews.value.splice(idx, 1)
 }
 
 async function handleSubmit() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
-  if (fileList.value.length === 0) {
+  if (selectedFiles.value.length === 0) {
     ElMessage.warning('请上传违章证据图片')
     return
   }
@@ -100,10 +136,7 @@ async function handleSubmit() {
     fd.append('location_text', form.location)
     fd.append('captured_at', form.violation_time)
     if (form.description) fd.append('description', form.description)
-    // Backend accepts single file named 'image'
-    if (fileList.value.length > 0) {
-      fd.append('image', fileList.value[0].raw)
-    }
+    fd.append('image', selectedFiles.value[0])
     await citizenReport(fd)
     ElMessage.success('举报提交成功，请等待审核')
     router.push('/citizen/my-reports')
@@ -111,3 +144,55 @@ async function handleSubmit() {
   finally { submitting.value = false }
 }
 </script>
+
+<style scoped>
+.upload-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.upload-card {
+  width: 148px;
+  height: 148px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #8c939d;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .3s;
+  background: #fafafa;
+}
+.upload-card:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+.preview-card {
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+}
+.preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.preview-card:hover .preview-overlay {
+  opacity: 1;
+}
+</style>

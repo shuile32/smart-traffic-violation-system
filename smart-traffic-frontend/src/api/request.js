@@ -36,11 +36,17 @@ request.interceptors.response.use(
   },
   error => {
     if (error.response) {
-      switch (error.response.status) {
+      const { status, data, config } = error.response
+      switch (status) {
         case 401:
-          localStorage.clear()
-          router.push('/login')
-          ElMessage.error('登录已过期，请重新登录')
+          // 登录接口的 401 是"用户名或密码错误"，不要清除 token 或跳转
+          if (config.url?.endsWith('/auth/login')) {
+            ElMessage.error(data?.detail || '用户名或密码错误')
+          } else {
+            localStorage.clear()
+            router.push('/login')
+            ElMessage.error('登录已过期，请重新登录')
+          }
           break
         case 403:
           ElMessage.error('没有操作权限')
@@ -49,7 +55,7 @@ request.interceptors.response.use(
           ElMessage.error('服务器错误，请稍后重试')
           break
         default:
-          ElMessage.error(error.response.data?.message || '请求失败')
+          ElMessage.error(data?.detail || data?.message || '请求失败')
       }
     } else {
       ElMessage.error('网络连接失败')
