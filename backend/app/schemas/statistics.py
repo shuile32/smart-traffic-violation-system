@@ -38,3 +38,15 @@ class ByTimeItem(BaseModel):
 
 class ByTimeOut(BaseModel):
     items: list[ByTimeItem]
+
+
+class RoadTimeHeatmapItem(BaseModel):
+    road: str
+    time_slot: str
+    count: int
+
+
+class RoadTimeHeatmapOut(BaseModel):
+    time_slots: list[str]
+    roads: list[str]
+    items: list[RoadTimeHeatmapItem]

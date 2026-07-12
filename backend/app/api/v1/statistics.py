@@ -5,7 +5,13 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.deps import require_role
 from app.models.user import User
-from app.schemas.statistics import ByLocationOut, ByTimeOut, ByTypeOut, OverviewOut
+from app.schemas.statistics import (
+    ByLocationOut,
+    ByTimeOut,
+    ByTypeOut,
+    OverviewOut,
+    RoadTimeHeatmapOut,
+)
 from app.services.statistics_service import StatisticsService
 
 router = APIRouter(tags=["statistics"])
@@ -46,3 +52,13 @@ def by_time(start_time: str | None = None, end_time: str | None = None,
             db: Session = Depends(get_db),
             _: User = Depends(require_role("reviewer", "admin"))) -> ByTimeOut:
     return _safe(StatisticsService(db).by_time, start_time, end_time)
+
+
+@router.get("/statistics/road-time-heatmap", response_model=RoadTimeHeatmapOut)
+def road_time_heatmap(
+    start_time: str | None = None,
+    end_time: str | None = None,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role("reviewer", "admin")),
+) -> RoadTimeHeatmapOut:
+    return _safe(StatisticsService(db).road_time_heatmap, start_time, end_time)
