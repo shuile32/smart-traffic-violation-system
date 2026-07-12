@@ -1,3 +1,4 @@
+from app.schemas import statistics as statistics_schemas
 from app.schemas.statistics import (
     ByLocationItem,
     ByLocationOut,
@@ -31,3 +32,18 @@ def test_by_type_out():
 def test_by_time_out():
     o = ByTimeOut(items=[ByTimeItem(date="2026-07-08", count=2)])
     assert o.items[0].date == "2026-07-08"
+
+
+def test_road_time_heatmap_out():
+    item = statistics_schemas.RoadTimeHeatmapItem(
+        road="路段A", time_slot="0-2", count=0,
+    )
+    out = statistics_schemas.RoadTimeHeatmapOut(
+        time_slots=["0-2", "2-4"],
+        roads=["路段A"],
+        items=[item],
+    )
+
+    assert out.time_slots == ["0-2", "2-4"]
+    assert out.roads == ["路段A"]
+    assert out.items[0].count == 0

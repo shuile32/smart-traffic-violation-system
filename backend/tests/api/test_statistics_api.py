@@ -15,7 +15,8 @@ def _seed(db):
     c1 = db.query(Case).filter_by(case_no="C1").first()
     db.add(Violation(
         violation_no="V1", case_id=c1.id, plate_no="京A", violation_type="超速",
-        location_text="路口A", fine_amount=200, points=3, status="pending", created_at=t,
+        occurred_at=t, location_text="路口A", fine_amount=200, points=3,
+        status="pending", created_at=t,
     ))
     db.commit()
 
@@ -86,3 +87,46 @@ def test_by_time_citizen_forbidden(client, citizen_user, auth_headers):
 def test_overview_invalid_time_returns_422(client, reviewer_user, reviewer_auth_headers):
     r = client.get("/api/v1/statistics/overview?start_time=not-a-date", headers=reviewer_auth_headers)
     assert r.status_code == 422
+
+
+def test_road_time_heatmap_success(client, reviewer_user, reviewer_auth_headers, db):
+    _seed(db)
+    response = client.get(
+        "/api/v1/statistics/road-time-heatmap",
+        headers=reviewer_auth_headers,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["time_slots"] == [
+        "0-2", "2-4", "4-6", "6-7", "7-9", "9-11",
+        "11-13", "13-17", "17-19", "19-21", "21-24",
+    ]
+    assert data["roads"] == ["路口A"]
+    assert len(data["items"]) == 11
+    assert next(item for item in data["items"] if item["time_slot"] == "9-11") == {
+        "road": "路口A", "time_slot": "9-11", "count": 1,
+    }
+
+
+def test_road_time_heatmap_requires_auth(client):
+    response = client.get("/api/v1/statistics/road-time-heatmap")
+    assert response.status_code == 401
+
+
+def test_road_time_heatmap_citizen_forbidden(client, citizen_user, auth_headers):
+    response = client.get(
+        "/api/v1/statistics/road-time-heatmap",
+        headers=auth_headers,
+    )
+    assert response.status_code == 403
+
+
+def test_road_time_heatmap_invalid_time_returns_422(
+    client, reviewer_user, reviewer_auth_headers,
+):
+    response = client.get(
+        "/api/v1/statistics/road-time-heatmap?start_time=not-a-date",
+        headers=reviewer_auth_headers,
+    )
+    assert response.status_code == 422

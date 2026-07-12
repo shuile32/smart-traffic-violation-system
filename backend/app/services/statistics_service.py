@@ -1,7 +1,7 @@
 # app/services/statistics_service.py
 from datetime import datetime, timezone
 
-from sqlalchemy import func
+from sqlalchemy import case, extract, func
 from sqlalchemy.orm import Session
 
 from app.models.intake import Case, IntakeEvent
@@ -9,9 +9,23 @@ from app.models.violation import Violation
 from app.schemas.statistics import (
     ByLocationItem, ByLocationOut, ByTimeItem, ByTimeOut,
     ByTypeItem, ByTypeOut, OverviewOut,
+    RoadTimeHeatmapItem, RoadTimeHeatmapOut,
 )
 
 DEFAULT_START = datetime(2000, 1, 1, tzinfo=timezone.utc)
+TIME_SLOTS = (
+    (0, 2, "0-2"),
+    (2, 4, "2-4"),
+    (4, 6, "4-6"),
+    (6, 7, "6-7"),
+    (7, 9, "7-9"),
+    (9, 11, "9-11"),
+    (11, 13, "11-13"),
+    (13, 17, "13-17"),
+    (17, 19, "17-19"),
+    (19, 21, "19-21"),
+    (21, 24, "21-24"),
+)
 
 
 def _parse(time_str: str | None, default: datetime) -> datetime:
@@ -93,3 +107,49 @@ class StatisticsService:
             .all()
         )
         return ByTimeOut(items=[ByTimeItem(date=str(r[0]), count=r[1]) for r in rows])
+
+    def road_time_heatmap(
+        self, start_time: str | None, end_time: str | None,
+    ) -> RoadTimeHeatmapOut:
+        st = _parse(start_time, DEFAULT_START)
+        et = _end(end_time)
+        hour_col = extract("hour", Violation.occurred_at)
+        slot_col = case(
+            *[
+                (((hour_col >= start) & (hour_col < end)), label)
+                for start, end, label in TIME_SLOTS
+            ],
+            else_=None,
+        ).label("time_slot")
+        rows = (
+            self.db.query(
+                Violation.location_text,
+                slot_col,
+                func.count(Violation.id),
+            )
+            .filter(
+                Violation.occurred_at.between(st, et),
+                Violation.location_text.isnot(None),
+                func.trim(Violation.location_text) != "",
+            )
+            .group_by(Violation.location_text, slot_col)
+            .all()
+        )
+
+        time_slots = [label for _, _, label in TIME_SLOTS]
+        roads = sorted({row[0] for row in rows})
+        counts = {(row[0], row[1]): row[2] for row in rows}
+        items = [
+            RoadTimeHeatmapItem(
+                road=road,
+                time_slot=time_slot,
+                count=counts.get((road, time_slot), 0),
+            )
+            for road in roads
+            for time_slot in time_slots
+        ]
+        return RoadTimeHeatmapOut(
+            time_slots=time_slots,
+            roads=roads,
+            items=items,
+        )
