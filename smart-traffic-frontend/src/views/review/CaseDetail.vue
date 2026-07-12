@@ -72,7 +72,7 @@
                 </el-descriptions>
                 <div class="detected-items">
                   <el-tag
-                    v-for="obj in detail.detection_result.objects"
+                    v-for="obj in (detail.detection_result.objects || detail.detection_result.detected_objects)"
                     :key="obj.label"
                     size="small"
                     :type="obj.confidence > 0.9 ? 'success' : obj.confidence > 0.8 ? 'warning' : 'danger'"
@@ -136,7 +136,7 @@
               <template #title>
                 <div class="step-title">
                   <span class="step-num">④</span>
-                  <span>AI 初审</span>
+                  <span>{{ detail.ai_review?.review_mode === 'vision_llm' ? '多模态复核' : 'AI 初审' }}</span>
                   <el-tag v-if="detail.ai_review" size="small" :type="aiTag(detail.ai_review.conclusion)">
                     {{ aiText(detail.ai_review.conclusion) }}
                   </el-tag>
@@ -145,11 +145,17 @@
               </template>
               <template v-if="detail.ai_review">
                 <el-descriptions :column="1" border size="small">
+                  <el-descriptions-item label="审查模式">
+                    {{ detail.ai_review.review_mode === 'vision_llm' ? '多模态模型复核' : '文本 LLM 初审' }}
+                  </el-descriptions-item>
                   <el-descriptions-item label="结论">
                     <el-tag :type="aiTag(detail.ai_review.conclusion)">{{ aiText(detail.ai_review.conclusion) }}</el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="AI 置信度">{{ (detail.ai_review.ai_confidence * 100).toFixed(0) }}%</el-descriptions-item>
                   <el-descriptions-item label="初审理由">{{ detail.ai_review.reason }}</el-descriptions-item>
+                  <el-descriptions-item label="风险点" v-if="detail.ai_review.risk_points?.length">
+                    <span style="color:#e6a23c">{{ detail.ai_review.risk_points?.join('；') }}</span>
+                  </el-descriptions-item>
                 </el-descriptions>
               </template>
               <el-empty v-else description="等待 AI 初审" :image-size="40" />
@@ -248,10 +254,10 @@ const statusMap = {
   pending_human_review: '待审核', approved: '已通过', rejected: '已驳回',
   archived: '已归档', notified: '已通知'
 }
-const evidenceMap = { complete: '证据完整', partial: '部分完整', insufficient: '证据不足' }
-const aiMap = { suggest_approve: '建议通过', need_review: '建议复核', suggest_reject: '建议驳回' }
-const aiTypeMap = { suggest_approve: 'success', need_review: 'warning', suggest_reject: 'danger' }
-const objLabelMap = { vehicle: '车辆', stop_line: '停止线', red_light: '红灯', lane_line: '车道线', no_parking_sign: '禁停标志', plate: '车牌', pedestrian: '行人', green_light: '绿灯' }
+const evidenceMap = { complete: '证据完整', partial: '部分完整', insufficient: '证据不足', 完整: '证据完整', 部分: '部分完整', 不足: '证据不足' }
+const aiMap = { suggest_approve: '建议通过', need_review: '建议复核', suggest_reject: '建议驳回', 建议通过: '建议通过', 需人工审核: '建议复核', 建议驳回: '建议驳回' }
+const aiTypeMap = { suggest_approve: 'success', need_review: 'warning', suggest_reject: 'danger', 建议通过: 'success', 需人工审核: 'warning', 建议驳回: 'danger' }
+const objLabelMap = { cars: '小汽车', car: '小汽车', bus: '公交车', truck: '卡车', van: '面包车', illegal: '违停', 'chinese-plate-license': '车牌', vehicle: '车辆', plate: '车牌' }
 
 function statusText(s) { return statusMap[s] || s }
 function statusType(s) {

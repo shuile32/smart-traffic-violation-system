@@ -79,6 +79,71 @@ class CaseService:
         captured_at = str(ev.captured_at) if ev and ev.captured_at else None
         speed = ev.speed if ev else None
         source_desc_map = {"citizen": "市民举报", "camera": "摄像头抓拍", "admin": "后台上传"}
+
+        # 解析 AI 管线结果
+        import json
+        ai_raw = None
+        if case.ai_result_json:
+            try:
+                ai_raw = json.loads(case.ai_result_json)
+            except (json.JSONDecodeError, TypeError):
+                ai_raw = None
+
+        # 旧数据英文→中文兼容映射
+        _CN = {
+            "illegal_stop detection": "违停检测",
+            "vehicle detection": "车辆检测",
+            "plate OCR": "车牌识别",
+            "plate OCR text": "车牌文字识别",
+            "license plate region": "车牌定位",
+            "complete": "完整", "partial": "部分", "insufficient": "不足",
+            "suggest_approve": "建议通过", "need_review": "需人工审核", "suggest_reject": "建议驳回",
+        }
+
+        detection_result = None
+        rule_result = None
+        ai_review = None
+        if ai_raw:
+            if ai_raw.get("objects"):
+                labels_cn = {
+                    "cars": "小汽车", "car": "小汽车", "bus": "公交车",
+                    "truck": "卡车", "van": "面包车", "illegal": "违停",
+                    "chinese-plate-license": "车牌",
+                }
+                objects_cn = []
+                for o in ai_raw["objects"]:
+                    objects_cn.append({
+                        "label": labels_cn.get(o.get("label", ""), o.get("label", "")),
+                        "confidence": o.get("confidence"),
+                        "bbox": o.get("bbox"),
+                    })
+                detection_result = {
+                    "objects": objects_cn,
+                    "vehicle_bbox": ai_raw.get("vehicle_bbox"),
+                    "plate_bbox": ai_raw.get("plate_bbox"),
+                    "model_version": ai_raw.get("model_version"),
+                }
+            if ai_raw.get("rule_matched") is not None:
+                evidence_items = [_CN.get(e, e) for e in ai_raw.get("evidence_items", [])]
+                missing = [_CN.get(e, e) for e in ai_raw.get("missing_evidence", [])]
+                rule_result = {
+                    "candidate_violation_type": ai_raw.get("candidate_violation_type", "违停"),
+                    "rule_code": ai_raw.get("rule_code", "illegal_stop_model"),
+                    "rule_matched": ai_raw["rule_matched"],
+                    "evidence_level": _CN.get(ai_raw.get("evidence_level", ""), ai_raw.get("evidence_level", "")),
+                    "evidence_items": evidence_items,
+                    "missing_evidence": missing,
+                    "reason": ai_raw.get("rule_reason", ""),
+                }
+            if ai_raw.get("conclusion"):
+                ai_review = {
+                    "conclusion": _CN.get(ai_raw["conclusion"], ai_raw["conclusion"]),
+                    "ai_confidence": ai_raw.get("ai_confidence"),
+                    "reason": ai_raw.get("review_reason", ""),
+                    "risk_points": ai_raw.get("risk_points", []),
+                    "review_mode": ai_raw.get("review_mode", "text_llm"),
+                }
+
         return {
             "id": case.id, "case_no": case.case_no, "status": case.status,
             "source_type": ev.source_type if ev else None,
@@ -88,9 +153,9 @@ class CaseService:
             "speed": speed,
             "plate_no": case.plate_no, "violation_type": case.violation_type,
             "media": media,
-            "detection_result": None,
-            "rule_result": None,
-            "ai_review": None,
+            "detection_result": detection_result,
+            "rule_result": rule_result,
+            "ai_review": ai_review,
             "review": {"reviewer_id": case.reviewer_id, "review_opinion": case.review_opinion,
                        "reviewed_at": str(case.reviewed_at) if case.reviewed_at else None},
         }

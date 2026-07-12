@@ -54,6 +54,7 @@ class Case(Base):
     status: Mapped[str] = mapped_column(String(24), default="uploaded")
     plate_no: Mapped[str | None] = mapped_column(String(16))
     violation_type: Mapped[str | None] = mapped_column(String(32))
+    ai_result_json: Mapped[str | None] = mapped_column(String(4096))
     reviewer_id: Mapped[int | None] = mapped_column()
     review_opinion: Mapped[str | None] = mapped_column(String(512))
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

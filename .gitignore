@@ -38,6 +38,9 @@ Thumbs.db
 htmlcov/
 .pytest_cache/
 
+# Playwright MCP session logs
+.playwright-mcp/
+
 # Local AI runtime scratch
 .tmp/
 .yolo_config/

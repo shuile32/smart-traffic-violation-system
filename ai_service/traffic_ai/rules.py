@@ -11,52 +11,52 @@ class IllegalStopRuleEvaluator:
                 candidate_violation_type=None,
                 rule_code="illegal_stop_model",
                 rule_matched=False,
-                evidence_level="insufficient",
+                evidence_level="不足",
                 evidence_items=[],
-                missing_evidence=["illegal_stop detection"],
-                reason="No illegal-stop target was detected.",
+                missing_evidence=["违停检测"],
+                reason="未检测到违停目标",
             )
 
-        evidence = ["illegal_stop detection"]
+        evidence = ["违停检测"]
         missing: list[str] = []
         if detections.vehicle:
-            evidence.append("vehicle detection")
+            evidence.append("车辆检测")
         else:
-            missing.append("vehicle detection")
+            missing.append("车辆检测")
         if plate_text:
-            evidence.append("plate OCR")
+            evidence.append("车牌识别")
         elif detections.license_plate:
-            evidence.append("license plate region")
-            missing.append("plate OCR text")
+            evidence.append("车牌定位")
+            missing.append("车牌文字识别")
         else:
-            missing.append("license plate region")
+            missing.append("车牌定位")
 
         return RuleResult(
-            candidate_violation_type="illegal_stop",
+            candidate_violation_type="违停",
             rule_code="illegal_stop_model",
             rule_matched=True,
-            evidence_level="complete" if not missing else "partial",
+            evidence_level="完整" if not missing else "部分",
             evidence_items=evidence,
             missing_evidence=missing,
-            reason="The illegal-stop model detected an illegal-stop target.",
+            reason="违停模型检测到违章停车目标",
         )
 
 
 def review_from_rule(rule: RuleResult) -> ReviewResult:
-    if rule.rule_matched and rule.evidence_level == "complete":
+    if rule.rule_matched and rule.evidence_level == "完整":
         return ReviewResult(
             conclusion="suggest_approve",
             confidence=0.85,
-            reason="Illegal-stop evidence is complete enough for human review.",
+            reason="违停证据完整，可提交人工审核",
         )
     if rule.rule_matched:
         return ReviewResult(
             conclusion="need_review",
             confidence=0.65,
-            reason="Illegal-stop evidence exists, but some supporting evidence is missing.",
+            reason="存在违停证据，但部分佐证缺失，需人工复核",
         )
     return ReviewResult(
         conclusion="suggest_reject",
         confidence=0.6,
-        reason="No illegal-stop evidence was detected.",
+        reason="未检测到违停证据，建议驳回",
     )

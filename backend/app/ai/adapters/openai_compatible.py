@@ -93,10 +93,11 @@ def _build_user_content(evidence_payload: dict, image_path: Path | None):
 
 def _find_image_path(evidence_payload: dict) -> Path | None:
     candidates = [
+        evidence_payload.get("image_path"),
         evidence_payload.get("annotated_image_path"),
         evidence_payload.get("annotated_image_url"),
-        evidence_payload.get("image_path"),
         evidence_payload.get("original_image_path"),
+        evidence_payload.get("image_url"),
     ]
     detection = evidence_payload.get("detection")
     if isinstance(detection, dict):
@@ -106,6 +107,12 @@ def _find_image_path(evidence_payload: dict) -> Path | None:
         if not value:
             continue
         path = Path(str(value))
+        # 如果是相对 URL（如 /media/xxx.jpg），补上 MEDIA_STORAGE_DIR 前缀
+        if not path.exists() and str(value).startswith("/media/"):
+            from app.core.config import settings
+            alt = Path(settings.MEDIA_STORAGE_DIR) / path.name
+            if alt.exists() and alt.is_file():
+                return alt
         if path.exists() and path.is_file():
             return path
     return None
