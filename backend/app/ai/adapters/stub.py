@@ -69,7 +69,7 @@ class StubRuleEvaluator(RuleEvaluator):
 class StubLLMProvider(LLMProvider):
     def review(self, evidence_payload: dict) -> AIReviewResultData:
         return AIReviewResultData(
-            conclusion="建议通过",
+            conclusion="suggest_approve",
             ai_confidence=0.88,
             reason="证据链完整，建议通过",
             risk_points=[],
