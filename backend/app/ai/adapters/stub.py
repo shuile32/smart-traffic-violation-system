@@ -6,7 +6,9 @@ from app.ai.adapters.base import (
     AIReviewResultData,
     DetectionResult,
     LLMProvider,
+    LLMReportError,
     OcrEngine,
+    ReportNarrativeData,
     RuleEvaluator,
     RuleResult,
     YoloDetector,
@@ -76,3 +78,6 @@ class StubLLMProvider(LLMProvider):
             missing_evidence=[],
             prompt_version="stub-v1",
         )
+
+    def generate_report(self, statistics_payload: dict) -> ReportNarrativeData:
+        raise LLMReportError("LLM 未配置，无法生成分析报告")
