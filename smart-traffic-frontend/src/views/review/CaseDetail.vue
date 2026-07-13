@@ -42,7 +42,12 @@
             <el-descriptions-item label="地点">{{ detail.location_text }}</el-descriptions-item>
             <el-descriptions-item label="时间">{{ formatTime(detail.captured_at) }}</el-descriptions-item>
             <el-descriptions-item label="车速" v-if="detail.speed">{{ detail.speed }} km/h</el-descriptions-item>
-            <el-descriptions-item label="车牌">{{ detail.plate_no || '待识别' }}</el-descriptions-item>
+            <el-descriptions-item label="举报违法类型" v-if="detail.reported_violation_type">
+              {{ detail.reported_violation_type }}
+            </el-descriptions-item>
+            <el-descriptions-item label="车牌">
+              {{ detail.plate_no || detail.plate_status_message || '待识别' }}
+            </el-descriptions-item>
           </el-descriptions>
         </el-card>
       </el-col>
@@ -72,13 +77,14 @@
                 </el-descriptions>
                 <div class="detected-items">
                   <el-tag
-                    v-for="obj in (detail.detection_result.objects || detail.detection_result.detected_objects)"
-                    :key="obj.label"
+                    v-for="(obj, index) in (detail.detection_result.objects || detail.detection_result.detected_objects)"
+                    :key="obj.detection_id || `${obj.label}-${index}`"
                     size="small"
-                    :type="obj.confidence > 0.9 ? 'success' : obj.confidence > 0.8 ? 'warning' : 'danger'"
+                    :type="obj.is_primary ? 'danger' : obj.confidence > 0.9 ? 'success' : obj.confidence > 0.8 ? 'warning' : 'info'"
                     style="margin:4px 4px 0 0"
                   >
-                    {{ objLabel(obj.label) }} {{ (obj.confidence * 100).toFixed(0) }}%
+                    {{ obj.display_label || objLabel(obj.label) }} {{ (obj.confidence * 100).toFixed(0) }}%
+                    <strong v-if="obj.is_primary"> · 主目标</strong>
                   </el-tag>
                 </div>
               </template>
@@ -92,13 +98,21 @@
                   <span class="step-num">②</span>
                   <span>OCR 车牌识别</span>
                   <el-tag v-if="detail.plate_no" size="small" type="success">已识别</el-tag>
-                  <el-tag v-else size="small" type="warning">待识别</el-tag>
+                  <el-tag v-else-if="detail.plate_status" size="small" type="warning">未识别</el-tag>
+                  <el-tag v-else size="small" type="info">等待中</el-tag>
                 </div>
               </template>
               <template v-if="detail.plate_no">
                 <el-result icon="success" :title="detail.plate_no" sub-title="车牌识别成功" size="small" />
               </template>
-              <el-empty v-else description="OCR 未识别到车牌" :image-size="40" />
+              <el-alert
+                v-else-if="detail.plate_status_message"
+                :title="detail.plate_status_message"
+                :type="detail.plate_status === 'skipped_no_violation' ? 'info' : 'warning'"
+                :closable="false"
+                show-icon
+              />
+              <el-empty v-else description="等待车牌识别" :image-size="40" />
             </el-collapse-item>
 
             <!-- 第3步：规则判定 -->
@@ -115,6 +129,9 @@
               <template v-if="detail.rule_result">
                 <el-descriptions :column="1" border size="small">
                   <el-descriptions-item label="违章候选">{{ detail.rule_result.candidate_violation_type }}</el-descriptions-item>
+                  <el-descriptions-item label="主违法目标" v-if="detail.detection_result?.primary_target">
+                    {{ detail.detection_result.primary_target.vehicle.display_label || detail.detection_result.primary_target.vehicle.detection_id }}
+                  </el-descriptions-item>
                   <el-descriptions-item label="规则编号">{{ detail.rule_result.rule_code }}</el-descriptions-item>
                   <el-descriptions-item label="证据完整度">
                     <el-tag :type="detail.rule_result.evidence_level === 'complete' ? 'success' : 'warning'" size="small">
@@ -237,7 +254,7 @@ const imageTab = ref('original')
 const activeSteps = ref('detection')
 const mediaRequestGuard = createLatestRequestGuard()
 
-const violationTypes = ['闯红灯', '违停', '压线', '逆行', '超速', '占用应急车道', '不礼让行人', '不按导向行驶']
+const violationTypes = ['疑似闯红灯', '闯红灯', '违停', '压线', '逆行', '超速', '占用应急车道', '不礼让行人', '不按导向行驶']
 
 const reviewForm = reactive({
   action: 'approve',
@@ -291,7 +308,7 @@ async function fetchDetail() {
     detail.value = nextDetail
     // 填充审核表单默认值
     reviewForm.plate_no = detail.value.plate_no || ''
-    reviewForm.violation_type = detail.value.rule_result?.candidate_violation_type || ''
+    reviewForm.violation_type = detail.value.rule_result?.candidate_violation_type || detail.value.reported_violation_type || ''
   } catch {
     if (mediaRequestGuard.isCurrent(requestGeneration)) ElMessage.error('加载案件失败')
   } finally {

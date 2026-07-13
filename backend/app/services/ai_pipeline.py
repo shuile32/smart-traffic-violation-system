@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from io import BytesIO
+from pathlib import Path
 
 from app.ai.adapters.base import DetectionResult
 from app.ai.providers import (
@@ -11,10 +12,17 @@ from app.ai.providers import (
     get_rule_evaluator,
     get_yolo_detector,
 )
-from app.models.intake import Case
+from app.models.intake import Case, MediaAsset
 from app.core.config import settings as _settings
 
 logger = logging.getLogger(__name__)
+
+PLATE_STATUS_MESSAGES = {
+    "recognized": "车牌识别成功",
+    "skipped_no_violation": "未检测到所选疑似违法，未执行车牌识别",
+    "yolo_not_detected": "YOLO无法识别车牌/车牌模糊不清",
+    "ocr_failed": "OCR无法识别车牌/车牌模糊不清",
+}
 
 
 def _detector():
@@ -33,6 +41,43 @@ def _llm():
     return get_llm_provider()
 
 
+def _register_annotated_media(case: Case, annotated_url: str | None) -> None:
+    if not annotated_url or not annotated_url.startswith("/media/"):
+        return
+    filename = annotated_url.removeprefix("/media/")
+    if not filename or "/" in filename or "\\" in filename:
+        logger.warning("Annotated media URL is not a flat media path: %s", annotated_url)
+        return
+
+    storage_root = Path(_settings.MEDIA_STORAGE_DIR).resolve()
+    annotated_path = (storage_root / filename).resolve()
+    if annotated_path.parent != storage_root or not annotated_path.is_file():
+        logger.warning("Annotated media file is missing: %s", annotated_path)
+        return
+
+    from sqlalchemy.orm import Session
+
+    db = Session.object_session(case)
+    asset = db.query(MediaAsset).filter_by(
+        intake_event_id=case.intake_event_id,
+        asset_type="annotated",
+    ).first()
+    mime_type = "image/png" if annotated_path.suffix.casefold() == ".png" else "image/jpeg"
+    if asset is None:
+        asset = MediaAsset(
+            intake_event_id=case.intake_event_id,
+            asset_type="annotated",
+            url=annotated_url,
+            mime_type=mime_type,
+            size=annotated_path.stat().st_size,
+        )
+        db.add(asset)
+    else:
+        asset.url = annotated_url
+        asset.mime_type = mime_type
+        asset.size = annotated_path.stat().st_size
+
+
 def run_ai_pipeline(case: Case, image_relative_url: str) -> dict:
     """对已落盘的原图跑完整 AI 管线，结果写回 case 并 commit 到数据库。
     失败时 case 保持 uploaded 状态，不抛异常。
@@ -42,32 +87,48 @@ def run_ai_pipeline(case: Case, image_relative_url: str) -> dict:
         logger.warning("AI pipeline skipped: image not found %s", image_path)
         return {"error": "image_not_found"}
 
+    reported_violation_type = (
+        case.intake_event.reported_violation_type if case.intake_event is not None else None
+    )
     result = {"model_version": "", "objects": [], "vehicle_bbox": None,
               "plate_bbox": None, "annotated_image_url": None,
-              "plate_no": None, "ocr_engine": "无", "ocr_status": "不可用",
+              "reported_violation_type": reported_violation_type,
+              "violation_targets": [], "primary_target": None,
+              "plate_no": None, "ocr_engine": "none",
+              "ocr_status": "skipped_no_violation",
+              "plate_status": "skipped_no_violation",
+              "plate_status_message": PLATE_STATUS_MESSAGES["skipped_no_violation"],
               "rule_matched": False, "evidence_level": "insufficient",
               "candidate_violation_type": None,
-              "rule_code": "illegal_stop_model",
+              "rule_code": None,
               "evidence_items": [], "missing_evidence": [], "rule_reason": "",
               "conclusion": "need_review", "ai_confidence": None, "review_reason": ""}
 
     try:
         # ① YOLO 检测
         detector = _detector()
-        detection: DetectionResult = detector.detect(image_path)
+        detection: DetectionResult = detector.detect(image_path, reported_violation_type)
         result["model_version"] = detection.model_version
         result["objects"] = detection.objects
         result["vehicle_bbox"] = detection.vehicle_bbox
         result["plate_bbox"] = detection.plate_bbox
+        result["annotated_image_url"] = detection.annotated_image_path
+        result["violation_targets"] = detection.violation_targets
+        result["primary_target"] = detection.primary_target
 
         # ② OCR 车牌识别（裁剪车牌区域)
         plate_no = None
-        if detection.plate_bbox and len(detection.plate_bbox) == 4:
+        plate_status = "skipped_no_violation"
+        ocr_engine = "none"
+        if detection.primary_target is not None and not detection.plate_bbox:
+            plate_status = "yolo_not_detected"
+        elif detection.primary_target is not None and detection.plate_bbox and len(detection.plate_bbox) == 4:
+            plate_status = "ocr_failed"
             try:
                 from PIL import Image
-                img = Image.open(image_path)
-                pb = detection.plate_bbox
-                crop = img.crop((pb[0], pb[1], pb[2], pb[3]))
+                with Image.open(image_path) as img:
+                    pb = detection.plate_bbox
+                    crop = img.crop((pb[0], pb[1], pb[2], pb[3]))
                 buf = BytesIO()
                 crop.save(buf, format="JPEG")
                 buf.seek(0)
@@ -79,35 +140,43 @@ def run_ai_pipeline(case: Case, image_relative_url: str) -> dict:
                     plate_no = _ocr().recognize_plate(tmp_path)
                 finally:
                     os.unlink(tmp_path)
+                ocr_engine = "PaddleOCR"
+                if plate_no:
+                    plate_status = "recognized"
             except Exception as e:
                 logger.warning("OCR plate crop failed: %s", e)
         result["plate_no"] = plate_no
-        result["ocr_engine"] = "PaddleOCR" if plate_no else "不可用"
-        result["ocr_status"] = "成功" if plate_no else "失败"
+        result["ocr_engine"] = ocr_engine
+        result["ocr_status"] = plate_status
+        result["plate_status"] = plate_status
+        result["plate_status_message"] = PLATE_STATUS_MESSAGES[plate_status]
 
         # ③ 规则判定
         evaluator = _evaluator()
         rule = evaluator.evaluate(
             detection=detection,
             ocr_result=plate_no,
-            intake_event={"source_type": "camera"},
-            rule={"type": "illegal_stop", "code": "illegal_stop_model"},
+            intake_event={
+                "source_type": case.intake_event.source_type if case.intake_event else None,
+                "reported_violation_type": reported_violation_type,
+            },
+            rule={"type": reported_violation_type or "auto"},
         )
         result["rule_matched"] = rule.rule_matched
         result["evidence_level"] = rule.evidence_level
         result["evidence_items"] = rule.evidence_items
         result["missing_evidence"] = rule.missing_evidence
         result["rule_reason"] = rule.reason
-        result["candidate_violation_type"] = rule.candidate_violation_type or "illegal_stop"
-        result["rule_code"] = rule.rule_code or "illegal_stop_model"
+        result["candidate_violation_type"] = rule.candidate_violation_type
+        result["rule_code"] = rule.rule_code
 
         # ④ LLM 审查
         llm = _llm()
         review = llm.review({
             "image_path": image_path,
             "image_url": image_relative_url,
+            "reported_violation_type": reported_violation_type,
             "detection_result": {"objects": detection.objects},
-            "ocr_result": plate_no,
             "rule_result": {
                 "rule_matched": rule.rule_matched,
                 "evidence_level": rule.evidence_level,
@@ -129,7 +198,8 @@ def run_ai_pipeline(case: Case, image_relative_url: str) -> dict:
     # 写回 Case
     from sqlalchemy.orm import Session
     db = Session.object_session(case)
-    case.plate_no = plate_no or case.plate_no
+    _register_annotated_media(case, result.get("annotated_image_url"))
+    case.plate_no = plate_no
     if result.get("candidate_violation_type"):
         case.violation_type = result["candidate_violation_type"]
     case.ai_result_json = json.dumps(result, ensure_ascii=False)

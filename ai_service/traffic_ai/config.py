@@ -19,6 +19,8 @@ class ModelPaths:
     vehicle: Path
     license_plate: Path
     illegal_stop: Path
+    red_light: Path
+    zebra_crossing: Path
 
     @classmethod
     def default(cls) -> "ModelPaths":
@@ -27,6 +29,8 @@ class ModelPaths:
             vehicle=model_dir / "car_yolov8s.pt",
             license_plate=model_dir / "license.pt",
             illegal_stop=model_dir / "illegal_stop.pt",
+            red_light=model_dir / "red_light.pt",
+            zebra_crossing=model_dir / "zebra_crossing.pt",
         )
 
 

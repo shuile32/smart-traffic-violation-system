@@ -12,13 +12,20 @@ from app.models.user import User
 AI_DISPLAY_TEXT = {
     "illegal_stop detection": "违停检测",
     "vehicle detection": "车辆检测",
+    "offending vehicle association": "违法车辆关联",
     "plate OCR": "车牌识别",
     "plate OCR text": "车牌文字识别",
     "license plate region": "车牌定位",
     "plate recognition": "车牌识别",
     "plate localization": "车牌定位",
     "plate text recognition": "车牌文字识别",
+    "plate_localization": "车牌定位",
+    "ocr_result": "车牌识别",
+    "red traffic light detection": "红灯检测",
+    "zebra crossing detection": "斑马线检测",
+    "vehicle-crossing contact": "车辆占压斑马线",
     "illegal_stop": "违停",
+    "red_light_violation": "疑似闯红灯",
     "complete": "完整",
     "partial": "部分",
     "insufficient": "不足",
@@ -116,23 +123,47 @@ class CaseService:
         rule_result = None
         ai_review = None
         if ai_raw:
+            annotated_image_url = ai_raw.get("annotated_image_url")
+            if annotated_image_url:
+                media["annotated_url"] = annotated_image_url
             if ai_raw.get("objects"):
                 labels_cn = {
                     "cars": "小汽车", "car": "小汽车", "bus": "公交车",
                     "truck": "卡车", "van": "面包车", "illegal": "违停",
                     "chinese-plate-license": "车牌",
+                    "Traffic Light - Red": "红灯",
+                    "Traffic Light - Yellow": "黄灯",
+                    "Traffic Lioght - Green": "绿灯",
+                    "Traffic Light - Off": "信号灯关闭",
+                    "zebra crossing": "斑马线",
+                    "suspected_red_light_violation": "疑似闯红灯",
                 }
                 objects_cn = []
+                primary_target = ai_raw.get("primary_target")
+                primary_vehicle = primary_target.get("vehicle", {}) if isinstance(primary_target, dict) else {}
+                primary_vehicle_id = primary_vehicle.get("detection_id")
                 for o in ai_raw["objects"]:
+                    translated_label = labels_cn.get(o.get("label", ""), o.get("label", ""))
                     objects_cn.append({
-                        "label": labels_cn.get(o.get("label", ""), o.get("label", "")),
+                        "label": translated_label,
+                        "display_label": o.get("display_label") or translated_label,
+                        "detection_id": o.get("detection_id"),
+                        "model": o.get("model"),
                         "confidence": o.get("confidence"),
                         "bbox": o.get("bbox"),
+                        "is_primary": bool(
+                            primary_vehicle_id
+                            and o.get("detection_id") == primary_vehicle_id
+                        ),
                     })
                 detection_result = {
                     "objects": objects_cn,
                     "vehicle_bbox": ai_raw.get("vehicle_bbox"),
                     "plate_bbox": ai_raw.get("plate_bbox"),
+                    "requested_violation_type": ai_raw.get("reported_violation_type"),
+                    "violation_targets": ai_raw.get("violation_targets", []),
+                    "primary_target": primary_target,
+                    "annotated_image_url": annotated_image_url,
                     "model_version": ai_raw.get("model_version"),
                 }
             if ai_raw.get("rule_matched") is not None:
@@ -166,6 +197,11 @@ class CaseService:
             "captured_at": captured_at,
             "speed": speed,
             "plate_no": case.plate_no,
+            "reported_violation_type": ai_display_text(
+                ev.reported_violation_type if ev else None
+            ),
+            "plate_status": ai_raw.get("plate_status") if ai_raw else None,
+            "plate_status_message": ai_raw.get("plate_status_message") if ai_raw else None,
             "violation_type": ai_display_text(case.violation_type),
             "media": media,
             "detection_result": detection_result,

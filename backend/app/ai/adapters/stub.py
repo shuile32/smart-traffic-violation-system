@@ -16,13 +16,18 @@ from app.ai.adapters.base import (
 
 
 class StubYoloDetector(YoloDetector):
-    def detect(self, image_path: str) -> DetectionResult:
+    def detect(
+        self,
+        image_path: str,
+        requested_violation_type: str | None = None,
+    ) -> DetectionResult:
         return DetectionResult(
             objects=[{"label": "car", "confidence": 0.92, "bbox": [100, 200, 300, 350]}],
             vehicle_bbox=[100, 200, 300, 350],
             plate_bbox=[120, 230, 200, 270],
             annotated_image_path=None,  # stub 不产标注图；real 实现返回持久化 URL
             model_version="stub-yolov8n",
+            requested_violation_type=requested_violation_type,
         )
 
 

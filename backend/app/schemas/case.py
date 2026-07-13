@@ -35,6 +35,9 @@ class CaseDetail(BaseModel):
     captured_at: str | None = None
     speed: float | None = None
     plate_no: str | None = None
+    reported_violation_type: str | None = None
+    plate_status: str | None = None
+    plate_status_message: str | None = None
     violation_type: str | None = None
     media: dict = {}
     detection_result: dict | None = None

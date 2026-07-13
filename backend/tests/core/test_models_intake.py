@@ -1,5 +1,6 @@
 # tests/core/test_models_intake.py
 from app.models.intake import CameraApiKey, CameraDevice, Case, IntakeEvent, MediaAsset
+from sqlalchemy import Text
 
 
 def test_create_intake_and_case(db):
@@ -26,3 +27,7 @@ def test_create_camera_and_key(db):
     db.add(key)
     db.commit()
     assert key.id is not None
+
+
+def test_case_ai_result_uses_text_storage_for_multi_target_evidence():
+    assert isinstance(Case.__table__.c.ai_result_json.type, Text)

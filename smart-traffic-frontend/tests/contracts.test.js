@@ -417,3 +417,32 @@ test('AI report page generates only on user action and supports print export', a
   assert.match(dashboardSource, /buildReportRoute\(route\.path, dateRange\)/)
   assert.match(apiSource, /analysis\/reports[^\n]+timeout: 35000/)
 })
+
+test('manual evidence uploads require and submit a supported violation type', async () => {
+  const paths = [
+    '../src/views/citizen/Report.vue',
+    '../src/views/review/ImageUpload.vue',
+    '../src/views/admin/ViolationUpload.vue'
+  ]
+
+  for (const path of paths) {
+    const source = await readFile(new URL(path, import.meta.url), 'utf8')
+    assert.match(source, /label="违法类型"[^>]*prop="reported_violation_type"/)
+    assert.match(source, /value="illegal_stop"/)
+    assert.match(source, /value="red_light_violation"/)
+    assert.match(source, /reported_violation_type:\s*''/)
+    assert.match(source, /reported_violation_type:\s*\[\{\s*required:\s*true/)
+    assert.match(source, /fd\.append\('reported_violation_type',\s*form\.reported_violation_type\)/)
+  }
+})
+
+test('case detail renders unique target labels and structured plate failures', async () => {
+  const source = await readFile(new URL('../src/views/review/CaseDetail.vue', import.meta.url), 'utf8')
+
+  assert.match(source, /v-for="\(obj, index\) in/)
+  assert.match(source, /:key="obj\.detection_id \|\| `\$\{obj\.label\}-\$\{index\}`"/)
+  assert.match(source, /obj\.display_label \|\| objLabel\(obj\.label\)/)
+  assert.match(source, /detail\.plate_status_message/)
+  assert.match(source, /主违法目标/)
+  assert.match(source, /detail\.reported_violation_type/)
+})

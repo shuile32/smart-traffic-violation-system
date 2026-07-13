@@ -14,7 +14,7 @@ def _script_directory() -> ScriptDirectory:
 
 
 def test_alembic_has_single_head():
-    assert _script_directory().get_heads() == ["9a3b5c7d1e2f"]
+    assert _script_directory().get_heads() == ["b4f2c8d6a109"]
 
 
 def test_merge_revision_owns_violation_rules_table(monkeypatch):

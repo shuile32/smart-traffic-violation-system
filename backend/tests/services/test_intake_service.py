@@ -21,11 +21,13 @@ def test_create_intake_citizen(db, citizen_user, tmp_path, monkeypatch):
         image_bytes=JPEG,
         filename="a.jpg",
         location_text="路口A",
+        reported_violation_type="illegal_stop",
     )
     assert case.id is not None
     assert case.case_no.startswith("CASE")
     assert case.status == "uploaded"
     assert case.intake_event.image_hash
+    assert case.intake_event.reported_violation_type == "illegal_stop"
     assets = case.intake_event.media_assets
     assert len(assets) == 1
     assert assets[0].asset_type == "original"

@@ -13,6 +13,13 @@
           </el-radio-group>
         </el-form-item>
 
+        <el-form-item label="违法类型" prop="reported_violation_type">
+          <el-radio-group v-model="form.reported_violation_type">
+            <el-radio-button value="illegal_stop">违停</el-radio-button>
+            <el-radio-button value="red_light_violation">疑似闯红灯</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+
         <el-form-item label="证据图片" prop="images">
           <el-upload
             :auto-upload="false"
@@ -62,11 +69,13 @@ const fileList = ref([])
 
 const form = reactive({
   source_type: 'camera',
+  reported_violation_type: '',
   location_text: '',
   captured_at: '',
   speed: null
 })
 const rules = {
+  reported_violation_type: [{ required: true, message: '请选择违法类型', trigger: 'change' }],
   location_text: [{ required: true, message: '请输入地点', trigger: 'blur' }],
   captured_at: [{ required: true, message: '请选择时间', trigger: 'change' }]
 }
@@ -84,6 +93,7 @@ async function handleSubmit() {
   submitting.value = true
   try {
     const fd = new FormData()
+    fd.append('reported_violation_type', form.reported_violation_type)
     fd.append('location_text', form.location_text)
     fd.append('captured_at', form.captured_at)
     if (form.speed) fd.append('speed', form.speed)

@@ -1,5 +1,6 @@
 # app/api/v1/intakes.py
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
@@ -21,6 +22,7 @@ def _to_response(case) -> IntakeResponse:
 @router.post("/citizen-reports", response_model=IntakeResponse)
 def citizen_report(
     image: UploadFile = File(...),
+    reported_violation_type: Literal["illegal_stop", "red_light_violation"] = Form(...),
     location_text: str = Form(None),
     captured_at: datetime | None = Form(None),
     description: str | None = Form(None),
@@ -32,6 +34,7 @@ def citizen_report(
         db, source_type="citizen", source_id=user.id,
         image_bytes=data, filename=image.filename or "upload.jpg",
         location_text=location_text,
+        reported_violation_type=reported_violation_type,
         captured_at=captured_at,
         description=description,
     )
@@ -41,6 +44,7 @@ def citizen_report(
 @router.post("/admin-uploads", response_model=IntakeResponse)
 def admin_upload(
     image: UploadFile = File(...),
+    reported_violation_type: Literal["illegal_stop", "red_light_violation"] = Form(...),
     location_text: str = Form(None),
     captured_at: datetime | None = Form(None),
     speed: float | None = Form(None),
@@ -52,6 +56,7 @@ def admin_upload(
         db, source_type="admin", source_id=user.id,
         image_bytes=data, filename=image.filename or "upload.jpg",
         location_text=location_text,
+        reported_violation_type=reported_violation_type,
         captured_at=captured_at,
         speed=speed,
     )

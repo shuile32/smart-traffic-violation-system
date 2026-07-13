@@ -48,6 +48,7 @@ def create_intake(
     image_bytes: bytes,
     filename: str,
     location_text: str | None,
+    reported_violation_type: str | None = None,
     description: str | None = None,
     captured_at: datetime | None = None,
     speed: float | None = None,
@@ -66,6 +67,7 @@ def create_intake(
     event = IntakeEvent(
         source_type=source_type,
         source_id=source_id,
+        reported_violation_type=reported_violation_type,
         location_text=location_text,
         description=description,
         longitude=longitude,
