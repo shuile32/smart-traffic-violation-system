@@ -20,11 +20,19 @@ the original training directory at runtime.
 
 ## Runtime Environment
 
-Use the YOLO conda environment, then run commands from the repository root:
+Create or activate a Python 3.11 environment, then install the tracked AI
+runtime dependencies from the repository root:
 
 ```powershell
+conda create -n yolo python=3.11 -y
 conda activate yolo
+python -m pip install -r ai_service\requirements.txt
 ```
+
+If the `yolo` environment already exists, only the last two commands are
+needed. GPU acceleration requires a PyTorch build matching the machine's CUDA
+version; install that build before the requirements command. The requirements
+file intentionally leaves PyTorch selection to the target machine.
 
 The runtime creates local ignored folders for temporary data:
 
