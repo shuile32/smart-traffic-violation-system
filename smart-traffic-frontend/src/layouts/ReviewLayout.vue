@@ -56,7 +56,29 @@
             </el-breadcrumb-item>
           </el-breadcrumb>
         </div>
-        <HeaderActions profile-path="/review/profile" default-name="工作人员" />
+        <div class="header-right">
+          <AnnouncementBell />
+          <el-icon class="theme-toggle" :size="20" @click="themeStore.isDark = !themeStore.isDark">
+            <Moon v-if="themeStore.isDark" />
+            <Sunny v-else />
+          </el-icon>
+          <el-dropdown>
+            <span class="user-info">
+              {{ userStore.userInfo?.username || '工作人员' }}
+              <el-icon><ArrowDown /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="router.push('/review/profile')">
+                  <el-icon><User /></el-icon>个人信息
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">
+                  <el-icon><SwitchButton /></el-icon>退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </el-header>
 
       <el-main class="main-content">
@@ -77,12 +99,19 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import HeaderActions from '@/components/HeaderActions.vue'
+import { useThemeStore } from '@/stores/theme'
 import BackToTop from '@/components/BackToTop.vue'
+import AnnouncementBell from '@/components/AnnouncementBell.vue'
+import {
+  Upload, Checked, List, TrendCharts, Fold, Expand,
+  Moon, Sunny, ArrowDown, User, SwitchButton
+} from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 const isCollapse = ref(false)
 
 const cachedViews = computed(() => {
@@ -130,6 +159,13 @@ const breadcrumbs = computed(() => {
 
 function nav(path) {
   if (route.path !== path) router.push(path).catch(() => {})
+}
+
+function handleLogout() {
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(() => {
+    localStorage.removeItem('access_token')
+    router.push('/login')
+  })
 }
 </script>
 
@@ -179,7 +215,10 @@ function nav(path) {
   height: 60px;
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
 .collapse-btn { font-size: 20px; cursor: pointer; }
+.theme-toggle { cursor: pointer; }
+.user-info { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .breadcrumb { line-height: 1; }
 .breadcrumb :deep(.el-breadcrumb__separator) { color: var(--text-secondary); }
 .breadcrumb :deep(.el-breadcrumb__inner) { color: var(--text-secondary); font-size: 14px; }

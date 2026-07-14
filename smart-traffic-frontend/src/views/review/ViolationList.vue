@@ -18,11 +18,7 @@
         <el-input v-model="search.plate" placeholder="车牌号" clearable style="width:140px" />
         <el-input v-model="search.location" placeholder="违章地点" clearable style="width:140px" />
         <el-select v-model="search.type" placeholder="违章类型" clearable style="width:140px">
-          <el-option label="闯红灯" value="闯红灯" />
-          <el-option label="超速" value="超速" />
-          <el-option label="违停" value="违停" />
-          <el-option label="压线" value="压线" />
-          <el-option label="逆行" value="逆行" />
+          <el-option v-for="t in types" :key="t" :label="t" :value="t" />
         </el-select>
         <el-select v-model="search.status" placeholder="处理状态" clearable style="width:140px">
           <el-option label="待处理" value="pending" />
@@ -94,6 +90,7 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
+const types = ['闯红灯', '超速', '违停', '压线', '逆行', '占用应急车道']
 const statusMap = { pending: '待处理', confirmed: '已确认', paid: '已缴纳', overdue: '已逾期' }
 function statusTagType(s) {
   return s === 'pending' ? 'warning' : s === 'confirmed' ? 'success' : s === 'paid' ? 'info' : 'danger'
