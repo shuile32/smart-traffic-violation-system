@@ -147,7 +147,8 @@ test('registration delegates verification to the backend', () => {
   assert.match(source, /sendRegisterEmailCode\(\{ email: form\.email \}\)/)
   assert.match(source, /verification_code: form\.verification_code/)
   assert.match(source, /:loading="codeLoading"/)
-  assert.match(source, /onBeforeUnmount\(stopCountdown\)/)
+  assert.match(source, /v-model="form\.email"[\s\S]*:readonly="codeLoading"/)
+  assert.match(source, /onBeforeUnmount\((?:stopCountdown|handleUnmount)\)/)
   assert.match(source, /await sendRegisterEmailCode[\s\S]*startCountdown\(\)/)
   assert.ok(source.includes('pattern: /^\\d{6}$/'))
   assert.doesNotMatch(source, /Math\.random|sentCode|演示模式|前端验证码校验/)
@@ -175,9 +176,10 @@ test('forgot password page sends and resets without persistence', () => {
     source,
     /resetPassword\(\{[\s\S]*email: form\.email,[\s\S]*verification_code: form\.verification_code,[\s\S]*new_password: form\.new_password/
   )
-  assert.match(source, /onBeforeUnmount\(stopCountdown\)/)
+  assert.match(source, /onBeforeUnmount\((?:stopCountdown|handleUnmount)\)/)
   assert.match(source, /sendLoading/)
   assert.match(source, /resetLoading/)
+  assert.match(source, /:readonly="step === 'reset' \|\| sendLoading"/)
   assert.match(source, /两次密码不一致/)
   assert.ok(source.includes('pattern: /^\\d{6}$/'))
   assert.doesNotMatch(source, /localStorage|sessionStorage|useUserStore/)
@@ -313,6 +315,50 @@ test('forgot password runtime clears secrets and timer when changing email', asy
 })
 
 
+test('forgot password runtime ignores a stale resend after changing email', async () => {
+  const sendDeferred = createDeferred()
+  const runtime = createForgotPasswordRuntime({
+    sendPasswordResetEmailCode: () => sendDeferred.promise
+  })
+  runtime.form.email = 'old@example.com'
+  runtime.step.value = 'reset'
+
+  const resend = runtime.handleSendCode()
+  await flushTasks()
+  runtime.handleChangeEmail()
+  runtime.form.email = 'new@example.com'
+  sendDeferred.resolve()
+  await resend
+
+  assert.equal(runtime.step.value, 'email')
+  assert.equal(runtime.form.email, 'new@example.com')
+  assert.equal(runtime.sendLoading.value, false)
+  assert.equal(runtime.countdown.value, 0)
+  assert.equal(runtime.timers.active.size, 0)
+  assert.deepEqual(runtime.notifications, [])
+})
+
+
+test('forgot password runtime does not restart work after unmount', async () => {
+  const sendDeferred = createDeferred()
+  const runtime = createForgotPasswordRuntime({
+    sendPasswordResetEmailCode: () => sendDeferred.promise
+  })
+  runtime.form.email = 'driver@example.com'
+
+  const sending = runtime.handleSendCode()
+  await flushTasks()
+  runtime.cleanup()
+  sendDeferred.resolve()
+  await sending
+
+  assert.equal(runtime.step.value, 'email')
+  assert.equal(runtime.countdown.value, 0)
+  assert.equal(runtime.timers.active.size, 0)
+  assert.deepEqual(runtime.notifications, [])
+})
+
+
 test('registration runtime starts countdown on success and includes the verification code', async () => {
   const sendRequests = []
   const registerRequests = []
@@ -347,6 +393,35 @@ test('registration runtime starts countdown on success and includes the verifica
 })
 
 
+test('registration runtime suppresses duplicate registration submits', async () => {
+  const registerDeferred = createDeferred()
+  const registerRequests = []
+  const runtime = createRegisterRuntime({
+    register: (payload) => {
+      registerRequests.push(payload)
+      return registerDeferred.promise
+    }
+  })
+  Object.assign(runtime.form, {
+    username: 'driver',
+    password: 'secret12',
+    repassword: 'secret12',
+    email: 'driver@example.com',
+    verification_code: '654321'
+  })
+
+  const firstSubmit = runtime.handleRegister()
+  await flushTasks()
+  const duplicateSubmit = runtime.handleRegister()
+  await flushTasks()
+  assert.equal(registerRequests.length, 1)
+
+  registerDeferred.resolve()
+  await Promise.all([firstSubmit, duplicateSubmit])
+  assert.deepEqual(runtime.navigations, ['/login'])
+})
+
+
 test('registration runtime does not start countdown after a failed send', async () => {
   const runtime = createRegisterRuntime({
     sendRegisterEmailCode: async () => { throw new Error('network') }
@@ -356,6 +431,25 @@ test('registration runtime does not start countdown after a failed send', async 
   await runtime.handleSendCode()
 
   assert.equal(runtime.codeLoading.value, false)
+  assert.equal(runtime.countdown.value, 0)
+  assert.equal(runtime.timers.active.size, 0)
+  assert.deepEqual(runtime.notifications, [])
+})
+
+
+test('registration runtime does not start a countdown after unmount', async () => {
+  const sendDeferred = createDeferred()
+  const runtime = createRegisterRuntime({
+    sendRegisterEmailCode: () => sendDeferred.promise
+  })
+  runtime.form.email = 'driver@example.com'
+
+  const sending = runtime.handleSendCode()
+  await flushTasks()
+  runtime.cleanup()
+  sendDeferred.resolve()
+  await sending
+
   assert.equal(runtime.countdown.value, 0)
   assert.equal(runtime.timers.active.size, 0)
   assert.deepEqual(runtime.notifications, [])

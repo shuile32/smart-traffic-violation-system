@@ -16,12 +16,17 @@
               v-model="form.email"
               placeholder="请输入注册邮箱"
               prefix-icon="Message"
-              :readonly="step === 'reset'"
+              :readonly="step === 'reset' || sendLoading"
             />
           </el-form-item>
 
           <div v-if="step === 'reset'" class="change-email-row">
-            <el-button link type="primary" @click="handleChangeEmail">更换邮箱</el-button>
+            <el-button
+              link
+              type="primary"
+              :disabled="sendLoading || resetLoading"
+              @click="handleChangeEmail"
+            >更换邮箱</el-button>
           </div>
 
           <template v-if="step === 'reset'">
@@ -110,6 +115,8 @@ const sendLoading = ref(false)
 const resetLoading = ref(false)
 const countdown = ref(0)
 let countdownTimer = null
+let sendRequestId = 0
+let resetRequestId = 0
 
 const form = reactive({
   email: '',
@@ -158,9 +165,19 @@ function startCountdown() {
   }, 1000)
 }
 
-onBeforeUnmount(stopCountdown)
+function handleUnmount() {
+  sendRequestId += 1
+  resetRequestId += 1
+  stopCountdown()
+}
+
+onBeforeUnmount(handleUnmount)
 
 function handleChangeEmail() {
+  sendRequestId += 1
+  resetRequestId += 1
+  sendLoading.value = false
+  resetLoading.value = false
   stopCountdown()
   countdown.value = 0
   form.verification_code = ''
@@ -175,16 +192,18 @@ async function handleSendCode() {
     .catch(() => false)
   if (!valid || sendLoading.value || countdown.value > 0) return
 
+  const requestId = ++sendRequestId
   sendLoading.value = true
   try {
     await sendPasswordResetEmailCode({ email: form.email })
+    if (requestId !== sendRequestId) return
     step.value = 'reset'
     ElMessage.success('如果邮箱可用，验证码将发送至该邮箱')
     startCountdown()
   } catch (_) {
     // 请求拦截器统一显示后端错误信息。
   } finally {
-    sendLoading.value = false
+    if (requestId === sendRequestId) sendLoading.value = false
   }
 }
 
@@ -192,6 +211,7 @@ async function handleResetPassword() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid || resetLoading.value) return
 
+  const requestId = ++resetRequestId
   resetLoading.value = true
   try {
     await resetPassword({
@@ -199,12 +219,13 @@ async function handleResetPassword() {
       verification_code: form.verification_code,
       new_password: form.new_password
     })
+    if (requestId !== resetRequestId) return
     ElMessage.success('密码重置成功，请使用新密码登录')
     router.push('/login')
   } catch (_) {
     // 请求拦截器统一显示后端错误信息。
   } finally {
-    resetLoading.value = false
+    if (requestId === resetRequestId) resetLoading.value = false
   }
 }
 </script>

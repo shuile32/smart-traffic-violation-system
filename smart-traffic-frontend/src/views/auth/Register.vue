@@ -19,7 +19,7 @@
             <el-input v-model="form.repassword" type="password" placeholder="确认密码" prefix-icon="Lock" show-password />
           </el-form-item>
           <el-form-item prop="email">
-            <el-input v-model="form.email" placeholder="请输入邮箱" />
+            <el-input v-model="form.email" placeholder="请输入邮箱" :readonly="codeLoading" />
           </el-form-item>
           <el-form-item prop="verification_code">
             <div style="display:flex; gap:12px; width:100%">
@@ -66,6 +66,8 @@ const loading = ref(false)
 const codeLoading = ref(false)
 const countdown = ref(0)
 let countdownTimer = null
+let sendRequestId = 0
+let registerRequestId = 0
 
 const form = reactive({
   username: '', password: '', repassword: '', email: '', verification_code: ''
@@ -109,7 +111,13 @@ function startCountdown() {
   }, 1000)
 }
 
-onBeforeUnmount(stopCountdown)
+function handleUnmount() {
+  sendRequestId += 1
+  registerRequestId += 1
+  stopCountdown()
+}
+
+onBeforeUnmount(handleUnmount)
 
 async function handleSendCode() {
   const valid = await formRef.value.validateField('email')
@@ -117,22 +125,25 @@ async function handleSendCode() {
     .catch(() => false)
   if (!valid || codeLoading.value || countdown.value > 0) return
 
+  const requestId = ++sendRequestId
   codeLoading.value = true
   try {
     await sendRegisterEmailCode({ email: form.email })
+    if (requestId !== sendRequestId) return
     ElMessage.success('验证码已发送，请查收邮件')
     startCountdown()
   } catch (_) {
     // 请求拦截器统一显示后端错误信息。
   } finally {
-    codeLoading.value = false
+    if (requestId === sendRequestId) codeLoading.value = false
   }
 }
 
 async function handleRegister() {
   const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
+  if (!valid || loading.value) return
 
+  const requestId = ++registerRequestId
   loading.value = true
   try {
     await register({
@@ -141,12 +152,13 @@ async function handleRegister() {
       email: form.email,
       verification_code: form.verification_code
     })
+    if (requestId !== registerRequestId) return
     ElMessage.success('注册成功，请登录')
     router.push('/login')
   } catch (_) {
     // 请求拦截器统一显示后端错误信息。
   } finally {
-    loading.value = false
+    if (requestId === registerRequestId) loading.value = false
   }
 }
 </script>
