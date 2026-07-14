@@ -49,3 +49,8 @@ class ViolationRuleService:
         self.db.commit()
         self.db.refresh(r)
         return r
+
+    def delete_rule(self, rule_id: int) -> None:
+        rule = self.get_rule(rule_id)
+        self.db.delete(rule)
+        self.db.commit()

@@ -38,3 +38,9 @@ def update_rule(rule_id: int, body: ViolationRuleUpdateIn,
         rule_id, violation_type=body.violation_type, rule_type=body.rule_type,
         params=body.params, description=body.description, is_active=body.is_active)
     return ViolationRuleOut.model_validate(r)
+
+
+@router.delete("/{rule_id}", status_code=204)
+def delete_rule(rule_id: int, db: Session = Depends(get_db),
+                _: User = Depends(require_role("admin"))) -> None:
+    ViolationRuleService(db).delete_rule(rule_id)

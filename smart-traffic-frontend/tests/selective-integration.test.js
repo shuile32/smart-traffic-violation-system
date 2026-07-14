@@ -193,3 +193,14 @@ test('announcement administration uses backend CRUD without publish state', asyn
   assert.match(announcement, /removeAnnouncement/)
   assert.doesNotMatch(announcement, /UnderDevelopment|localStorage|is_published/)
 })
+
+test('rule administration deletes persisted rules after confirmation', async () => {
+  const api = await source('../src/api/system.js')
+  const rules = await source('../src/views/admin/RuleConfig.vue')
+  assert.match(api, /export const deleteRule = \(id\) => request\.delete\(`\/admin\/rules\/\$\{id\}`\)/)
+  assert.match(rules, /deleteRule/)
+  assert.match(rules, /ElMessageBox\.confirm/)
+  assert.match(rules, /await deleteRule\(row\.id\)/)
+  assert.match(rules, /deletingIds/)
+  assert.doesNotMatch(rules, /localStorage|defaultRules|DEFAULT_RULES/)
+})

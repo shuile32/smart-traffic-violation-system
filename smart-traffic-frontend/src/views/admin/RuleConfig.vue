@@ -2,7 +2,9 @@
   <div class="page-container">
     <div class="page-header">
       <h2 class="page-title">违章规则配置</h2>
-      <el-button type="primary" @click="openCreateDialog">新增规则</el-button>
+      <el-button type="primary" @click="openCreateDialog">
+        <el-icon><Plus /></el-icon>新增规则
+      </el-button>
     </div>
 
     <el-card>
@@ -22,9 +24,19 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="90">
+        <el-table-column label="操作" width="180">
           <template #default="{ row }">
-            <el-button size="small" @click="editRule(row)">编辑</el-button>
+            <el-button size="small" @click="editRule(row)">
+              <el-icon><Edit /></el-icon>编辑
+            </el-button>
+            <el-button
+              size="small"
+              type="danger"
+              :loading="deletingIds.has(row.id)"
+              @click="removeRule(row)"
+            >
+              <el-icon><Delete /></el-icon>删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -58,13 +70,15 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { createRule, fetchRules, updateRule } from '@/api/system'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Edit, Plus } from '@element-plus/icons-vue'
+import { createRule, deleteRule, fetchRules, updateRule } from '@/api/system'
 
 const rules = ref([])
 const loading = ref(false)
 const saving = ref(false)
 const togglingIds = ref(new Set())
+const deletingIds = ref(new Set())
 const formRef = ref(null)
 const dialog = reactive({ visible: false, isEdit: false, id: null })
 const form = reactive({ rule_code: '', violation_type: '', rule_type: '', params: '', description: '' })
@@ -152,6 +166,26 @@ async function toggleRule(row) {
     const next = new Set(togglingIds.value)
     next.delete(row.id)
     togglingIds.value = next
+  }
+}
+
+async function removeRule(row) {
+  try {
+    await ElMessageBox.confirm(`确定删除规则“${row.rule_code}”吗？`, '删除规则', {
+      type: 'warning',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    deletingIds.value = new Set([...deletingIds.value, row.id])
+    await deleteRule(row.id)
+    await loadRules()
+    ElMessage.success('规则已删除')
+  } catch (error) {
+    if (!['cancel', 'close'].includes(error)) showUnexpectedError(error, '规则删除失败')
+  } finally {
+    const next = new Set(deletingIds.value)
+    next.delete(row.id)
+    deletingIds.value = next
   }
 }
 
