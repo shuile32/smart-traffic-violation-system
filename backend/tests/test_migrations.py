@@ -14,7 +14,40 @@ def _script_directory() -> ScriptDirectory:
 
 
 def test_alembic_has_single_head():
-    assert _script_directory().get_heads() == ["20260714_120000"]
+    assert _script_directory().get_heads() == ["20260714_130000"]
+
+
+def test_announcements_migration_creates_expected_table(monkeypatch):
+    script = _script_directory()
+    revision = script.get_revision("a6c4e2f8b901")
+    engine = sa.create_engine("sqlite://")
+    metadata = sa.MetaData()
+    sa.Table("users", metadata, sa.Column("id", sa.Integer, primary_key=True))
+
+    with engine.begin() as connection:
+        metadata.create_all(connection)
+        operations = Operations(MigrationContext.configure(connection))
+        monkeypatch.setattr(revision.module, "op", operations)
+        revision.module.upgrade()
+
+        inspector = sa.inspect(connection)
+        columns = {column["name"]: column for column in inspector.get_columns("announcements")}
+        assert set(columns) == {"id", "title", "content", "created_by", "created_at", "updated_at"}
+        assert columns["title"]["type"].length == 100
+        assert columns["title"]["nullable"] is False
+        assert columns["content"]["nullable"] is False
+        assert columns["created_by"]["nullable"] is False
+        assert columns["created_at"]["nullable"] is False
+        assert columns["updated_at"]["nullable"] is False
+        foreign_key = inspector.get_foreign_keys("announcements")[0]
+        assert foreign_key["name"] == "fk_announcements_created_by_users"
+        assert foreign_key["constrained_columns"] == ["created_by"]
+        assert foreign_key["referred_table"] == "users"
+        assert foreign_key["referred_columns"] == ["id"]
+        assert {index["name"] for index in inspector.get_indexes("announcements")} == {"ix_announcements_updated_at"}
+
+        revision.module.downgrade()
+        assert "announcements" not in inspector.get_table_names()
 
 
 def test_email_verification_migration_rejects_missing_email(monkeypatch):

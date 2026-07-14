@@ -215,6 +215,133 @@ test('builds exact review request bodies', () => {
   assert.deepEqual(buildRejectPayload(form), { reject_reason: '证据清晰' })
 })
 
+test('builds exact announcement payloads from editable fields', () => {
+  assert.deepEqual(contracts.buildAnnouncementPayload({
+    id: 9,
+    title: ' 系统维护 ',
+    content: ' 今晚 22:00 维护。 ',
+    created_at: 'ignored'
+  }), {
+    title: '系统维护',
+    content: '今晚 22:00 维护。'
+  })
+})
+
+test('announcement controller loads the latest five into observable state', async () => {
+  const {
+    createAnnouncementController,
+    createAnnouncementState
+  } = await import('../src/utils/announcementController.js')
+  const state = createAnnouncementState()
+  const rows = [{ id: 7, title: '道路施工提醒' }]
+  let requestedParams
+  let resolveList
+  const controller = createAnnouncementController({
+    state,
+    fetchAnnouncements(params) {
+      requestedParams = params
+      return new Promise(resolve => { resolveList = resolve })
+    },
+    fetchAnnouncement: async () => ({ data: {} })
+  })
+
+  const loading = controller.loadAnnouncements()
+
+  assert.equal(state.loading, true)
+  assert.deepEqual(requestedParams, { page: 1, page_size: 5 })
+  resolveList({ data: { items: rows } })
+  await loading
+  assert.equal(state.loading, false)
+  assert.deepEqual(state.announcements, rows)
+})
+
+test('announcement controller selects a row and publishes fetched detail', async () => {
+  const {
+    createAnnouncementController,
+    createAnnouncementState
+  } = await import('../src/utils/announcementController.js')
+  const state = createAnnouncementState()
+  state.popoverVisible = true
+  const detail = { id: 12, title: '系统维护', content: '完整正文' }
+  let requestedId
+  let resolveDetail
+  const controller = createAnnouncementController({
+    state,
+    fetchAnnouncements: async () => ({ data: { items: [] } }),
+    fetchAnnouncement(id) {
+      requestedId = id
+      return new Promise(resolve => { resolveDetail = resolve })
+    }
+  })
+
+  const selecting = controller.selectAnnouncement(12)
+
+  assert.equal(requestedId, 12)
+  assert.equal(state.popoverVisible, false)
+  assert.equal(state.detailVisible, true)
+  assert.equal(state.detailLoading, true)
+  assert.equal(state.selectedAnnouncement, null)
+  resolveDetail({ data: detail })
+  await selecting
+  assert.equal(state.detailLoading, false)
+  assert.deepEqual(state.selectedAnnouncement, detail)
+})
+
+test('announcements use exact API routes and a shared accessible header entry', async () => {
+  const apiSource = await readFile(new URL('../src/api/announcement.js', import.meta.url), 'utf8')
+  const bellSource = await readFile(new URL('../src/components/AnnouncementBell.vue', import.meta.url), 'utf8')
+  const controllerSource = await readFile(
+    new URL('../src/utils/announcementController.js', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(apiSource, /request\.get\('\/announcements', \{ params \}\)/)
+  assert.match(apiSource, /request\.get\(`\/announcements\/\$\{id\}`\)/)
+  assert.match(apiSource, /request\.post\('\/admin\/announcements', data\)/)
+  assert.match(apiSource, /request\.patch\(`\/admin\/announcements\/\$\{id\}`, data\)/)
+  assert.match(apiSource, /request\.delete\(`\/admin\/announcements\/\$\{id\}`\)/)
+
+  assert.match(controllerSource, /fetchAnnouncements\(\{ page: 1, page_size: 5 \}\)/)
+  assert.match(bellSource, /<el-tooltip/)
+  assert.match(bellSource, /aria-label="系统公告"/)
+  assert.match(bellSource, /<Bell \/>/)
+  assert.match(bellSource, /createAnnouncementController/)
+  assert.doesNotMatch(bellSource, /<el-badge/)
+
+  for (const layout of ['CitizenLayout', 'ReviewLayout', 'AdminLayout']) {
+    const source = await readFile(new URL(`../src/layouts/${layout}.vue`, import.meta.url), 'utf8')
+    assert.match(source, /<AnnouncementBell \/>/)
+    assert.match(source, /import AnnouncementBell from '@\/components\/AnnouncementBell\.vue'/)
+  }
+})
+
+test('announcement bell uses a concrete popover trigger and viewport-safe dialog', async () => {
+  const source = await readFile(new URL('../src/components/AnnouncementBell.vue', import.meta.url), 'utf8')
+  const titleStyles = source.match(/\.announcement-dialog-title\s*\{([^}]*)\}/)?.[1] ?? ''
+  const headerStyles = source.match(
+    /:global\(\.announcement-dialog \.el-dialog__header\)\s*\{([^}]*)\}/
+  )?.[1] ?? ''
+
+  assert.match(
+    source,
+    /<template #reference>\s*<span class="announcement-popover-trigger">[\s\S]*?<el-tooltip[\s\S]*?<el-button/
+  )
+  assert.doesNotMatch(source, /<template #reference>\s*<el-tooltip/)
+  assert.match(
+    source,
+    /:global\(\.announcement-dialog\)\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-direction:\s*column;[\s\S]*?max-height:\s*calc\(100dvh - 24px\);[\s\S]*?overflow:\s*hidden;/
+  )
+  assert.match(titleStyles, /overflow-wrap:\s*anywhere;/)
+  assert.doesNotMatch(titleStyles, /overflow:\s*hidden;|-webkit-line-clamp/)
+  assert.match(headerStyles, /flex:\s*0 1 auto;/)
+  assert.match(headerStyles, /max-height:\s*min\(35dvh, 220px\);/)
+  assert.match(headerStyles, /overflow-y:\s*auto;/)
+  assert.match(
+    source,
+    /:global\(\.announcement-dialog \.el-dialog__body\)\s*\{[\s\S]*?flex:\s*1 1 auto;[\s\S]*?min-height:\s*0;[\s\S]*?overflow-y:\s*auto;/
+  )
+})
+
 test('keeps admin report navigation inside admin routes', () => {
   assert.equal(reportPathForRoute('/admin/stats'), '/admin/stats/report')
   assert.equal(reportPathForRoute('/stats'), '/stats/report')

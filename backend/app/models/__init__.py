@@ -1,4 +1,5 @@
 # app/models/__init__.py
+from app.models.announcement import Announcement
 from app.models.base import Base
 from app.models.email_verification import EmailVerificationCode
 from app.models.intake import CameraApiKey, CameraDevice, Case, IntakeEvent, MediaAsset
@@ -9,7 +10,7 @@ from app.models.violation import (
 from app.models.violation_rule import ViolationRule
 
 __all__ = [
-    "Base", "Role", "User",
+    "Base", "Announcement", "Role", "User",
     "IntakeEvent", "MediaAsset", "Case", "CameraDevice", "CameraApiKey",
     "Vehicle", "Violation", "Notification", "NotificationTemplate", "Reward", "AuditLog",
     "ViolationRule", "EmailVerificationCode",
