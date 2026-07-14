@@ -26,6 +26,9 @@
         </el-select>
         <el-select v-model="search.status" placeholder="处理状态" clearable style="width:140px">
           <el-option label="待处理" value="pending" />
+          <el-option label="已确认" value="confirmed" />
+          <el-option label="已缴纳" value="paid" />
+          <el-option label="已逾期" value="overdue" />
         </el-select>
         <el-date-picker
           v-model="search.dateRange"
@@ -57,7 +60,7 @@
       </el-table-column>
       <el-table-column label="操作" width="90" fixed="right">
         <template #default="{ row }">
-          <el-button size="small" type="primary" @click="router.push(`/review/case/${row.case_id}`)">
+          <el-button size="small" type="primary" @click="router.push(`/admin/violations/${row.case_id}`)">
             审核
           </el-button>
         </template>
@@ -91,9 +94,9 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const statusMap = { pending: '待处理' }
+const statusMap = { pending: '待处理', confirmed: '已确认', paid: '已缴纳', overdue: '已逾期' }
 function statusTagType(s) {
-  return s === 'pending' ? 'warning' : 'info'
+  return s === 'pending' ? 'warning' : s === 'confirmed' ? 'success' : s === 'paid' ? 'info' : 'danger'
 }
 
 const search = reactive({

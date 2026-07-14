@@ -62,7 +62,7 @@
             <el-icon><Monitor /></el-icon>
             <span>系统维护</span>
           </template>
-          <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">操作日志</el-menu-item>
+          <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">系统日志</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -74,7 +74,15 @@
           <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
             <Fold v-if="!isCollapse" /><Expand v-else />
           </el-icon>
-          <span class="page-name">{{ route.meta.title }}</span>
+          <el-breadcrumb class="breadcrumb">
+            <el-breadcrumb-item
+              v-for="(item, index) in breadcrumbs"
+              :key="index"
+              :to="item.path || undefined"
+            >
+              {{ item.title }}
+            </el-breadcrumb-item>
+          </el-breadcrumb>
         </div>
         <HeaderActions profile-path="/admin/profile" role-label="超级管理员" default-name="admin" />
       </el-header>
@@ -120,6 +128,36 @@ const cachedViews = computed(() => {
 })
 
 const activeMenu = computed(() => route.path)
+
+const breadcrumbMap = {
+  '/admin/violations/upload': ['违章管理'],
+  '/admin/violations/review': ['违章管理'],
+  '/admin/violations': ['违章管理'],
+  '/admin/violations/:id': ['违章管理'],
+  '/admin/stats/report': ['统计分析'],
+  '/admin/rules': ['系统配置'],
+  '/admin/announcements': ['系统配置'],
+  '/admin/logs': ['系统维护']
+}
+
+const breadcrumbs = computed(() => {
+  const items = [{ title: '首页', path: '/admin/stats' }]
+  let extra = null
+  for (const [path, names] of Object.entries(breadcrumbMap)) {
+    const regex = new RegExp('^' + path.replace(/:id/, '[^/]+') + '$')
+    if (regex.test(route.path)) {
+      extra = names
+      break
+    }
+  }
+  if (extra) {
+    for (const name of extra) {
+      items.push({ title: name, path: '' })
+    }
+  }
+  items.push({ title: route.meta.title || '', path: '' })
+  return items
+})
 
 function nav(path) {
   if (route.path !== path) router.push(path).catch(() => {})
@@ -179,7 +217,11 @@ function nav(path) {
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
 .collapse-btn { font-size: 20px; cursor: pointer; }
-.page-name { font-size: 16px; font-weight: 500; }
+.breadcrumb { line-height: 1; }
+.breadcrumb :deep(.el-breadcrumb__separator) { color: var(--text-secondary); }
+.breadcrumb :deep(.el-breadcrumb__inner) { color: var(--text-secondary); font-size: 14px; }
+.breadcrumb :deep(.el-breadcrumb__inner.is-link:hover) { color: var(--text-color); }
+.breadcrumb :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) { color: var(--text-color); font-weight: 500; }
 .el-main {
   background: var(--bg-color);
   padding: 20px;

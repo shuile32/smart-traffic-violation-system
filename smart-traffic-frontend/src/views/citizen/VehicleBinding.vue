@@ -11,9 +11,7 @@
           <el-input v-model="bindForm.plate_no" placeholder="如：粤A12345" style="width:200px" />
         </el-form-item>
         <el-form-item label="车辆类型">
-          <el-select v-model="bindForm.vehicle_type" style="width:160px">
-            <el-option v-for="t in vehicleTypes" :key="t" :label="t" :value="t" />
-          </el-select>
+          <el-input v-model="bindForm.vehicle_type" placeholder="如：小汽车" style="width:160px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="binding" @click="handleBind">绑定</el-button>
@@ -58,9 +56,8 @@ async function loadVehicles() {
   vehicles.value = res.data.items || []
 }
 loadVehicles().catch(() => {})
-const vehicleTypes = ['小型轿车', 'SUV', '货车', '摩托车', '新能源']
 
-const bindForm = reactive({ plate_no: '', vehicle_type: '小型轿车' })
+const bindForm = reactive({ plate_no: '', vehicle_type: '' })
 const bindRules = {
   plate_no: [{ required: true, message: '请输入车牌号', trigger: 'blur' }]
 }

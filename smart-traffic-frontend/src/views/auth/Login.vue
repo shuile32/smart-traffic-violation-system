@@ -3,9 +3,8 @@
     <div class="auth-container">
       <div class="auth-form-side">
         <div class="auth-brand">
-          <div class="brand-label">智能交通违章管理平台</div>
-          <h1 class="auth-title">用户登录</h1>
-          <p class="auth-desc">AI 驱动的交通违章智能管理系统</p>
+          <h1 class="auth-title">欢迎回来</h1>
+          <p class="auth-desc">基于Yolov8和大模型的城市交通违章管理平台</p>
         </div>
 
         <el-form ref="formRef" :model="form" :rules="rules" size="large">
@@ -23,7 +22,6 @@
             />
           </el-form-item>
           <div class="auth-extra">
-            <el-checkbox v-model="rememberMe">记住我</el-checkbox>
             <el-link type="primary" :underline="false" style="font-size:13px" @click="openReset">忘记密码？</el-link>
           </div>
           <el-form-item>
@@ -104,7 +102,6 @@ const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref(null)
 const loading = ref(false)
-const rememberMe = ref(false)
 
 const form = reactive({ username: '', password: '' })
 const rules = {
@@ -225,11 +222,6 @@ async function handleLogin() {
   loading.value = true
   try {
     await userStore.login({ username: form.username, password: form.password })
-    if (rememberMe.value) {
-      localStorage.setItem('remember_username', form.username)
-    } else {
-      localStorage.removeItem('remember_username')
-    }
     ElMessage.success('登录成功')
     router.push(userStore.homePath)
   } finally {

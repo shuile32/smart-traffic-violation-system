@@ -43,29 +43,41 @@
           <template #header>
             <div class="card-title">
               <el-icon><Setting /></el-icon>
-              <span>安全中心</span>
+              <span>设置</span>
             </div>
           </template>
-          <div class="security-list">
-            <div class="security-item" @click="showPasswordDialog = true">
-              <div class="sec-icon lock-bg">
+          <div class="settings-list">
+            <div class="settings-item" @click="showPasswordDialog = true">
+              <div class="set-icon lock-bg">
                 <el-icon><Lock /></el-icon>
               </div>
-              <div class="sec-info">
-                <div class="sec-title">修改密码</div>
-                <div class="sec-desc">定期更换密码可提升账户安全性</div>
+              <div class="set-info">
+                <div class="set-title">修改密码</div>
+                <div class="set-desc">定期更换密码可提升账户安全性</div>
               </div>
-              <el-icon class="sec-arrow"><ArrowRight /></el-icon>
+              <el-icon class="set-arrow"><ArrowRight /></el-icon>
             </div>
-            <div class="security-item">
-              <div class="sec-icon theme-bg">
+            <div class="settings-divider"></div>
+            <div class="settings-item">
+              <div class="set-icon theme-bg">
                 <el-icon><Moon /></el-icon>
               </div>
-              <div class="sec-info">
-                <div class="sec-title">深色模式</div>
-                <div class="sec-desc">切换系统明暗主题</div>
+              <div class="set-info">
+                <div class="set-title">深色模式</div>
+                <div class="set-desc">切换系统明暗主题</div>
               </div>
               <el-switch v-model="themeStore.isDark" size="small" />
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-item logout-item" @click="handleLogout">
+              <div class="set-icon logout-bg">
+                <el-icon><SwitchButton /></el-icon>
+              </div>
+              <div class="set-info">
+                <div class="set-title">退出登录</div>
+                <div class="set-desc">退出当前账号</div>
+              </div>
+              <el-icon class="set-arrow"><ArrowRight /></el-icon>
             </div>
           </div>
         </el-card>
@@ -100,7 +112,7 @@ import { getUserInfo, updateProfile, changePassword } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
-import { User, Setting, Lock, Moon, ArrowRight } from '@element-plus/icons-vue'
+import { User, Setting, Lock, Moon, ArrowRight, SwitchButton } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -301,7 +313,7 @@ onMounted(fetchProfile)
   gap: 20px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 700px) {
   .profile-grid {
     grid-template-columns: 1fr;
   }
@@ -332,14 +344,20 @@ onMounted(fetchProfile)
   color: #72a8c4;
 }
 
-/* 安全中心列表 */
-.security-list {
+/* 设置列表 */
+.settings-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
-.security-item {
+.settings-divider {
+  height: 1px;
+  background: #e8edf2;
+  margin: 4px 12px;
+}
+
+.settings-item {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -350,12 +368,25 @@ onMounted(fetchProfile)
   border: 1px solid transparent;
 }
 
-.security-item:hover {
+.settings-item:last-child {
+  cursor: pointer;
+}
+
+.settings-item:hover {
   background: #f8faf9;
   border-color: #d0d9de;
 }
 
-.sec-icon {
+.logout-bg {
+  background: #fef0f0;
+  color: #e06060;
+}
+
+.logout-item .set-title {
+  color: #e06060;
+}
+
+.set-icon {
   width: 42px;
   height: 42px;
   border-radius: 10px;
@@ -365,7 +396,7 @@ onMounted(fetchProfile)
   flex-shrink: 0;
 }
 
-.sec-icon .el-icon {
+.set-icon .el-icon {
   font-size: 20px;
 }
 
@@ -379,24 +410,94 @@ onMounted(fetchProfile)
   color: #919CA3;
 }
 
-.sec-info {
+.set-info {
   flex: 1;
 }
 
-.sec-title {
+.set-title {
   font-size: 14px;
   font-weight: 500;
   color: #1e293b;
   margin-bottom: 2px;
 }
 
-.sec-desc {
+.set-desc {
   font-size: 12px;
   color: #919CA3;
 }
 
-.sec-arrow {
+.set-arrow {
   color: #bcc5ca;
   font-size: 14px;
+}
+</style>
+
+<style>
+html.dark .profile-page {
+  background: linear-gradient(135deg, #1a1a1a 0%, #1e1e1e 50%, #1a1a1a 100%);
+}
+
+html.dark .profile-page::before {
+  background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+}
+
+html.dark .profile-page::after {
+  background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+}
+
+html.dark .card-title {
+  color: #e0e0e0;
+}
+
+html.dark .card-title .el-icon {
+  color: #72a8c4;
+}
+
+html.dark .settings-divider {
+  background: rgba(255,255,255,0.06);
+}
+
+html.dark .settings-item:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.08);
+}
+
+html.dark .set-title {
+  color: #e0e0e0;
+}
+
+html.dark .set-desc {
+  color: #999;
+}
+
+html.dark .lock-bg {
+  background: rgba(114, 168, 196, 0.15);
+  color: #72a8c4;
+}
+
+html.dark .theme-bg {
+  background: rgba(145, 156, 163, 0.15);
+  color: #a0a0a0;
+}
+
+html.dark .set-arrow {
+  color: #666;
+}
+
+html.dark .logout-bg {
+  background: rgba(224, 96, 96, 0.15);
+  color: #e06060;
+}
+
+html.dark .logout-item .set-title {
+  color: #e06060;
+}
+
+html.dark .logout-item:hover {
+  background: rgba(224, 96, 96, 0.06);
+}
+
+html.dark .avatar-text {
+  color: #b0b0b0;
 }
 </style>

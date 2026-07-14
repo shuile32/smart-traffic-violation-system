@@ -78,7 +78,7 @@ function exportData() {
     { key: 'fine_amount', label: '罚款(元)', width: 12 },
     { key: 'points', label: '扣分', width: 8 }
   ]
-  const statusMap = { pending: '待处理' }
+  const statusMap = { pending: '待处理', confirmed: '已确认', paid: '已缴纳', overdue: '已逾期' }
   const data = list.value.map(row => ({
     ...row,
     occurred_at: formatExportTime(row.occurred_at),
