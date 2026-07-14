@@ -49,3 +49,23 @@ Result: exit 0. Vite transformed 2,277 modules and completed the production buil
 ## Concerns
 
 - No task-specific concerns. The production build continues to report the two known categories of baseline warnings noted above.
+
+## Review Fixes
+
+### Changes
+
+- Replaced the `ElTooltip` direct Popover reference child with a fixed-size native `span`. The tooltip and Element Plus icon button remain inside it, so bell clicks bubble to the concrete trigger where Popover installs its reference listeners.
+- Capped the complete dialog to `calc(100dvh - 24px)` with a `100vh` fallback, made the dialog a clipped flex column, kept the header fixed, and moved vertical scrolling to `.el-dialog__body`.
+- Clamped announcement detail titles to two lines, bounding backend titles up to the 100-character schema limit without overlapping the close control or body.
+- Added a focused source-contract regression test that requires the native reference wrapper and rejects the previous direct-tooltip structure. It also protects the viewport cap, flex layout, two-line title clamp, and dialog-body scrolling contract.
+
+### TDD and Verification Evidence
+
+- RED: `npm test` exited 1 with 34 passing and the new regression failing because the Popover reference began with `ElTooltip` instead of the required native `span`.
+- GREEN: `npm test` exited 0 with 35 passing and 0 failing after the component fix.
+- Build: `npm run build` exited 0 after transforming 2,277 modules. Only the baseline `@vueuse` PURE-comment and chunk-size warnings remained.
+- `git diff --check` exited 0.
+
+### Acceptance Boundary
+
+- The existing Node harness can strongly enforce the event-target structure and viewport-safe CSS contract but does not mount Element Plus in a browser. Task 5 browser acceptance will exercise the real bell click, Popover opening, detail selection, and narrow-viewport behavior.

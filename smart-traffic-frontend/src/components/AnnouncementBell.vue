@@ -8,16 +8,18 @@
     @show="loadAnnouncements"
   >
     <template #reference>
-      <el-tooltip content="系统公告" placement="bottom">
-        <el-button
-          class="announcement-trigger"
-          text
-          circle
-          aria-label="系统公告"
-        >
-          <el-icon :size="20"><Bell /></el-icon>
-        </el-button>
-      </el-tooltip>
+      <span class="announcement-popover-trigger">
+        <el-tooltip content="系统公告" placement="bottom">
+          <el-button
+            class="announcement-trigger"
+            text
+            circle
+            aria-label="系统公告"
+          >
+            <el-icon :size="20"><Bell /></el-icon>
+          </el-button>
+        </el-tooltip>
+      </span>
     </template>
 
     <div v-loading="loading" class="announcement-surface">
@@ -120,6 +122,13 @@ function formatDate(value) {
 </script>
 
 <style scoped>
+.announcement-popover-trigger {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+
 .announcement-trigger {
   width: 32px;
   height: 32px;
@@ -186,18 +195,21 @@ function formatDate(value) {
 }
 
 .announcement-dialog-title {
+  display: -webkit-box;
+  max-height: 52px;
+  overflow: hidden;
   padding-right: 32px;
   color: var(--text-color);
   font-size: 18px;
   font-weight: 600;
   line-height: 26px;
   overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .announcement-detail {
   min-height: 180px;
-  max-height: min(60vh, 520px);
-  overflow-y: auto;
 }
 
 .announcement-content {
@@ -208,7 +220,24 @@ function formatDate(value) {
   white-space: pre-wrap;
 }
 
+:global(.announcement-dialog) {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  margin: 12px auto !important;
+  overflow: hidden;
+}
+
+:global(.announcement-dialog .el-dialog__header) {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
 :global(.announcement-dialog .el-dialog__body) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   padding-top: 8px;
 }
 

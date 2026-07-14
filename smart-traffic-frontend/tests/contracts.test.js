@@ -249,6 +249,28 @@ test('announcements use exact API routes and a shared accessible header entry', 
   }
 })
 
+test('announcement bell uses a concrete popover trigger and viewport-safe dialog', async () => {
+  const source = await readFile(new URL('../src/components/AnnouncementBell.vue', import.meta.url), 'utf8')
+
+  assert.match(
+    source,
+    /<template #reference>\s*<span class="announcement-popover-trigger">[\s\S]*?<el-tooltip[\s\S]*?<el-button/
+  )
+  assert.doesNotMatch(source, /<template #reference>\s*<el-tooltip/)
+  assert.match(
+    source,
+    /:global\(\.announcement-dialog\)\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-direction:\s*column;[\s\S]*?max-height:\s*calc\(100dvh - 24px\);[\s\S]*?overflow:\s*hidden;/
+  )
+  assert.match(
+    source,
+    /\.announcement-dialog-title\s*\{[\s\S]*?-webkit-line-clamp:\s*2;/
+  )
+  assert.match(
+    source,
+    /:global\(\.announcement-dialog \.el-dialog__body\)\s*\{[\s\S]*?flex:\s*1 1 auto;[\s\S]*?min-height:\s*0;[\s\S]*?overflow-y:\s*auto;/
+  )
+})
+
 test('keeps admin report navigation inside admin routes', () => {
   assert.equal(reportPathForRoute('/admin/stats'), '/admin/stats/report')
   assert.equal(reportPathForRoute('/stats'), '/stats/report')
