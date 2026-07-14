@@ -29,19 +29,19 @@
 
     <!-- 图表行：违章趋势 + 违章类型占比 + 区域排行 -->
     <el-row :gutter="12" style="margin-top:10px">
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <el-card class="chart-card">
           <template #header><span>📈 违章趋势</span></template>
           <div ref="trendChart" style="width:100%;height:260px"></div>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <el-card class="chart-card">
           <template #header><span>🎯 违章类型占比</span></template>
           <div ref="typeChart" style="width:100%;height:260px"></div>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <el-card class="chart-card">
           <template #header><span>📍 区域排行</span></template>
           <div ref="regionChart" style="width:100%;height:260px"></div>

@@ -45,12 +45,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { Checked, Expand, Fold, List, LocationFilled, TrendCharts, Upload } from '@element-plus/icons-vue'
 import BackToTop from '@/components/BackToTop.vue'
 import HeaderActions from '@/components/HeaderActions.vue'
+import { useResponsiveSidebar } from '@/composables/useResponsiveSidebar'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
-const isCollapse = ref(false)
+const { isCollapse } = useResponsiveSidebar()
 const mainRef = ref(null)
 const mainElement = computed(() => mainRef.value?.$el || mainRef.value)
 const profilePath = computed(() => userStore.role === 'admin' ? '/admin/profile' : '/review/profile')

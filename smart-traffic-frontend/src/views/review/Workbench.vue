@@ -3,19 +3,19 @@
     <!-- 筛选工具栏 -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <el-radio-group v-model="filter.status" size="small" @change="fetchCases">
+        <el-radio-group v-model="filter.status" size="small" class="status-filter" @change="fetchCases">
           <el-radio-button value="">全部</el-radio-button>
           <el-radio-button value="uploaded">待初审</el-radio-button>
           <el-radio-button value="pending_human_review">待终审</el-radio-button>
           <el-radio-button value="notified">已通知</el-radio-button>
           <el-radio-button value="rejected">已驳回</el-radio-button>
         </el-radio-group>
-        <el-select v-model="filter.source_type" placeholder="来源" clearable size="small" style="width:120px;margin-left:12px" @change="fetchCases">
+        <el-select v-model="filter.source_type" placeholder="来源" clearable size="small" class="source-filter" @change="fetchCases">
           <el-option label="随手拍" value="citizen" />
           <el-option label="摄像头" value="camera" />
           <el-option label="后台上传" value="admin" />
         </el-select>
-        <el-input v-model="filter.keyword" placeholder="搜索案件号/车牌/地点" size="small" clearable style="width:240px;margin-left:12px" @keyup.enter="fetchCases" @clear="fetchCases" />
+        <el-input v-model="filter.keyword" placeholder="搜索案件号/车牌/地点" size="small" clearable class="keyword-filter" @keyup.enter="fetchCases" @clear="fetchCases" />
       </div>
       <div class="toolbar-right">
         <el-tag type="danger" v-if="pendingTotal">待审核：{{ pendingTotal }} 件</el-tag>
@@ -49,8 +49,8 @@
         <div class="card-header">
           <el-checkbox
             v-if="isSelectable(item)"
-            v-model="selectedIds"
-            :value="item.id"
+            :model-value="selectedIds.includes(item.id)"
+            @update:model-value="checked => toggleCaseSelection(item.id, checked)"
             class="case-select"
             @click.stop
           />
@@ -165,6 +165,13 @@ const aiTagTypeMap = { suggest_approve: 'success', need_review: 'warning', sugge
 function aiConclusionText(c) { return aiConclusionMap[c] || c }
 function aiTagType(c) { return aiTagTypeMap[c] || 'info' }
 function isSelectable(item) { return selectableStatuses.includes(item.status) }
+function toggleCaseSelection(id, checked) {
+  if (checked) {
+    selectedIds.value = [...new Set([...selectedIds.value, id])]
+  } else {
+    selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id)
+  }
+}
 
 async function fetchCases() {
   const requestGeneration = mediaRequestGuard.begin()
@@ -276,6 +283,8 @@ onUnmounted(() => {
 }
 .toolbar-left { display: flex; align-items: center; gap: 8px; }
 .toolbar-right { display: flex; align-items: center; gap: 12px; }
+.source-filter { width: 120px; }
+.keyword-filter { width: 240px; }
 
 .card-grid {
   display: grid;
@@ -295,11 +304,17 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   margin-bottom: 12px;
 }
 .case-select { margin-right: 2px; }
 .case-no { font-size: 12px; color: var(--text-secondary); }
 .case-source { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+.case-no,
+.case-source {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .card-image {
   border-radius: 4px;
@@ -343,5 +358,33 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   padding: 16px 0;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px;
+  }
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .status-filter { flex-wrap: wrap; }
+  .source-filter,
+  .keyword-filter { width: 100%; }
+  .toolbar-right { justify-content: flex-start; }
+  .card-header { flex-wrap: wrap; }
+  .case-no { flex: 1 1 70px; }
+  .case-source {
+    flex: 1 0 100%;
+    margin-left: 0;
+    text-align: right;
+  }
+  .card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

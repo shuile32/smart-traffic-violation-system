@@ -204,3 +204,53 @@ test('rule administration deletes persisted rules after confirmation', async () 
   assert.match(rules, /deletingIds/)
   assert.doesNotMatch(rules, /localStorage|defaultRules|DEFAULT_RULES/)
 })
+
+test('all role layouts collapse the sidebar when entering a mobile viewport', async () => {
+  const responsiveSidebar = await source('../src/composables/useResponsiveSidebar.js')
+  assert.match(responsiveSidebar, /matchMedia\('\(max-width: 720px\)'\)/)
+  assert.match(responsiveSidebar, /if \(event\.matches\) isCollapse\.value = true/)
+  assert.match(responsiveSidebar, /addEventListener\('change'/)
+  assert.match(responsiveSidebar, /removeEventListener\('change'/)
+
+  for (const name of ['AdminLayout', 'ReviewLayout', 'CitizenLayout']) {
+    const layout = await source(`../src/layouts/${name}.vue`)
+    assert.match(layout, /useResponsiveSidebar/)
+    assert.match(layout, /const \{ isCollapse \} = useResponsiveSidebar\(\)/)
+  }
+})
+
+test('review workbench stacks filters and cards on mobile', async () => {
+  const workbench = await source('../src/views/review/Workbench.vue')
+  assert.match(workbench, /class="status-filter"/)
+  assert.match(workbench, /class="source-filter"/)
+  assert.match(workbench, /class="keyword-filter"/)
+  assert.doesNotMatch(workbench, /margin-left:12px/)
+  assert.match(workbench, /@media \(max-width: 720px\)/)
+  assert.match(workbench, /\.toolbar\s*\{\s*flex-direction: column;/)
+  assert.match(workbench, /\.card-grid\s*\{\s*grid-template-columns: minmax\(0, 1fr\);/)
+})
+
+test('dashboard stacks its primary charts on mobile', async () => {
+  const dashboard = await source('../src/views/stats/Dashboard.vue')
+  assert.doesNotMatch(dashboard, /<el-col :span="8">/)
+  assert.equal(
+    (dashboard.match(/<el-col :xs="24" :sm="24" :md="8">/g) || []).length,
+    3
+  )
+})
+
+test('workbench checkboxes bind scalar checked state without Vue warnings', async () => {
+  const workbench = await source('../src/views/review/Workbench.vue')
+  assert.doesNotMatch(workbench, /v-model="selectedIds"/)
+  assert.match(workbench, /:model-value="selectedIds\.includes\(item\.id\)"/)
+  assert.match(workbench, /@update:model-value="checked => toggleCaseSelection\(item\.id, checked\)"/)
+  assert.match(workbench, /function toggleCaseSelection\(id, checked\)/)
+})
+
+test('workbench card headers contain long case metadata on mobile', async () => {
+  const workbench = await source('../src/views/review/Workbench.vue')
+  assert.match(workbench, /\.card-header\s*\{[^}]*min-width: 0;/s)
+  assert.match(workbench, /\.case-no,\s*\.case-source\s*\{[^}]*overflow-wrap: anywhere;/s)
+  assert.match(workbench, /@media \(max-width: 720px\)[\s\S]*\.card-header\s*\{\s*flex-wrap: wrap;/)
+  assert.match(workbench, /\.case-source\s*\{\s*flex: 1 0 100%;/)
+})

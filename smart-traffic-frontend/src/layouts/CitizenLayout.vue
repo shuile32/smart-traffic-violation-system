@@ -44,10 +44,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { Camera, Expand, Fold, HomeFilled, List, LocationFilled, Van, WarningFilled } from '@element-plus/icons-vue'
 import BackToTop from '@/components/BackToTop.vue'
 import HeaderActions from '@/components/HeaderActions.vue'
+import { useResponsiveSidebar } from '@/composables/useResponsiveSidebar'
 
 const router = useRouter()
 const route = useRoute()
-const isCollapse = ref(false)
+const { isCollapse } = useResponsiveSidebar()
 const mainRef = ref(null)
 const mainElement = computed(() => mainRef.value?.$el || mainRef.value)
 const activeMenu = computed(() => route.path)
