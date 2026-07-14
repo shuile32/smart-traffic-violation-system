@@ -15,10 +15,10 @@
     </div>
 
     <!-- 表格 -->
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="displayedVehicles" border stripe v-loading="loading">
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column prop="plate_no" label="车牌号" width="130" />
-      <el-table-column prop="owner_id" label="车主 ID" width="100" />
+      <el-table-column prop="owner_name" label="车主姓名" min-width="140" />
       <el-table-column prop="vehicle_type" label="车辆类型" min-width="140" />
       <el-table-column prop="color" label="颜色" width="100" />
       <el-table-column prop="created_at" label="创建时间" width="180">
@@ -48,8 +48,21 @@
         <el-form-item label="车牌号" prop="plate_no">
           <el-input v-model="form.plate_no" />
         </el-form-item>
-        <el-form-item label="车主 ID" prop="owner_id">
-          <el-input-number v-model="form.owner_id" :min="1" :controls="false" clearable style="width:100%" />
+        <el-form-item label="车主" prop="owner_id">
+          <el-select
+            v-model="form.owner_id"
+            filterable
+            clearable
+            placeholder="请选择普通市民"
+            style="width:100%"
+          >
+            <el-option
+              v-for="user in citizenUsers"
+              :key="user.id"
+              :label="user.username"
+              :value="user.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="车辆类型" prop="vehicle_type">
           <el-input v-model="form.vehicle_type" />
@@ -70,14 +83,25 @@
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getVehicles, createVehicle, updateVehicle } from '@/api/vehicle'
+import { fetchUsers } from '@/api/system'
 import { buildVehiclePayload, buildVehicleQuery } from '@/utils/contracts'
+import { fetchAllPages } from '@/utils/pagination'
 
 const list = ref([])
 const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const citizenUsers = ref([])
 const search = reactive({ plate: '' })
+
+const ownerById = computed(() => new Map(
+  citizenUsers.value.map(user => [user.id, user.username])
+))
+const displayedVehicles = computed(() => list.value.map(vehicle => ({
+  ...vehicle,
+  owner_name: ownerById.value.get(vehicle.owner_id) || '未知用户'
+})))
 
 const dialogVisible = ref(false)
 const formRef = ref(null)
@@ -94,7 +118,7 @@ const rules = computed(() => ({
   plate_no: [{ required: true, message: '请输入车牌号', trigger: 'blur' }],
   owner_id: editingId.value
     ? []
-    : [{ required: true, message: '请输入车主 ID', trigger: 'change' }]
+    : [{ required: true, message: '请选择车主', trigger: 'change' }]
 }))
 
 function formatTime(value) {
@@ -109,6 +133,15 @@ async function fetchList() {
     total.value = res.data.total
   } catch { /* handled by interceptor */ }
   finally { loading.value = false }
+}
+
+async function loadCitizenUsers() {
+  try {
+    citizenUsers.value = await fetchAllPages(
+      params => fetchUsers(params),
+      { role: 'citizen' }
+    )
+  } catch { /* handled by interceptor */ }
 }
 
 function resetSearch() {
@@ -150,5 +183,8 @@ async function handleSubmit() {
   finally { submitting.value = false }
 }
 
-onMounted(fetchList)
+onMounted(() => {
+  fetchList()
+  loadCitizenUsers()
+})
 </script>

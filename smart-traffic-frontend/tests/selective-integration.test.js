@@ -136,3 +136,14 @@ test('violation and report pages export every matching page', async () => {
   const reports = await source('../src/views/citizen/MyReports.vue')
   assert.match(reports, /fetchAllPages\(params => fetchCases\(params\)/)
 })
+
+test('vehicle management selects citizen owners by username', async () => {
+  const vehicles = await source('../src/views/admin/VehicleList.vue')
+  assert.match(vehicles, /import \{ fetchUsers \} from '@\/api\/system'/)
+  assert.match(vehicles, /import \{ fetchAllPages \} from '@\/utils\/pagination'/)
+  assert.match(vehicles, /\{ role: 'citizen' \}/)
+  assert.match(vehicles, /:data="displayedVehicles"/)
+  assert.match(vehicles, /prop="owner_name"/)
+  assert.match(vehicles, /<el-select[\s\S]*v-model="form\.owner_id"[\s\S]*filterable[\s\S]*clearable/)
+  assert.doesNotMatch(vehicles, /<el-input-number[\s\S]*v-model="form\.owner_id"/)
+})

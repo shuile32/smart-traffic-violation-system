@@ -531,7 +531,7 @@ test('admin vehicles expose only backend vehicle fields and supported actions', 
   assert.match(source, /buildVehiclePayload/)
   assert.doesNotMatch(
     source,
-    /plate_number|owner_name|owner_phone|engine_number|prop="(?:brand|model)"|form\.(?:brand|model)/
+    /plate_number|owner_phone|engine_number|prop="(?:brand|model)"|form\.(?:brand|model)/
   )
   assert.doesNotMatch(source, /详情|删除|viewDetail|handleDelete|deleteVehicle/)
 })
