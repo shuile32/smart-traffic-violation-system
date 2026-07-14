@@ -40,3 +40,12 @@ test('app provides a global render error boundary', async () => {
   assert.match(app, /onErrorCaptured/)
   assert.match(app, /window\.location\.reload\(\)/)
 })
+
+test('chart theme exposes distinct readable light and dark palettes', async () => {
+  const { getChartTheme } = await import('../src/utils/chartTheme.js')
+  const light = getChartTheme(false)
+  const dark = getChartTheme(true)
+  assert.notEqual(light.text, dark.text)
+  assert.notEqual(light.grid, dark.grid)
+  assert.equal(dark.tooltipBackground, '#1f2329')
+})

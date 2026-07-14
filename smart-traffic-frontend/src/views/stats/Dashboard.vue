@@ -62,15 +62,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchOverview, fetchByTime, fetchByType, fetchByLocation, fetchRoadTimeHeatmap } from '@/api/statistics'
 import { buildReportRoute, mapNamedSeries } from '@/utils/contracts'
+import { getChartTheme } from '@/utils/chartTheme'
+import { useThemeStore } from '@/stores/theme'
 import * as echarts from 'echarts'
 import { WarningFilled, TrendCharts, List, DataAnalysis, Checked, Collection, Document } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
+const themeStore = useThemeStore()
+const chartColors = computed(() => getChartTheme(themeStore.isDark))
 const initialEnd = new Date()
 const initialStart = new Date()
 initialStart.setDate(initialStart.getDate() - 29)
@@ -154,11 +158,30 @@ function getOrInit(refEl) {
 function renderTrend() {
   const chart = getOrInit(trendChart.value)
   if (!chart) return
+  const colors = chartColors.value
   chart.setOption({
-    tooltip: { trigger: 'axis' },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: colors.tooltipBackground,
+      borderColor: colors.tooltipBorder,
+      textStyle: { color: colors.text }
+    },
     grid: { left: 8, right: 8, bottom: 30, top: 8, containLabel: true },
-    xAxis: { type: 'category', data: trend.value.map(t => t.date?.slice(5)), axisLabel: { rotate: 45, fontSize: 10 }, axisTick: { alignWithLabel: true } },
-    yAxis: { type: 'value', name: '件', splitLine: { lineStyle: { type: 'dashed', color: '#e0e0e0' } } },
+    xAxis: {
+      type: 'category',
+      data: trend.value.map(t => t.date?.slice(5)),
+      axisLabel: { rotate: 45, fontSize: 10, color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } },
+      axisTick: { alignWithLabel: true, lineStyle: { color: colors.axis } }
+    },
+    yAxis: {
+      type: 'value',
+      name: '件',
+      nameTextStyle: { color: colors.secondaryText },
+      axisLabel: { color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } },
+      splitLine: { lineStyle: { type: 'dashed', color: colors.grid } }
+    },
     series: [{
       data: trend.value.map(t => t.count),
       type: 'line',
@@ -172,36 +195,59 @@ function renderTrend() {
         { offset: 1, color: 'rgba(64,158,255,0.02)' }
       ]) }
     }]
-  })
+  }, true)
 }
 
 function renderType() {
   const chart = getOrInit(typeChart.value)
   if (!chart) return
+  const colors = chartColors.value
   chart.setOption({
-    tooltip: { trigger: 'item', formatter: '{b}: {c}%' },
-    legend: { bottom: 0, textStyle: { fontSize: 11 }, itemWidth: 10, itemHeight: 10 },
+    tooltip: {
+      trigger: 'item', formatter: '{b}: {c}%',
+      backgroundColor: colors.tooltipBackground,
+      borderColor: colors.tooltipBorder,
+      textStyle: { color: colors.text }
+    },
+    legend: { bottom: 0, textStyle: { fontSize: 11, color: colors.secondaryText }, itemWidth: 10, itemHeight: 10 },
     series: [{
       type: 'pie',
       radius: ['42%', '70%'],
       center: ['50%', '42%'],
       roseType: 'area',
       data: typeRatio.value,
-      label: { show: true, formatter: '{b}\n{d}%', fontSize: 10 },
+      label: { show: true, formatter: '{b}\n{d}%', fontSize: 10, color: colors.text },
       color: ['#f56c6c', '#e6a23c', '#409eff', '#67c23a', '#909399', '#b37feb']
     }]
-  })
+  }, true)
 }
 
 function renderRegion() {
   const chart = getOrInit(regionChart.value)
   if (!chart) return
+  const colors = chartColors.value
   const data = [...regionRank.value].reverse()
   chart.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    tooltip: {
+      trigger: 'axis', axisPointer: { type: 'shadow' },
+      backgroundColor: colors.tooltipBackground,
+      borderColor: colors.tooltipBorder,
+      textStyle: { color: colors.text }
+    },
     grid: { left: 5, right: 40, bottom: 5, top: 5, containLabel: true },
-    xAxis: { type: 'value', name: '件' },
-    yAxis: { type: 'category', data: data.map(r => r.name), inverse: true, axisLabel: { fontSize: 11 } },
+    xAxis: {
+      type: 'value', name: '件',
+      nameTextStyle: { color: colors.secondaryText },
+      axisLabel: { color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } },
+      splitLine: { lineStyle: { color: colors.grid } }
+    },
+    yAxis: {
+      type: 'category', data: data.map(r => r.name), inverse: true,
+      axisLabel: { fontSize: 11, color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } },
+      axisTick: { lineStyle: { color: colors.axis } }
+    },
     series: [{
       data: data.map((r, i) => {
         const colors = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#9b59b6', '#17a2b8']
@@ -209,20 +255,21 @@ function renderRegion() {
       }),
       type: 'bar',
       barMaxWidth: 28,
-      label: { show: true, position: 'right', fontSize: 11 }
+      label: { show: true, position: 'right', fontSize: 11, color: colors.text }
     }]
-  })
+  }, true)
 }
 
 function renderHeatmap() {
   const chart = getOrInit(heatmapChart.value)
   if (!chart) return
+  const colors = chartColors.value
   const { time_slots: slots, roads, items } = heatmapData.value
   if (!roads.length || !items.length) {
     chart.setOption({
-      title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { color: '#999', fontSize: 14 } },
+      title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { color: colors.secondaryText, fontSize: 14 } },
       xAxis: { show: false }, yAxis: { show: false }, series: []
-    })
+    }, true)
     return
   }
   const slotIndex = {}
@@ -243,16 +290,21 @@ function renderHeatmap() {
   chart.setOption({
     tooltip: {
       position: 'top',
-      formatter: p => `${roads[p.value[1]]} · ${slots[p.value[0]]}时<br/>违章数: <b>${p.value[2]}</b> 件`
+      formatter: p => `${roads[p.value[1]]} · ${slots[p.value[0]]}时<br/>违章数: <b>${p.value[2]}</b> 件`,
+      backgroundColor: colors.tooltipBackground,
+      borderColor: colors.tooltipBorder,
+      textStyle: { color: colors.text }
     },
     grid: { left: 120, right: 30, bottom: 40, top: 10 },
     xAxis: {
       type: 'category', data: slots, splitArea: { show: true },
-      axisLabel: { rotate: 45, fontSize: 11 }
+      axisLabel: { rotate: 45, fontSize: 11, color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } }
     },
     yAxis: {
       type: 'category', data: roads, splitArea: { show: true },
-      axisLabel: { fontSize: 11 }
+      axisLabel: { fontSize: 11, color: colors.secondaryText },
+      axisLine: { lineStyle: { color: colors.axis } }
     },
     visualMap: {
       min: 0, max: maxCount,
@@ -260,14 +312,14 @@ function renderHeatmap() {
       orient: 'horizontal',
       left: 'center', bottom: 0,
       inRange: { color: ['#f0f9ff', '#bae6fd', '#7dd3fc', '#38bdf8', '#0ea5e9', '#0284c7', '#0369a1'] },
-      textStyle: { fontSize: 11 }
+      textStyle: { fontSize: 11, color: colors.secondaryText }
     },
     series: [{
       type: 'heatmap', data,
-      label: { show: data.length < 50, fontSize: 11 },
+      label: { show: data.length < 50, fontSize: 11, color: colors.text },
       emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } }
     }]
-  })
+  }, true)
 }
 
 function handleResize() {
@@ -279,6 +331,11 @@ onMounted(async () => {
   await nextTick()
   renderAll()
   window.addEventListener('resize', handleResize)
+})
+
+watch(() => themeStore.isDark, async () => {
+  await nextTick()
+  renderAll()
 })
 
 onUnmounted(() => {
