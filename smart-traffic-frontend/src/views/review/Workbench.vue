@@ -19,6 +19,15 @@
       </div>
       <div class="toolbar-right">
         <el-tag type="danger" v-if="pendingTotal">待审核：{{ pendingTotal }} 件</el-tag>
+        <el-button
+          type="danger"
+          size="small"
+          :loading="rejecting"
+          :disabled="selectedIds.length === 0"
+          @click="handleBatchReject"
+        >
+          批量驳回（{{ selectedIds.length }}）
+        </el-button>
         <el-button size="small" @click="fetchCases" :loading="loading">
           <el-icon><Refresh /></el-icon>刷新
         </el-button>
@@ -38,6 +47,13 @@
       >
         <!-- 状态标签 + 案件号 -->
         <div class="card-header">
+          <el-checkbox
+            v-if="isSelectable(item)"
+            v-model="selectedIds"
+            :value="item.id"
+            class="case-select"
+            @click.stop
+          />
           <el-tag :type="statusType(item.status)" size="small">{{ statusText(item.status) }}</el-tag>
           <span class="case-no">{{ item.case_no }}</span>
           <span class="case-source">{{ sourceIcon(item.source_type) }} {{ item.source_desc }}</span>
@@ -97,7 +113,7 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchCases as getCases } from '@/api/case'
+import { fetchCases as getCases, rejectCase } from '@/api/case'
 import { fetchProtectedMediaUrl } from '@/api/media'
 import {
   caseAiFallbackText,
@@ -105,7 +121,8 @@ import {
   loadProtectedMediaUrls,
   releaseProtectedMediaUrls
 } from '@/utils/contracts'
-import { ElMessage } from 'element-plus'
+import { batchRejectCases } from '@/utils/batchReject'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const cases = ref([])
@@ -114,7 +131,10 @@ const page = ref(1)
 const pageSize = ref(12)
 const total = ref(0)
 const pendingTotal = ref(0)
+const selectedIds = ref([])
+const rejecting = ref(false)
 const mediaRequestGuard = createLatestRequestGuard()
+const selectableStatuses = ['uploaded', 'pending_human_review']
 
 const filter = reactive({
   status: '',
@@ -144,6 +164,7 @@ const aiTagTypeMap = { suggest_approve: 'success', need_review: 'warning', sugge
 
 function aiConclusionText(c) { return aiConclusionMap[c] || c }
 function aiTagType(c) { return aiTagTypeMap[c] || 'info' }
+function isSelectable(item) { return selectableStatuses.includes(item.status) }
 
 async function fetchCases() {
   const requestGeneration = mediaRequestGuard.begin()
@@ -176,6 +197,9 @@ async function fetchCases() {
     }
     cases.value.forEach(item => releaseProtectedMediaUrls(item.media))
     cases.value = nextCases
+    selectedIds.value = selectedIds.value.filter(id =>
+      nextCases.some(item => item.id === id && isSelectable(item))
+    )
     total.value = res.data.total
     pendingTotal.value = nextPendingTotal
   } catch (e) {
@@ -190,6 +214,35 @@ async function fetchCases() {
 
 function openDetail(id) {
   router.push(`/review/case/${id}`)
+}
+
+async function handleBatchReject() {
+  const ids = [...selectedIds.value]
+  if (!ids.length) return
+
+  try {
+    const { value } = await ElMessageBox.prompt('请输入驳回原因', '批量驳回', {
+      confirmButtonText: '确认驳回',
+      cancelButtonText: '取消',
+      inputType: 'textarea',
+      inputPlaceholder: '请说明驳回原因',
+      inputValidator: input => input?.trim() ? true : '驳回原因不能为空'
+    })
+    rejecting.value = true
+    const result = await batchRejectCases(ids, value, rejectCase)
+    selectedIds.value = result.failedIds
+    await fetchCases()
+
+    if (result.failedIds.length) {
+      ElMessage.warning(`已驳回 ${result.succeededIds.length} 件，失败 ${result.failedIds.length} 件`)
+    } else {
+      ElMessage.success(`已驳回 ${result.succeededIds.length} 件`)
+    }
+  } catch (error) {
+    if (!['cancel', 'close'].includes(error)) ElMessage.error('批量驳回失败')
+  } finally {
+    rejecting.value = false
+  }
 }
 
 // 定时轮询（每 15 秒刷新待审核）
@@ -244,6 +297,7 @@ onUnmounted(() => {
   gap: 8px;
   margin-bottom: 12px;
 }
+.case-select { margin-right: 2px; }
 .case-no { font-size: 12px; color: var(--text-secondary); }
 .case-source { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
 

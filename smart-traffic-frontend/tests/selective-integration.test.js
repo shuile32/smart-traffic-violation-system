@@ -147,3 +147,32 @@ test('vehicle management selects citizen owners by username', async () => {
   assert.match(vehicles, /<el-select[\s\S]*v-model="form\.owner_id"[\s\S]*filterable[\s\S]*clearable/)
   assert.doesNotMatch(vehicles, /<el-input-number[\s\S]*v-model="form\.owner_id"/)
 })
+
+test('batch reject sends the exact payload and reports partial failure', async () => {
+  const { batchRejectCases } = await import('../src/utils/batchReject.js')
+  const calls = []
+  const result = await batchRejectCases([1, 2, 1], ' 证据不足 ', async (id, payload) => {
+    calls.push([id, payload])
+    if (id === 2) throw new Error('failed')
+  })
+
+  assert.deepEqual(calls, [
+    [1, { reject_reason: '证据不足' }],
+    [2, { reject_reason: '证据不足' }]
+  ])
+  assert.deepEqual(result, { succeededIds: [1], failedIds: [2] })
+})
+
+test('batch reject requires a reason and workbench has no batch approve', async () => {
+  const { batchRejectCases } = await import('../src/utils/batchReject.js')
+  await assert.rejects(
+    batchRejectCases([1], '   ', async () => {}),
+    TypeError
+  )
+
+  const workbench = await source('../src/views/review/Workbench.vue')
+  assert.match(workbench, /batchRejectCases/)
+  assert.match(workbench, /\['uploaded', 'pending_human_review'\]/)
+  assert.match(workbench, /rejectCase/)
+  assert.doesNotMatch(workbench, /batchApprove|批量通过/)
+})
