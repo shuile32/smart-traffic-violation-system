@@ -2,7 +2,12 @@
   <div class="page-container">
     <div class="page-header">
       <h2 class="page-title">举报进度</h2>
-      <el-button type="primary" @click="router.push('/citizen/report')">发起新举报</el-button>
+      <div style="display:flex;gap:12px">
+        <el-button type="primary" @click="router.push('/citizen/report')">发起新举报</el-button>
+        <el-button type="success" :loading="exporting" :disabled="total === 0" @click="exportData">
+          <el-icon><Download /></el-icon>导出 Excel
+        </el-button>
+      </div>
     </div>
 
     <el-table :data="list" border stripe v-loading="loading">
@@ -55,10 +60,14 @@ import {
   loadProtectedMediaUrls,
   releaseProtectedMediaUrls
 } from '@/utils/contracts'
+import { fetchAllPages } from '@/utils/pagination'
+import { exportToExcel, formatExportTime } from '@/utils/export'
+import { Download } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const list = ref([])
 const loading = ref(false)
+const exporting = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -91,6 +100,27 @@ async function fetchList() {
     total.value = res.data.total
   } catch {}
   if (mediaRequestGuard.isCurrent(requestGeneration)) loading.value = false
+}
+
+async function exportData() {
+  exporting.value = true
+  try {
+    const rows = await fetchAllPages(params => fetchCases(params), { source_type: 'citizen' })
+    exportToExcel(rows.map(row => ({
+      ...row,
+      captured_at: formatExportTime(row.captured_at),
+      status: statusMap[row.status] || row.status,
+      reward: row.reward ? `${row.reward} 积分` : ''
+    })), [
+      { key: 'description', label: '举报描述', width: 30 },
+      { key: 'location_text', label: '违章地点', width: 24 },
+      { key: 'captured_at', label: '违章时间', width: 22 },
+      { key: 'status', label: '状态', width: 14 },
+      { key: 'reward', label: '奖励', width: 12 }
+    ], `举报记录_${new Date().toISOString().slice(0, 10)}`)
+  } finally {
+    exporting.value = false
+  }
 }
 
 onMounted(fetchList)

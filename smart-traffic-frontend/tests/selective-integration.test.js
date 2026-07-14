@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { readFile, unlink } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
 const source = path => readFile(new URL(path, import.meta.url), 'utf8')
 
@@ -48,4 +49,90 @@ test('chart theme exposes distinct readable light and dark palettes', async () =
   assert.notEqual(light.text, dark.text)
   assert.notEqual(light.grid, dark.grid)
   assert.equal(dark.tooltipBackground, '#1f2329')
+})
+
+test('fetchAllPages collects every page without changing filters', async () => {
+  const { fetchAllPages } = await import('../src/utils/pagination.js')
+  const calls = []
+  const rows = await fetchAllPages(async params => {
+    calls.push(params)
+    return {
+      data: {
+        items: params.page === 1 ? [{ id: 1 }, { id: 2 }] : [{ id: 3 }],
+        total: 3
+      }
+    }
+  }, { plate_no: '川A12345' }, 2)
+
+  assert.deepEqual(rows, [{ id: 1 }, { id: 2 }, { id: 3 }])
+  assert.deepEqual(calls, [
+    { plate_no: '川A12345', page: 1, page_size: 2 },
+    { plate_no: '川A12345', page: 2, page_size: 2 }
+  ])
+})
+
+test('fetchAllPages returns empty rows and propagates later page failures', async () => {
+  const { fetchAllPages } = await import('../src/utils/pagination.js')
+  const empty = await fetchAllPages(async () => ({ data: { items: [], total: 0 } }))
+  assert.deepEqual(empty, [])
+
+  await assert.rejects(
+    fetchAllPages(async ({ page }) => {
+      if (page === 2) throw new Error('page failed')
+      return { data: { items: [{ id: 1 }], total: 2 } }
+    }, {}, 1),
+    /page failed/
+  )
+})
+
+test('exportToExcel writes one formatted worksheet with explicit columns', async () => {
+  const XLSX = (await import('xlsx')).default
+  const { exportToExcel, formatExportTime } = await import('../src/utils/export.js')
+  const target = resolve('.tmp-selective-export')
+  try {
+    exportToExcel(
+      [{ plate: '川A12345', points: 3 }],
+      [
+        { key: 'plate', label: '车牌号', width: 16 },
+        { key: 'points', label: '扣分', width: 10 }
+      ],
+      target
+    )
+    const workbook = XLSX.readFile(`${target}.xlsx`)
+    assert.deepEqual(workbook.SheetNames, ['Sheet1'])
+    assert.deepEqual(XLSX.utils.sheet_to_json(workbook.Sheets.Sheet1, { header: 1 }), [
+      ['车牌号', '扣分'],
+      ['川A12345', '3']
+    ])
+  } finally {
+    await unlink(`${target}.xlsx`).catch(() => {})
+  }
+
+  assert.equal(formatExportTime(null), '')
+  assert.equal(
+    formatExportTime('2026-07-14T10:20:30'),
+    new Date('2026-07-14T10:20:30').toLocaleString('zh-CN')
+  )
+})
+
+test('violation and report pages export every matching page', async () => {
+  const violationApi = await source('../src/api/violation.js')
+  assert.match(violationApi, /fetchOwnerViolations = \(ownerId, params\)/)
+  assert.match(violationApi, /owners\/\$\{ownerId\}\/violations`.*, \{ params \}/s)
+
+  for (const path of [
+    '../src/views/admin/ViolationList.vue',
+    '../src/views/review/ViolationList.vue',
+    '../src/views/citizen/MyViolations.vue',
+    '../src/views/citizen/MyReports.vue'
+  ]) {
+    const page = await source(path)
+    assert.match(page, /fetchAllPages/)
+    assert.match(page, /exportToExcel/)
+    assert.match(page, /exporting/)
+    assert.match(page, /:disabled="total === 0"/)
+  }
+
+  const reports = await source('../src/views/citizen/MyReports.vue')
+  assert.match(reports, /fetchAllPages\(params => fetchCases\(params\)/)
 })

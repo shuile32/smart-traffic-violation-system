@@ -495,12 +495,14 @@ test('does not fabricate citizen announcements without a backend API', async () 
   assert.match(source, /const announcements = ref\(\[\]\)/)
 })
 
-test('reviewer violations use the shared query contract without duplicate errors or fake exports', async () => {
+test('reviewer violations use the shared query contract and complete-page exports', async () => {
   const source = await readFile(new URL('../src/views/review/ViolationList.vue', import.meta.url), 'utf8')
   const apiSource = await readFile(new URL('../src/api/violation.js', import.meta.url), 'utf8')
 
   assert.match(source, /buildViolationQuery\(filter, page\.value, pageSize\.value\)/)
-  assert.doesNotMatch(source, /导出 Excel|handleExport|ElMessage/)
+  assert.match(source, /fetchAllPages/)
+  assert.match(source, /exportToExcel/)
+  assert.doesNotMatch(source, /handleExport|ElMessage\.success/)
   assert.doesNotMatch(source, /prop="owner_name"|label="车主"/)
   assert.doesNotMatch(source, /v-model="filter\.status"/)
   assert.doesNotMatch(source, /prop="status"|statusMap/)

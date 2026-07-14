@@ -6,4 +6,5 @@ import request from './request'
 // 真实后端（杨翼 M3）
 export const fetchViolations = (p) => request.get('/violations', { params: p })
 export const fetchViolationDetail = (id) => request.get('/violations/' + id)
-export const fetchOwnerViolations = (oid) => request.get('/owners/' + oid + '/violations')
+export const fetchOwnerViolations = (ownerId, params) =>
+  request.get(`/owners/${ownerId}/violations`, { params })

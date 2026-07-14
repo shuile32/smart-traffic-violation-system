@@ -2,6 +2,9 @@
   <div class="page-container">
     <div class="page-header">
       <h2 class="page-title">违章记录管理</h2>
+      <el-button type="success" :loading="exporting" :disabled="total === 0" @click="exportData">
+        <el-icon><Download /></el-icon>导出 Excel
+      </el-button>
     </div>
 
     <!-- 筛选 -->
@@ -57,9 +60,13 @@
 import { ref, reactive, onMounted } from 'vue'
 import { fetchViolations as getViolations } from '@/api/violation'
 import { buildViolationQuery } from '@/utils/contracts'
+import { fetchAllPages } from '@/utils/pagination'
+import { exportToExcel, formatExportTime } from '@/utils/export'
+import { Download } from '@element-plus/icons-vue'
 
 const list = ref([])
 const loading = ref(false)
+const exporting = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -83,6 +90,30 @@ function resetFilter() {
   Object.assign(filter, { plate: '', type: '' })
   page.value = 1
   fetchList()
+}
+
+async function exportData() {
+  exporting.value = true
+  try {
+    const rows = await fetchAllPages(
+      params => getViolations(params),
+      buildViolationQuery(filter)
+    )
+    exportToExcel(rows.map(row => ({
+      ...row,
+      occurred_at: formatExportTime(row.occurred_at)
+    })), [
+      { key: 'violation_no', label: '违章编号', width: 22 },
+      { key: 'plate_no', label: '车牌号', width: 14 },
+      { key: 'violation_type', label: '违章类型', width: 14 },
+      { key: 'location_text', label: '违章地点', width: 24 },
+      { key: 'occurred_at', label: '违章时间', width: 22 },
+      { key: 'fine_amount', label: '罚款（元）', width: 12 },
+      { key: 'points', label: '扣分', width: 10 }
+    ], `违章记录_${new Date().toISOString().slice(0, 10)}`)
+  } finally {
+    exporting.value = false
+  }
 }
 
 onMounted(fetchList)
