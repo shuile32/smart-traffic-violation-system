@@ -24,7 +24,7 @@
           </el-form-item>
           <div class="auth-extra">
             <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-            <a @click="router.push('/register')">忘记密码？</a>
+            <a @click="router.push('/forgot-password')">忘记密码？</a>
           </div>
           <el-form-item>
             <el-button type="primary" :loading="loading" style="width:100%" @click="handleLogin">

@@ -5,9 +5,11 @@ import request from './request'
  */
 export const login = (data) => request.post('/auth/login', data)
 export const register = (data) => request.post('/auth/register', data)
+export const sendRegisterEmailCode = (data) => request.post('/auth/register/email-code', data)
+export const sendPasswordResetEmailCode = (data) => request.post('/auth/password-reset/email-code', data)
+export const resetPassword = (data) => request.post('/auth/password-reset', data)
 export const getUserInfo = () => request.get('/auth/me')
 export const updateProfile = (data) => request.put('/auth/profile', data)
 export const changePassword = (data) => request.put('/auth/password', data)
 export const getMenus = () => request.get('/permissions/menus')
-
 

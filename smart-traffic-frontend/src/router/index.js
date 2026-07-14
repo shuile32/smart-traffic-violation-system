@@ -15,6 +15,12 @@ const routes = [
     component: () => import('@/views/auth/Register.vue'),
     meta: { public: true, title: '注册' }
   },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/auth/ForgotPassword.vue'),
+    meta: { public: true, title: '忘记密码' }
+  },
 
   // ========== 市民端 ==========
   {

@@ -26,7 +26,8 @@
               <el-input v-model="form.verification_code" placeholder="请输入验证码" style="flex:1" />
               <el-button
                 type="primary"
-                :disabled="countdown > 0 || !form.email"
+                :loading="codeLoading"
+                :disabled="countdown > 0 || !form.email || codeLoading"
                 style="width:120px"
                 @click="handleSendCode"
               >
@@ -54,18 +55,17 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { onBeforeUnmount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { register } from '@/api/auth'
+import { register, sendRegisterEmailCode } from '@/api/auth'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const formRef = ref(null)
 const loading = ref(false)
+const codeLoading = ref(false)
 const countdown = ref(0)
-
-// 前端模拟验证码：点击获取后生成随机 6 位数字
-const sentCode = ref('')
+let countdownTimer = null
 
 const form = reactive({
   username: '', password: '', repassword: '', email: '', verification_code: ''
@@ -89,43 +89,62 @@ const rules = {
   ],
   verification_code: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+    { pattern: /^\d{6}$/, message: '验证码为6位数字', trigger: 'blur' }
   ]
 }
 
-function handleSendCode() {
-  // 前端模拟生成验证码
-  const code = String(Math.floor(100000 + Math.random() * 900000))
-  sentCode.value = code
-  ElMessage.success(`验证码已发送：${code}（演示模式，后续对接后端邮件接口）`)
+function stopCountdown() {
+  if (countdownTimer !== null) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+  }
+}
+
+function startCountdown() {
+  stopCountdown()
   countdown.value = 60
-  const timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) clearInterval(timer)
+  countdownTimer = setInterval(() => {
+    countdown.value -= 1
+    if (countdown.value <= 0) stopCountdown()
   }, 1000)
+}
+
+onBeforeUnmount(stopCountdown)
+
+async function handleSendCode() {
+  const valid = await formRef.value.validateField('email')
+    .then(() => true)
+    .catch(() => false)
+  if (!valid || codeLoading.value || countdown.value > 0) return
+
+  codeLoading.value = true
+  try {
+    await sendRegisterEmailCode({ email: form.email })
+    ElMessage.success('验证码已发送，请查收邮件')
+    startCountdown()
+  } catch (_) {
+    // 请求拦截器统一显示后端错误信息。
+  } finally {
+    codeLoading.value = false
+  }
 }
 
 async function handleRegister() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
 
-  // 前端验证码校验
-  if (form.verification_code !== sentCode.value) {
-    ElMessage.error('验证码错误')
-    return
-  }
-
   loading.value = true
   try {
     await register({
       username: form.username,
       password: form.password,
-      email: form.email
+      email: form.email,
+      verification_code: form.verification_code
     })
     ElMessage.success('注册成功，请登录')
     router.push('/login')
-  } catch (err) {
-    ElMessage.error(err.response?.data?.detail || '注册失败')
+  } catch (_) {
+    // 请求拦截器统一显示后端错误信息。
   } finally {
     loading.value = false
   }
