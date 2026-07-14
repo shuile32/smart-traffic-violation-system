@@ -128,7 +128,7 @@ class StatisticsService:
                 func.count(Violation.id),
             )
             .filter(
-                Violation.occurred_at.between(st, et),
+                Violation.created_at.between(st, et),
                 Violation.location_text.isnot(None),
                 func.trim(Violation.location_text) != "",
             )

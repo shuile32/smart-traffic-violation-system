@@ -12,8 +12,8 @@
         :collapse="isCollapse"
         :collapse-transition="false"
         background-color="transparent"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        text-color="#C8DDE4"
+        active-text-color="#A2D9F0"
         class="sidebar-menu"
       >
         <!-- 违章管理 -->
@@ -28,15 +28,11 @@
           <el-menu-item index="/admin/stats" @click="nav('/admin/stats')">统计分析</el-menu-item>
         </el-sub-menu>
 
-        <!-- 车辆与驾驶人 -->
-        <el-sub-menu index="vehicle-group">
-          <template #title>
-            <el-icon><Van /></el-icon>
-            <span>车辆与驾驶人</span>
-          </template>
-          <el-menu-item index="/admin/vehicles" @click="nav('/admin/vehicles')">车辆管理</el-menu-item>
-          <el-menu-item index="/admin/drivers" @click="nav('/admin/drivers')">驾驶人管理</el-menu-item>
-        </el-sub-menu>
+        <!-- 车辆管理 -->
+        <el-menu-item index="/admin/vehicles" @click="nav('/admin/vehicles')">
+          <el-icon><Van /></el-icon>
+          <template #title>车辆管理</template>
+        </el-menu-item>
 
         <!-- 用户管理 -->
         <el-menu-item index="/admin/users" @click="nav('/admin/users')">
@@ -66,8 +62,7 @@
             <el-icon><Monitor /></el-icon>
             <span>系统维护</span>
           </template>
-          <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">操作日志</el-menu-item>
-          <el-menu-item index="/admin/database" @click="nav('/admin/database')">数据库维护</el-menu-item>
+          <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">系统日志</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -79,7 +74,15 @@
           <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
             <Fold v-if="!isCollapse" /><Expand v-else />
           </el-icon>
-          <span class="page-name">{{ route.meta.title }}</span>
+          <el-breadcrumb class="breadcrumb">
+            <el-breadcrumb-item
+              v-for="(item, index) in breadcrumbs"
+              :key="index"
+              :to="item.path || undefined"
+            >
+              {{ item.title }}
+            </el-breadcrumb-item>
+          </el-breadcrumb>
         </div>
         <div class="header-right">
           <AnnouncementBell />
@@ -104,7 +107,14 @@
       </el-header>
 
       <el-main>
-        <router-view />
+        <router-view v-slot="{ Component, route: r }">
+          <Transition name="page-fade" mode="out-in">
+            <keep-alive :include="cachedViews">
+              <component :is="Component" :key="r.path" />
+            </keep-alive>
+          </Transition>
+        </router-view>
+        <BackToTop />
       </el-main>
     </el-container>
   </el-container>
@@ -115,9 +125,13 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
-import { Moon, Sunny } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import BackToTop from '@/components/BackToTop.vue'
 import AnnouncementBell from '@/components/AnnouncementBell.vue'
+import {
+  WarningFilled, Van, UserFilled, VideoCamera, Tools, Monitor,
+  Fold, Expand, Moon, Sunny, ArrowDown
+} from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -125,7 +139,50 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 const isCollapse = ref(false)
 
+// keep-alive 白名单从路由 meta 读取
+const cachedViews = computed(() => {
+  const names = []
+  const collect = (routes) => {
+    for (const r of routes) {
+      if (r.children) collect(r.children)
+      if (r.meta?.keepAlive && r.name) names.push(r.name)
+    }
+  }
+  collect(router.options.routes)
+  return names
+})
+
 const activeMenu = computed(() => route.path)
+
+const breadcrumbMap = {
+  '/admin/violations/upload': ['违章管理'],
+  '/admin/violations/review': ['违章管理'],
+  '/admin/violations': ['违章管理'],
+  '/admin/violations/:id': ['违章管理'],
+  '/admin/stats/report': ['统计分析'],
+  '/admin/rules': ['系统配置'],
+  '/admin/announcements': ['系统配置'],
+  '/admin/logs': ['系统维护']
+}
+
+const breadcrumbs = computed(() => {
+  const items = [{ title: '首页', path: '/admin/stats' }]
+  let extra = null
+  for (const [path, names] of Object.entries(breadcrumbMap)) {
+    const regex = new RegExp('^' + path.replace(/:id/, '[^/]+') + '$')
+    if (regex.test(route.path)) {
+      extra = names
+      break
+    }
+  }
+  if (extra) {
+    for (const name of extra) {
+      items.push({ title: name, path: '' })
+    }
+  }
+  items.push({ title: route.meta.title || '', path: '' })
+  return items
+})
 
 function nav(path) {
   if (route.path !== path) router.push(path).catch(() => {})
@@ -133,7 +190,7 @@ function nav(path) {
 
 function handleLogout() {
   ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(() => {
-    userStore.logout()
+    localStorage.removeItem('access_token')
     router.push('/login')
   })
 }
@@ -179,7 +236,7 @@ function handleLogout() {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 .sidebar-menu .el-menu-item.is-active {
-  background: rgba(64, 158, 255, 0.12) !important;
+  background: rgba(162, 217, 240, 0.15) !important;
 }
 .header {
   display: flex;
@@ -191,11 +248,18 @@ function handleLogout() {
   height: 60px;
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
 .collapse-btn { font-size: 20px; cursor: pointer; }
-.page-name { font-size: 16px; font-weight: 500; }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.user-info { cursor: pointer; display: flex; align-items: center; gap: 4px; }
-.theme-toggle { cursor: pointer; color: var(--text-secondary); }
-.theme-toggle:hover { color: var(--text-color); }
-.el-main { background: var(--bg-color); padding: 20px; }
+.theme-toggle { cursor: pointer; }
+.user-info { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.breadcrumb { line-height: 1; }
+.breadcrumb :deep(.el-breadcrumb__separator) { color: var(--text-secondary); }
+.breadcrumb :deep(.el-breadcrumb__inner) { color: var(--text-secondary); font-size: 14px; }
+.breadcrumb :deep(.el-breadcrumb__inner.is-link:hover) { color: var(--text-color); }
+.breadcrumb :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) { color: var(--text-color); font-weight: 500; }
+.el-main {
+  background: var(--bg-color);
+  padding: 20px;
+  position: relative;
+}
 </style>

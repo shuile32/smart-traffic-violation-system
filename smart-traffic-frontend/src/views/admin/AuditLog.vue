@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <div class="page-header">
-      <h2 class="page-title">操作日志</h2>
-      <span class="page-desc">记录所有用户的操作行为，便于追溯审计</span>
+      <h2 class="page-title">系统日志</h2>
+      <span class="page-desc">记录所有用户的系统操作行为，便于追溯审计</span>
     </div>
 
     <el-card>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="report-page">
     <header class="page-header no-print">
       <div class="title-group">
