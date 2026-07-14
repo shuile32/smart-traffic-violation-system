@@ -230,7 +230,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchCaseDetail as getCaseDetail, approveCase, rejectCase } from '@/api/case'
 import { fetchProtectedMediaUrl } from '@/api/media'
@@ -244,9 +244,14 @@ import {
   releaseProtectedMediaUrls
 } from '@/utils/contracts'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
+const listPath = computed(() =>
+  userStore.role === 'admin' ? '/admin/violations' : '/review/workbench'
+)
 const detail = ref({})
 const loading = ref(false)
 const submitting = ref(false)
@@ -321,7 +326,7 @@ async function handleApprove() {
   try {
     await approveCase(route.params.id, buildApprovePayload(reviewForm))
     ElMessage.success('审核通过，违章记录已生成')
-    router.push('/review/workbench')
+    router.push(listPath.value)
   } catch { ElMessage.error('操作失败') }
   finally { submitting.value = false }
 }
@@ -335,7 +340,7 @@ async function handleReject() {
   try {
     await rejectCase(route.params.id, buildRejectPayload(reviewForm))
     ElMessage.success('案件已驳回')
-    router.push('/review/workbench')
+    router.push(listPath.value)
   } catch { ElMessage.error('操作失败') }
   finally { submitting.value = false }
 }

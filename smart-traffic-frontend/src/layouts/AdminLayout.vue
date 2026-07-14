@@ -1,23 +1,18 @@
 <template>
-  <el-container class="admin-layout">
-    <!-- 左侧侧边栏 -->
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="aside">
-      <div class="logo" @click="router.push('/admin/stats')">
-        <span v-if="!isCollapse">🚦 交通违章管理</span>
-        <span v-else>🚦</span>
-      </div>
+  <el-container class="app-layout admin-layout">
+    <el-aside :width="isCollapse ? '64px' : '220px'" class="app-aside">
+      <button type="button" class="brand" @click="nav('/admin/stats')">
+        <el-icon :size="22"><LocationFilled /></el-icon>
+        <span v-if="!isCollapse">智能交通管理</span>
+      </button>
 
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
         :collapse-transition="false"
-        background-color="transparent"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
         class="sidebar-menu"
       >
-        <!-- 违章管理 -->
-        <el-sub-menu index="violation-group">
+        <el-sub-menu index="violations">
           <template #title>
             <el-icon><WarningFilled /></el-icon>
             <span>违章管理</span>
@@ -28,30 +23,20 @@
           <el-menu-item index="/admin/stats" @click="nav('/admin/stats')">统计分析</el-menu-item>
         </el-sub-menu>
 
-        <!-- 车辆与驾驶人 -->
-        <el-sub-menu index="vehicle-group">
-          <template #title>
-            <el-icon><Van /></el-icon>
-            <span>车辆与驾驶人</span>
-          </template>
-          <el-menu-item index="/admin/vehicles" @click="nav('/admin/vehicles')">车辆管理</el-menu-item>
-          <el-menu-item index="/admin/drivers" @click="nav('/admin/drivers')">驾驶人管理</el-menu-item>
-        </el-sub-menu>
-
-        <!-- 用户管理 -->
+        <el-menu-item index="/admin/vehicles" @click="nav('/admin/vehicles')">
+          <el-icon><Van /></el-icon>
+          <template #title>车辆管理</template>
+        </el-menu-item>
         <el-menu-item index="/admin/users" @click="nav('/admin/users')">
           <el-icon><UserFilled /></el-icon>
           <template #title>用户管理</template>
         </el-menu-item>
-
-        <!-- 设备管理 -->
         <el-menu-item index="/admin/cameras" @click="nav('/admin/cameras')">
           <el-icon><VideoCamera /></el-icon>
-          <template #title>摄像头管理</template>
+          <template #title>设备管理</template>
         </el-menu-item>
 
-        <!-- 系统配置 -->
-        <el-sub-menu index="config-group">
+        <el-sub-menu index="configuration">
           <template #title>
             <el-icon><Tools /></el-icon>
             <span>系统配置</span>
@@ -60,142 +45,120 @@
           <el-menu-item index="/admin/announcements" @click="nav('/admin/announcements')">公告管理</el-menu-item>
         </el-sub-menu>
 
-        <!-- 系统维护 -->
-        <el-sub-menu index="system-group">
-          <template #title>
-            <el-icon><Monitor /></el-icon>
-            <span>系统维护</span>
-          </template>
-          <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">操作日志</el-menu-item>
-          <el-menu-item index="/admin/database" @click="nav('/admin/database')">数据库维护</el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="/admin/logs" @click="nav('/admin/logs')">
+          <el-icon><Document /></el-icon>
+          <template #title>系统日志</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
-    <!-- 主内容区 -->
-    <el-container>
-      <el-header class="header">
-        <div class="header-left">
-          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
-            <Fold v-if="!isCollapse" /><Expand v-else />
-          </el-icon>
-          <span class="page-name">{{ route.meta.title }}</span>
+    <el-container class="layout-body">
+      <el-header class="app-header">
+        <div class="header-context">
+          <el-tooltip :content="isCollapse ? '展开菜单' : '收起菜单'" placement="bottom">
+            <el-button text circle aria-label="切换侧边栏" @click="isCollapse = !isCollapse">
+              <el-icon :size="20"><Expand v-if="isCollapse" /><Fold v-else /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-breadcrumb separator="/" class="breadcrumbs">
+            <el-breadcrumb-item
+              v-for="item in breadcrumbItems"
+              :key="`${item.label}-${item.path}`"
+              :to="item.path || undefined"
+            >
+              {{ item.label }}
+            </el-breadcrumb-item>
+          </el-breadcrumb>
         </div>
-        <div class="header-right">
-          <AnnouncementBell />
-          <el-icon class="theme-toggle" :size="20" @click="themeStore.isDark = !themeStore.isDark">
-            <Moon v-if="themeStore.isDark" />
-            <Sunny v-else />
-          </el-icon>
-          <el-tag size="small" type="danger">超级管理员</el-tag>
-          <el-dropdown>
-            <span class="user-info">
-              {{ userStore.userInfo?.username || 'admin' }}
-              <el-icon><ArrowDown /></el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="router.push('/admin/profile')">个人信息</el-dropdown-item>
-                <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
+        <HeaderActions
+          profile-path="/admin/profile"
+          role-label="超级管理员"
+          role-tag-type="danger"
+          default-name="管理员"
+        />
       </el-header>
 
-      <el-main>
-        <router-view />
+      <el-main ref="mainRef" class="app-main">
+        <router-view v-slot="{ Component, route: viewRoute }">
+          <KeepAlive>
+            <component
+              :is="Component"
+              v-if="viewRoute.meta.keepAlive"
+              :key="viewRoute.name"
+            />
+          </KeepAlive>
+          <component
+            :is="Component"
+            v-if="!viewRoute.meta.keepAlive"
+            :key="viewRoute.fullPath"
+          />
+        </router-view>
+        <BackToTop :target="mainElement" />
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import { useThemeStore } from '@/stores/theme'
-import { Moon, Sunny } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
-import AnnouncementBell from '@/components/AnnouncementBell.vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  Document, Expand, Fold, LocationFilled, Tools,
+  UserFilled, Van, VideoCamera, WarningFilled
+} from '@element-plus/icons-vue'
+import BackToTop from '@/components/BackToTop.vue'
+import HeaderActions from '@/components/HeaderActions.vue'
 
 const router = useRouter()
 const route = useRoute()
-const userStore = useUserStore()
-const themeStore = useThemeStore()
 const isCollapse = ref(false)
+const mainRef = ref(null)
+const mainElement = computed(() => mainRef.value?.$el || mainRef.value)
 
-const activeMenu = computed(() => route.path)
+const activeMenu = computed(() => {
+  if (route.path.startsWith('/admin/violations/')) {
+    if (route.path === '/admin/violations/upload') return route.path
+    if (route.path === '/admin/violations/review') return route.path
+    return '/admin/violations'
+  }
+  return route.path
+})
+
+const parentLabels = [
+  [/^\/admin\/violations/, '违章管理'],
+  [/^\/admin\/(rules|announcements)/, '系统配置']
+]
+
+const breadcrumbItems = computed(() => {
+  const items = [{ label: '管理后台', path: '/admin/stats' }]
+  const parent = parentLabels.find(([pattern]) => pattern.test(route.path))
+  if (parent) items.push({ label: parent[1], path: '' })
+  const title = route.meta.title
+  if (title && title !== items.at(-1).label && route.path !== '/admin/stats') {
+    items.push({ label: title, path: '' })
+  }
+  return items
+})
 
 function nav(path) {
-  if (route.path !== path) router.push(path).catch(() => {})
-}
-
-function handleLogout() {
-  ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(() => {
-    userStore.logout()
-    router.push('/login')
-  })
+  if (route.path !== path) router.push(path)
 }
 </script>
 
 <style scoped>
-.admin-layout { height: 100vh; }
-.aside {
-  background: var(--sidebar-bg);
-  overflow: hidden;
-  transition: width 0.3s;
-  display: flex;
-  flex-direction: column;
-}
-.logo {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.sidebar-menu {
-  border-right: none !important;
-  flex: 1;
-  overflow-y: auto;
-}
-.sidebar-menu .el-menu-item {
-  height: 48px;
-  line-height: 48px;
-}
-.sidebar-menu .el-sub-menu .el-menu-item {
-  height: 44px;
-  line-height: 44px;
-  min-width: auto;
-}
-.sidebar-menu .el-menu-item:hover,
-.sidebar-menu .el-sub-menu__title:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-}
-.sidebar-menu .el-menu-item.is-active {
-  background: rgba(64, 158, 255, 0.12) !important;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0 20px;
-  height: 60px;
-}
-.header-left { display: flex; align-items: center; gap: 12px; }
-.collapse-btn { font-size: 20px; cursor: pointer; }
-.page-name { font-size: 16px; font-weight: 500; }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.user-info { cursor: pointer; display: flex; align-items: center; gap: 4px; }
-.theme-toggle { cursor: pointer; color: var(--text-secondary); }
-.theme-toggle:hover { color: var(--text-color); }
-.el-main { background: var(--bg-color); padding: 20px; }
+.app-layout { height: 100vh; min-width: 0; }
+.app-aside { display: flex; flex-direction: column; overflow: hidden; background: var(--sidebar-bg); transition: width 0.2s; }
+.brand { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 60px; flex: 0 0 60px; padding: 0 10px; color: #fff; font: inherit; font-weight: 600; background: transparent; border: 0; cursor: pointer; white-space: nowrap; }
+.sidebar-menu { flex: 1; overflow-y: auto; border-right: 0; background: transparent; }
+.sidebar-menu :deep(.el-menu-item), .sidebar-menu :deep(.el-sub-menu__title) { color: #c8d1d8; }
+.sidebar-menu :deep(.el-menu-item:hover), .sidebar-menu :deep(.el-sub-menu__title:hover) { background: rgba(255,255,255,0.08); }
+.sidebar-menu :deep(.el-menu-item.is-active) { color: #fff; background: rgba(64,158,255,0.24); }
+.layout-body { min-width: 0; }
+.app-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; padding: 0 20px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); }
+.header-context { display: flex; align-items: center; min-width: 0; gap: 10px; }
+.breadcrumbs { min-width: 0; }
+.breadcrumbs :deep(.el-breadcrumb__inner) { color: var(--text-secondary); }
+.breadcrumbs :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) { color: var(--text-color); font-weight: 600; }
+.app-main { position: relative; min-width: 0; padding: 20px; overflow: auto; background: var(--bg-color); }
+@media (max-width: 720px) { .app-header { padding: 0 10px; } .breadcrumbs { display: none; } .app-main { padding: 12px; } }
 </style>

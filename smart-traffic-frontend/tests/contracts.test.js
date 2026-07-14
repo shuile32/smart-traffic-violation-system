@@ -290,6 +290,7 @@ test('announcement controller selects a row and publishes fetched detail', async
 test('announcements use exact API routes and a shared accessible header entry', async () => {
   const apiSource = await readFile(new URL('../src/api/announcement.js', import.meta.url), 'utf8')
   const bellSource = await readFile(new URL('../src/components/AnnouncementBell.vue', import.meta.url), 'utf8')
+  const headerSource = await readFile(new URL('../src/components/HeaderActions.vue', import.meta.url), 'utf8')
   const controllerSource = await readFile(
     new URL('../src/utils/announcementController.js', import.meta.url),
     'utf8'
@@ -307,11 +308,13 @@ test('announcements use exact API routes and a shared accessible header entry', 
   assert.match(bellSource, /<Bell \/>/)
   assert.match(bellSource, /createAnnouncementController/)
   assert.doesNotMatch(bellSource, /<el-badge/)
+  assert.match(headerSource, /<AnnouncementBell \/>/)
+  assert.match(headerSource, /import AnnouncementBell from '@\/components\/AnnouncementBell\.vue'/)
 
   for (const layout of ['CitizenLayout', 'ReviewLayout', 'AdminLayout']) {
     const source = await readFile(new URL(`../src/layouts/${layout}.vue`, import.meta.url), 'utf8')
-    assert.match(source, /<AnnouncementBell \/>/)
-    assert.match(source, /import AnnouncementBell from '@\/components\/AnnouncementBell\.vue'/)
+    assert.match(source, /<HeaderActions/)
+    assert.match(source, /import HeaderActions from '@\/components\/HeaderActions\.vue'/)
   }
 })
 
