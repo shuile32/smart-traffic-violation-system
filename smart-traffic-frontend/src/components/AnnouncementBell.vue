@@ -34,7 +34,7 @@
           :key="announcement.id"
           class="announcement-item"
           type="button"
-          @click="openAnnouncement(announcement.id)"
+          @click="selectAnnouncement(announcement.id)"
         >
           <span class="announcement-item-title">{{ announcement.title }}</span>
           <time class="announcement-item-time" :datetime="announcement.updated_at">
@@ -66,47 +66,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { reactive, toRefs } from 'vue'
 import { Bell } from '@element-plus/icons-vue'
 import { fetchAnnouncement, fetchAnnouncements } from '@/api/announcement'
+import {
+  createAnnouncementController,
+  createAnnouncementState
+} from '@/utils/announcementController'
 
-const popoverVisible = ref(false)
-const loading = ref(false)
-const announcements = ref([])
-const detailVisible = ref(false)
-const detailLoading = ref(false)
-const selectedAnnouncement = ref(null)
+const state = reactive(createAnnouncementState())
+const {
+  popoverVisible,
+  loading,
+  announcements,
+  detailVisible,
+  detailLoading,
+  selectedAnnouncement
+} = toRefs(state)
+const { loadAnnouncements, selectAnnouncement } = createAnnouncementController({
+  state,
+  fetchAnnouncements,
+  fetchAnnouncement
+})
 const popoverStyle = {
   width: 'min(360px, calc(100vw - 24px))',
   maxWidth: 'calc(100vw - 24px)',
   padding: '12px'
-}
-
-async function loadAnnouncements() {
-  loading.value = true
-  try {
-    const response = await fetchAnnouncements({ page: 1, page_size: 5 })
-    announcements.value = response.data.items ?? []
-  } catch {
-    announcements.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-async function openAnnouncement(id) {
-  popoverVisible.value = false
-  selectedAnnouncement.value = null
-  detailVisible.value = true
-  detailLoading.value = true
-  try {
-    const response = await fetchAnnouncement(id)
-    selectedAnnouncement.value = response.data
-  } catch {
-    detailVisible.value = false
-  } finally {
-    detailLoading.value = false
-  }
 }
 
 function formatDate(value) {
@@ -195,17 +180,13 @@ function formatDate(value) {
 }
 
 .announcement-dialog-title {
-  display: -webkit-box;
-  max-height: 52px;
-  overflow: hidden;
+  min-width: 0;
   padding-right: 32px;
   color: var(--text-color);
   font-size: 18px;
   font-weight: 600;
   line-height: 26px;
   overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .announcement-detail {
@@ -230,8 +211,11 @@ function formatDate(value) {
 }
 
 :global(.announcement-dialog .el-dialog__header) {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   min-width: 0;
+  max-height: min(35vh, 220px);
+  max-height: min(35dvh, 220px);
+  overflow-y: auto;
 }
 
 :global(.announcement-dialog .el-dialog__body) {
