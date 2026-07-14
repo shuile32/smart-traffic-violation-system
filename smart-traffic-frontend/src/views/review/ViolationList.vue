@@ -15,13 +15,6 @@
             <el-option v-for="t in types" :key="t" :label="t" :value="t" />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="filter.status" placeholder="全部" clearable style="width:120px">
-            <el-option label="待处理" value="pending" />
-            <el-option label="已处理" value="handled" />
-            <el-option label="已撤销" value="cancelled" />
-          </el-select>
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchList">查询</el-button>
           <el-button @click="resetFilter">重置</el-button>
@@ -45,13 +38,6 @@
         </el-table-column>
         <el-table-column prop="fine_amount" label="罚款(元)" width="90" align="center" />
         <el-table-column prop="points" label="扣分" width="70" align="center" />
-        <el-table-column prop="status" label="状态" width="90">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'handled' ? 'success' : row.status === 'pending' ? 'warning' : 'info'" size="small">
-              {{ statusMap[row.status] || row.status }}
-            </el-tag>
-          </template>
-        </el-table-column>
       </el-table>
 
       <div style="padding:16px 0 0;text-align:right">
@@ -78,9 +64,8 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const types = ['闯红灯', '违停', '压线', '逆行', '超速', '占用应急车道']
-const statusMap = { pending: '待处理', handled: '已处理', cancelled: '已撤销' }
 
-const filter = reactive({ plate: '', type: '', status: '' })
+const filter = reactive({ plate: '', type: '' })
 
 function formatTime(t) { return t ? new Date(t).toLocaleString('zh-CN') : '' }
 
@@ -95,7 +80,7 @@ async function fetchList() {
 }
 
 function resetFilter() {
-  Object.assign(filter, { plate: '', type: '', status: '' })
+  Object.assign(filter, { plate: '', type: '' })
   page.value = 1
   fetchList()
 }

@@ -372,6 +372,9 @@ test('reviewer violations use the shared query contract without duplicate errors
   assert.match(source, /buildViolationQuery\(filter, page\.value, pageSize\.value\)/)
   assert.doesNotMatch(source, /导出 Excel|handleExport|ElMessage/)
   assert.doesNotMatch(source, /prop="owner_name"|label="车主"/)
+  assert.doesNotMatch(source, /v-model="filter\.status"/)
+  assert.doesNotMatch(source, /prop="status"|statusMap/)
+  assert.doesNotMatch(source, /待处理|已处理|已撤销/)
   assert.doesNotMatch(apiSource, /exportExcel|导出成功/)
 })
 
