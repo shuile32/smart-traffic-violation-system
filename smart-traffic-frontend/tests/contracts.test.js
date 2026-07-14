@@ -549,6 +549,9 @@ test('admin violations keep real actions and remove fake bulk and delete operati
   assert.match(source, /\/review\/case\/\$\{row\.case_id\}/)
   assert.doesNotMatch(source, /selection|selectedIds|handleSelectionChange/)
   assert.doesNotMatch(source, /批量导出|handleBatchExport|handleDelete|确定删除/)
+  assert.doesNotMatch(source, /v-model="search\.status"/)
+  assert.doesNotMatch(source, /row\.status|处理状态|待处理/)
+  assert.doesNotMatch(source, /status:\s*''/)
 })
 
 test('AI report page generates only on user action and supports print export', async () => {

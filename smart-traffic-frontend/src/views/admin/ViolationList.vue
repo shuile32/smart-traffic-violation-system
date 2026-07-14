@@ -21,9 +21,6 @@
           <el-option label="压线" value="压线" />
           <el-option label="逆行" value="逆行" />
         </el-select>
-        <el-select v-model="search.status" placeholder="处理状态" clearable style="width:140px">
-          <el-option label="待处理" value="pending" />
-        </el-select>
         <el-date-picker
           v-model="search.dateRange"
           type="daterange"
@@ -47,12 +44,6 @@
       <el-table-column prop="occurred_at" label="违章时间" width="180" />
       <el-table-column prop="fine_amount" label="罚款（元）" width="100" />
       <el-table-column prop="points" label="扣分" width="80" />
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          <el-tag v-if="row.status === 'pending'" type="info">待处理</el-tag>
-          <el-tag v-else type="info">{{ row.status }}</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" width="90" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="router.push(`/review/case/${row.case_id}`)">
@@ -88,7 +79,7 @@ const pageSize = ref(10)
 const total = ref(0)
 
 const search = reactive({
-  plate: '', location: '', type: '', status: '', dateRange: null
+  plate: '', location: '', type: '', dateRange: null
 })
 
 async function fetchList() {
