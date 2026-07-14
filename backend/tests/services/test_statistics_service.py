@@ -168,8 +168,8 @@ def test_road_time_heatmap_filters_window_and_invalid_dimensions(db):
     )
 
     assert out.roads == ["路段A"]
-    assert sum(item.count for item in out.items) == 1
-    assert next(item for item in out.items if item.time_slot == "7-9").count == 1
+    assert sum(item.count for item in out.items) == 2
+    assert next(item for item in out.items if item.time_slot == "7-9").count == 2
 
     empty = StatisticsService(db).road_time_heatmap(
         "2030-01-01T00:00:00", "2030-01-02T00:00:00",
@@ -177,3 +177,25 @@ def test_road_time_heatmap_filters_window_and_invalid_dimensions(db):
     assert empty.roads == []
     assert empty.items == []
     assert len(empty.time_slots) == 11
+
+
+def test_road_time_heatmap_filters_created_at_and_buckets_occurred_at(db):
+    inside = datetime(2026, 7, 8, 10, 0, tzinfo=timezone.utc)
+    outside = datetime(2026, 6, 1, 10, 0, tzinfo=timezone.utc)
+    case = _seed_case(db, status="approved", created_at=inside, case_no="C-CREATED")
+    _seed_violation(
+        db, case=case, violation_type="超速", location_text="创建期内道路",
+        created_at=inside, occurred_at=outside.replace(hour=18), vio_no="CREATED-IN",
+    )
+    _seed_violation(
+        db, case=case, violation_type="超速", location_text="发生期内道路",
+        created_at=outside, occurred_at=inside.replace(hour=8), vio_no="OCCURRED-IN",
+    )
+
+    out = StatisticsService(db).road_time_heatmap(
+        "2026-07-08T00:00:00", "2026-07-08T23:59:59",
+    )
+
+    assert out.roads == ["创建期内道路"]
+    assert sum(item.count for item in out.items) == 1
+    assert next(item for item in out.items if item.time_slot == "17-19").count == 1
