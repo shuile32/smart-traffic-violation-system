@@ -5,7 +5,13 @@ from ai_service.traffic_ai.backend_contract import (
     review_result_to_backend_dict,
     rule_result_to_backend_dict,
 )
-from ai_service.traffic_ai.schemas import Detection, DetectionBundle, ReviewResult, RuleResult
+from ai_service.traffic_ai.schemas import (
+    Detection,
+    DetectionBundle,
+    RedLightViolationEvidence,
+    ReviewResult,
+    RuleResult,
+)
 
 
 class BackendContractTest(unittest.TestCase):
@@ -41,6 +47,36 @@ class BackendContractTest(unittest.TestCase):
         self.assertEqual(payload["rule_matched"], True)
         self.assertEqual(payload["evidence_items"], ["illegal_stop detection"])
         self.assertEqual(payload["reason"], "matched")
+
+    def test_red_light_evidence_is_exposed_as_backend_object(self):
+        vehicle = Detection("cars", 0.91, [0, 0, 100, 100], "vehicle")
+        red = Detection("Traffic Light - Red", 0.88, [120, 0, 140, 30], "red_light")
+        crossing = Detection("zebra crossing", 0.86, [0, 80, 100, 110], "zebra_crossing")
+        evidence = RedLightViolationEvidence(
+            vehicle=vehicle,
+            red_light=red,
+            zebra_crossing=crossing,
+            contact_bbox=[15, 80, 85, 100],
+            intersection_bbox=[15, 80, 85, 100],
+            overlap_ratio=1.0,
+            bottom_center_inside=True,
+            confidence=0.86,
+        )
+
+        payload = detection_bundle_to_backend_dict(
+            DetectionBundle(
+                vehicle=[vehicle],
+                red_light=[red],
+                zebra_crossing=[crossing],
+                red_light_violation=[evidence],
+            )
+        )
+
+        models = [item["model"] for item in payload["objects"]]
+        self.assertEqual(models, ["vehicle", "red_light", "zebra_crossing", "red_light_rule"])
+        rule_object = payload["objects"][-1]
+        self.assertEqual(rule_object["evidence"]["overlap_ratio"], 1.0)
+        self.assertEqual(rule_object["label"], "suspected_red_light_violation")
 
     def test_review_result_to_backend_dict_keeps_route_response_fields(self):
         review = ReviewResult(conclusion="suggest_approve", confidence=0.85, reason="ok")

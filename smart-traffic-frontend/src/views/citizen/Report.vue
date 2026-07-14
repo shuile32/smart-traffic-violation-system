@@ -6,6 +6,13 @@
 
     <el-card>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="违法类型" prop="reported_violation_type">
+          <el-radio-group v-model="form.reported_violation_type">
+            <el-radio-button value="illegal_stop">违停</el-radio-button>
+            <el-radio-button value="red_light_violation">疑似闯红灯</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+
         <el-form-item label="违章图片" prop="images">
           <div class="upload-area">
             <input
@@ -84,10 +91,11 @@ const selectedFiles = ref([])       // 原始 File 对象
 const previews = ref([])            // data: URL 预览
 
 const form = reactive({
-  location: '', violation_time: '', description: ''
+  reported_violation_type: '', location: '', violation_time: '', description: ''
 })
 
 const rules = {
+  reported_violation_type: [{ required: true, message: '请选择违法类型', trigger: 'change' }],
   location: [{ required: true, message: '请输入违章地点', trigger: 'blur' }],
   violation_time: [{ required: true, message: '请选择违章时间', trigger: 'change' }],
   description: [{ required: true, message: '请描述违章情况', trigger: 'blur' }]
@@ -133,6 +141,7 @@ async function handleSubmit() {
   submitting.value = true
   try {
     const fd = new FormData()
+    fd.append('reported_violation_type', form.reported_violation_type)
     fd.append('location_text', form.location)
     fd.append('captured_at', form.violation_time)
     if (form.description) fd.append('description', form.description)

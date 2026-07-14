@@ -6,12 +6,16 @@ from typing import Protocol
 from PIL import Image
 
 from ai_service.traffic_ai.ocr import OcrEngine, OcrResult, create_default_ocr_engine
-from ai_service.traffic_ai.rules import IllegalStopRuleEvaluator, review_from_rule
+from ai_service.traffic_ai.rules import TrafficRuleEvaluator, review_from_rule
 from ai_service.traffic_ai.schemas import Detection, DetectionBundle, PipelineResult
 
 
 class Detector(Protocol):
-    def detect(self, image_path: Path) -> DetectionBundle:
+    def detect(
+        self,
+        image_path: Path,
+        requested_violation_type: str | None = None,
+    ) -> DetectionBundle:
         raise NotImplementedError
 
 
@@ -20,17 +24,25 @@ class TrafficViolationPipeline:
         self,
         detector: Detector,
         ocr_engine: OcrEngine | None = None,
-        rule_evaluator: IllegalStopRuleEvaluator | None = None,
+        rule_evaluator: TrafficRuleEvaluator | None = None,
     ) -> None:
         self.detector = detector
         self.ocr_engine = ocr_engine or create_default_ocr_engine()
-        self.rule_evaluator = rule_evaluator or IllegalStopRuleEvaluator()
+        self.rule_evaluator = rule_evaluator or TrafficRuleEvaluator()
 
-    def analyze(self, image_path: Path | str) -> PipelineResult:
+    def analyze(
+        self,
+        image_path: Path | str,
+        requested_violation_type: str | None = None,
+    ) -> PipelineResult:
         path = Path(image_path)
-        detections = self.detector.detect(path)
+        detections = self.detector.detect(path, requested_violation_type)
         ocr = self._recognize_plate_after_violation(path, detections)
-        rule = self.rule_evaluator.evaluate(detections, plate_text=ocr.text)
+        rule = self.rule_evaluator.evaluate(
+            detections,
+            plate_text=ocr.text,
+            requested_rule=requested_violation_type,
+        )
         review = review_from_rule(rule)
         return PipelineResult(
             image_path=str(path),
@@ -43,7 +55,7 @@ class TrafficViolationPipeline:
         )
 
     def _recognize_plate_after_violation(self, image_path: Path, detections: DetectionBundle) -> OcrResult:
-        if not detections.illegal_stop:
+        if not detections.illegal_stop and not detections.red_light_violation:
             return OcrResult(text=None, engine="none", status="skipped_no_violation")
         if not detections.license_plate:
             return OcrResult(text=None, engine="none", status="skipped_no_plate")

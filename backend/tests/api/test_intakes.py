@@ -8,7 +8,7 @@ def test_citizen_upload_success(client, citizen_user, auth_headers, tmp_path, mo
         "/api/v1/intakes/citizen-reports",
         headers=auth_headers,
         files={"image": ("a.jpg", JPEG, "image/jpeg")},
-        data={"location_text": "路口A"},
+        data={"location_text": "路口A", "reported_violation_type": "illegal_stop"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -20,7 +20,7 @@ def test_citizen_upload_requires_auth(client):
     response = client.post(
         "/api/v1/intakes/citizen-reports",
         files={"image": ("a.jpg", JPEG, "image/jpeg")},
-        data={"location_text": "路口A"},
+        data={"location_text": "路口A", "reported_violation_type": "illegal_stop"},
     )
     assert response.status_code == 401
 
@@ -31,13 +31,13 @@ def test_citizen_upload_duplicate(client, citizen_user, auth_headers, tmp_path, 
         "/api/v1/intakes/citizen-reports",
         headers=auth_headers,
         files={"image": ("a.jpg", JPEG, "image/jpeg")},
-        data={"location_text": "路口A"},
+        data={"location_text": "路口A", "reported_violation_type": "illegal_stop"},
     )
     response = client.post(
         "/api/v1/intakes/citizen-reports",
         headers=auth_headers,
         files={"image": ("a.jpg", JPEG, "image/jpeg")},
-        data={"location_text": "路口A"},
+        data={"location_text": "路口A", "reported_violation_type": "illegal_stop"},
     )
     assert response.status_code == 409
 
@@ -54,6 +54,7 @@ def test_citizen_report_persists_metadata(
             "location_text": "测试路口",
             "captured_at": "2026-07-10T08:30:00",
             "description": "车辆闯红灯",
+            "reported_violation_type": "red_light_violation",
         },
     )
 
@@ -62,6 +63,7 @@ def test_citizen_report_persists_metadata(
 
     event = db.get(Case, response.json()["case_id"]).intake_event
     assert getattr(event, "description", None) == "车辆闯红灯"
+    assert event.reported_violation_type == "red_light_violation"
     assert event.captured_at is not None
     assert event.captured_at.isoformat().startswith("2026-07-10T08:30:00")
 
@@ -74,7 +76,12 @@ def test_admin_upload_persists_captured_at_and_speed(
         "/api/v1/intakes/admin-uploads",
         headers=admin_auth_headers,
         files={"image": ("admin.jpg", JPEG, "image/jpeg")},
-        data={"location_text": "后台路口", "captured_at": "2026-07-10T09:15:00", "speed": "73.5"},
+        data={
+            "location_text": "后台路口",
+            "captured_at": "2026-07-10T09:15:00",
+            "speed": "73.5",
+            "reported_violation_type": "illegal_stop",
+        },
     )
 
     assert response.status_code == 200
@@ -84,6 +91,37 @@ def test_admin_upload_persists_captured_at_and_speed(
     assert event.captured_at is not None
     assert event.captured_at.isoformat().startswith("2026-07-10T09:15:00")
     assert event.speed == 73.5
+    assert event.reported_violation_type == "illegal_stop"
+
+
+def test_citizen_upload_requires_reported_violation_type(
+    client, citizen_user, auth_headers, tmp_path, monkeypatch,
+):
+    monkeypatch.setattr("app.services.storage.settings.MEDIA_STORAGE_DIR", str(tmp_path))
+
+    response = client.post(
+        "/api/v1/intakes/citizen-reports",
+        headers=auth_headers,
+        files={"image": ("missing-type.jpg", JPEG, "image/jpeg")},
+        data={"location_text": "路口A"},
+    )
+
+    assert response.status_code == 422
+
+
+def test_admin_upload_rejects_unsupported_reported_violation_type(
+    client, admin_user, admin_auth_headers, tmp_path, monkeypatch,
+):
+    monkeypatch.setattr("app.services.storage.settings.MEDIA_STORAGE_DIR", str(tmp_path))
+
+    response = client.post(
+        "/api/v1/intakes/admin-uploads",
+        headers=admin_auth_headers,
+        files={"image": ("unsupported-type.jpg", JPEG, "image/jpeg")},
+        data={"location_text": "后台路口", "reported_violation_type": "wrong_way"},
+    )
+
+    assert response.status_code == 422
 
 
 def test_camera_capture_success(client, camera_key, tmp_path, monkeypatch):

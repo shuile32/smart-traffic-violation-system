@@ -9,11 +9,23 @@ def _first_bbox(items) -> list[int] | None:
 
 def detection_bundle_to_backend_dict(bundle: DetectionBundle) -> dict:
     objects = []
-    for group in (bundle.vehicle, bundle.license_plate, bundle.illegal_stop):
+    for group in (
+        bundle.vehicle,
+        bundle.license_plate,
+        bundle.illegal_stop,
+        bundle.red_light,
+        bundle.zebra_crossing,
+    ):
         objects.extend(item.to_dict() for item in group)
+    objects.extend(item.to_object_dict() for item in bundle.red_light_violation)
+    primary_vehicle_bbox = (
+        bundle.primary_target.vehicle.bbox
+        if bundle.primary_target is not None
+        else _first_bbox(bundle.vehicle)
+    )
     return {
         "objects": objects,
-        "vehicle_bbox": _first_bbox(bundle.vehicle),
+        "vehicle_bbox": primary_vehicle_bbox,
         "plate_bbox": _first_bbox(bundle.license_plate),
         "annotated_image_url": bundle.annotated_image_path,
         "model_version": "traffic-ai-local",

@@ -286,6 +286,7 @@ smart-traffic-violation-system/
    ```bash
    cd backend
    uv sync --extra dev   # --extra dev 含 pytest/httpx，要跑测试就加
+   uv pip install -r ../ai_service/requirements.txt  # YOLO、OpenCV、PaddleOCR
    ```
 3. **配 `.env`**（gitignore，从示例拷贝后改账号密码）：
    ```bash

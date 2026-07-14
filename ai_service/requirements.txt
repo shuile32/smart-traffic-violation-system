@@ -1,0 +1,8 @@
+# Python 3.11. Install a hardware-specific PyTorch build first when GPU
+# acceleration is required; Ultralytics installs the default build otherwise.
+ultralytics==8.3.230
+paddleocr==3.7.0
+paddlepaddle==3.3.1
+opencv-python==5.0.0.93
+Pillow==12.2.0
+numpy==2.3.5

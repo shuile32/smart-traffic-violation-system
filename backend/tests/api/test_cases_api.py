@@ -76,6 +76,35 @@ def test_case_detail_reviewer(client, reviewer_user, pending_case, reviewer_auth
     assert r.json()["detection_result"] is None
 
 
+def test_case_detail_serializes_reported_type_and_plate_status(
+    client, db, reviewer_user, pending_case, reviewer_auth_headers,
+):
+    import json
+
+    pending_case.intake_event.reported_violation_type = "red_light_violation"
+    pending_case.ai_result_json = json.dumps({
+        "plate_status": "ocr_failed",
+        "plate_status_message": "OCR无法识别车牌/车牌模糊不清",
+        "rule_matched": True,
+        "candidate_violation_type": "red_light_violation",
+        "evidence_level": "partial",
+        "evidence_items": [],
+        "missing_evidence": ["plate text recognition"],
+        "conclusion": "need_review",
+    }, ensure_ascii=False)
+    db.commit()
+
+    response = client.get(
+        f"/api/v1/cases/{pending_case.id}",
+        headers=reviewer_auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["reported_violation_type"] == "疑似闯红灯"
+    assert response.json()["plate_status"] == "ocr_failed"
+    assert response.json()["plate_status_message"] == "OCR无法识别车牌/车牌模糊不清"
+
+
 def test_approve_endpoint(client, reviewer_user, citizen_user, pending_case, reviewer_auth_headers, tmp_path, monkeypatch):
     monkeypatch.setattr("app.services.storage.settings.MEDIA_STORAGE_DIR", str(tmp_path))
     from app.models.violation import NotificationTemplate, Vehicle

@@ -3,7 +3,7 @@
 real 实现由唐高鹏交付（YOLOv8/OCR/规则引擎/LLM），张浩-10 提供 stub + 路由。
 """
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pydantic import BaseModel
 
@@ -15,6 +15,9 @@ class DetectionResult:
     plate_bbox: list[int] | None
     annotated_image_path: str | None
     model_version: str
+    requested_violation_type: str | None = None
+    violation_targets: list[dict] = field(default_factory=list)
+    primary_target: dict | None = None
 
 
 @dataclass
@@ -52,7 +55,11 @@ class LLMReportError(RuntimeError):
 
 class YoloDetector(ABC):
     @abstractmethod
-    def detect(self, image_path: str) -> DetectionResult: ...
+    def detect(
+        self,
+        image_path: str,
+        requested_violation_type: str | None = None,
+    ) -> DetectionResult: ...
 
 
 class OcrEngine(ABC):
